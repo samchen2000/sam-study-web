@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聯絡我 - Sam Chen 的生活探索</title>
+
+    <!-- 引入 Google Fonts 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 全域設定 (與 index.html 保持一致) --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FDFDFD;
+            color: #6A737D;
+            line-height: 1.7;
+        }
+
+        /* --- 頁首導覽列 --- */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.5rem;
+            color: #2C3E50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a {
+            color: #2C3E50;
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #E67E22;
+        }
+
+        /* --- 通用容器與標題樣式 --- */
+        .container {
+            max-width: 800px; /* 聯絡表單不需要太寬 */
+            margin: 0 auto;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif TC', serif;
+            color: #2C3E50;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .contact-intro {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 50px auto;
+        }
+
+        /* --- 聯絡表單樣式 --- */
+        .contact-form {
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            color: #2C3E50;
+            margin-bottom: 8px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box; /* 確保 padding 不會影響寬度 */
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #E67E22;
+        }
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .submit-button {
+            display: inline-block;
+            background-color: #E67E22;
+            color: #FDFDFD;
+            padding: 12px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .submit-button:hover {
+            background-color: #d35400;
+        }
+        .download-button {
+            display: inline-block;
+            background-color: #6A737D; /* 中性灰 */
+            color: #FDFDFD;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        /* --- 頁尾區塊 (與 index.html 保持一致) --- */
+        .footer {
+            background-color: #2C3E50;
+            color: #FDFDFD;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .footer p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        /* --- 響應式設計 --- */
+        @media (max-width: 768px) {
+            .container {
+                padding: 60px 20px;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <a href="index.html" class="navbar-brand">Sam Chen 的生活探索</a>
+        <nav class="nav-links">
+            <a href="index.html#about">關於我</a>
+            <a href="index.html#pillars">主題分類</a>
+            <a href="杭州八天七夜旅遊規劃.html">旅遊筆記</a>
+            <a href="contact.html">聯絡我</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2 class="section-title">聯絡我</h2>
+        <p class="contact-intro">
+            無論是合作邀約、內容建議，或只是想單純聊聊，都歡迎透過下方的表單與我聯繫。我會盡快回覆您！
+        </p>
+
+        <form id="contactForm" class="contact-form">
+            <div class="form-group">
+                <label for="name">您的稱呼</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">電子郵件</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">主旨</label>
+                <input type="text" id="subject" name="subject" required>
+            </div>
+            <div class="form-group">
+                <label for="message">訊息內容</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+            <div style="text-align: center;">
+                <button type="submit" class="submit-button">送出訊息</button>
+            </div>
+        </form>
+
+        <button id="downloadBtn" class="download-button">下載儲存的聯絡資料 (CSV)</button>
+    </main>
+
+    <footer class="footer">
+        <p>© 2024 Sam Chen. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // 監聽表單提交事件
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            // 1. 防止表單的預設提交行為
+            event.preventDefault();
+
+            // 2. 獲取表單欄位的資料
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const timestamp = new Date().toLocaleString('zh-TW'); // 獲取當前時間
+
+            // 3. 從 localStorage 讀取現有資料
+            // 我們使用 'contactSubmissions' 作為儲存的鍵(key)
+            let submissions = JSON.parse(localStorage.getItem('contactSubmissions')) || [];
+
+            // 4. 建立新的提交物件
+            const newSubmission = {
+                id: submissions.length + 1, // 建立一個簡單的編號
+                name: name,
+                email: email,
+                subject: subject,
+                message: message,
+                timestamp: timestamp
+            };
+
+            // 5. 將新的資料加入到陣列中
+            submissions.push(newSubmission);
+
+            // 6. 將更新後的陣列存回 localStorage
+            localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
+
+            // 7. 提示使用者並清空表單
+            alert('訊息已成功送出並儲存！');
+            document.getElementById('contactForm').reset();
+        });
+
+        // 監聽下載按鈕點擊事件
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const submissions = JSON.parse(localStorage.getItem('contactSubmissions')) || [];
+
+            if (submissions.length === 0) {
+                alert('目前沒有可下載的資料。');
+                return;
+            }
+
+            // 1. 定義 CSV 檔案的欄位標頭
+            const headers = ['編號', '稱呼', '電子郵件', '主旨', '訊息內容', '存入時間'];
+            
+            // 2. 將物件陣列轉換為 CSV 格式的字串
+            let csvContent = headers.join(',') + '\n';
+            submissions.forEach(sub => {
+                // 為了避免內容中的逗號影響CSV格式，我們將每個欄位用雙引號包起來
+                const row = [sub.id, `"${sub.name}"`, `"${sub.email}"`, `"${sub.subject}"`, `"${sub.message.replace(/"/g, '""')}"`, `"${sub.timestamp}"`];
+                csvContent += row.join(',') + '\n';
+            });
+
+            // 3. 建立一個 Blob 物件並觸發下載
+            const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' }); // \uFEFF 是為了讓 Excel 正確識別 UTF-8
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'localStorage.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>

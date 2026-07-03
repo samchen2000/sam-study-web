@@ -239,6 +239,10 @@
             margin: 0;
             color: #6A737D;
         }
+        .pillar-card-link {
+            text-decoration: none;
+            color: inherit;
+        }
 
         /* --- 4. 精選筆記區塊 --- */
         .articles-list {
@@ -419,34 +423,42 @@
     <section id="pillars" class="container">
         <h2 class="section-title">探索我的生活切片</h2>
         <div class="pillars-grid">
-            <div class="pillar-card">
-                <img src="./image/index_image/學習筆記.png" alt="學習筆記">
-                <div class="pillar-card-content">
-                    <h3>學習筆記</h3>
-                    <p>關於閱讀、線上課程與自我成長的思考與實踐。</p>
+            <a href="study_notes.html" class="pillar-card-link">
+                <div class="pillar-card">
+                    <img src="./image/index_image/學習筆記.png" alt="學習筆記">
+                    <div class="pillar-card-content">
+                        <h3>學習筆記</h3>
+                        <p>關於閱讀、線上與線下課程與自我成長的思考與實踐。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="pillar-card">
-                <img src="./image/index_image/旅行前奏.png" alt="旅遊規劃">
-                <div class="pillar-card-content">
-                    <h3>旅行前奏</h3>
-                    <p>從零開始，打造一趟完美的自由行規劃攻略。</p>
+            </a>
+            <a href="travel_plan.html" class="pillar-card-link">
+                <div class="pillar-card">
+                    <img src="./image/index_image/旅行前奏.png" alt="旅遊規劃">
+                    <div class="pillar-card-content">
+                        <h3>旅行前奏</h3>
+                        <p>從零開始，打造一趟完美的自由行規劃攻略。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="pillar-card">
-                <img src="./image/index_image/旅遊足跡.png" alt="旅遊足跡">
-                <div class="pillar-card-content">
-                    <h3>旅遊足跡</h3>
-                    <p>那些我走過的城市風景與旅途中的動人故事。</p>
+            </a>
+            <a href="travel_log.html" class="pillar-card-link">
+                <div class="pillar-card">
+                    <img src="./image/index_image/旅遊足跡.png" alt="旅遊足跡">
+                    <div class="pillar-card-content">
+                        <h3>旅遊足跡</h3>
+                        <p>那些我走過的城市風景與旅途中的動人故事。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="pillar-card">
-                <img src="./image/index_image/家庭時光.png" alt="家庭生活">
-                <div class="pillar-card-content">
-                    <h3>家庭時光</h3>
-                    <p>與家人共創的日常，溫馨而美好的片刻。</p>
+            </a>
+            <a href="family_time.html" class="pillar-card-link">
+                <div class="pillar-card">
+                    <img src="./image/index_image/家庭時光.png" alt="家庭生活">
+                    <div class="pillar-card-content">
+                        <h3>家庭時光</h3>
+                        <p>與家人共創的日常，溫馨而美好的片刻。</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </section>
 
@@ -457,13 +469,13 @@
             <div class="article-item">
                 <img src="./image/杭州旅遊/杭州地鐵路線圖.webp" alt="杭州自由行旅遊規劃">
                 <div class="article-content">
-                    <h3>杭州自由行｜不只是西湖，這些在地美食與秘境你不能錯過</h3>
-                    <p>除了經典景點，這篇文章帶你深入杭州的巷弄，品嚐連在地人都推薦的道地小吃，探索旅遊書上沒有的私房景點...</p>
+                    <h3>杭州自由行｜不只是西湖，在規劃中希望可以盡情體驗杭州的美，享受地方特色美食與人文探索。</h3>
+                    <p>除了經典景點，這篇文章帶你深入杭州的巷弄，品嚐道地小吃，探索旅遊書著名景點...</p>
                     <a href="./travel_plan/Hangzhou/杭州八天七夜旅遊規劃.html">繼續閱讀...</a>
                 </div>
             </div>
             <div class="article-item">
-                <img src="https://images.unsplash.com/photo-1534951009808-766178b47a4f?q=80&w=2070" alt="原子習慣">
+                <img src="./image/Study_note_image/CCM_1/24color_Lab.png" alt="影像教學-CCM計算與說明">
                 <div class="article-content">
                     <h3>《影像教學-CCM計算與說明》何謂CCM (Color Correction Matrix, 色彩校正矩陣)？</h3>
                     <p>簡單來說，感光元件（Sensor）“看到”的顏色，和人眼“看到”的顏色是不一樣的。CCM 的作用就是充當一個「翻譯官」，把 Sensor 抓到的原始 RGB 數值，轉換成符合人類視覺標準（例如 sRGB 色域）的 RGB 數值。</p>
@@ -476,7 +488,7 @@
     <!-- 第 5 區塊：關於我 -->
     <section id="about" class="container">
         <div class="about-wrapper">
-            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961" alt="Sam Chen 的頭像">
+            <img src="./image/index_image/2026半身照.jpg" alt="Sam Chen 的頭像">
             <div class="about-content">
                 <h2 class="section-title" style="text-align: left; margin-bottom: 20px;">關於我，還有這個網站</h2>
                 <p>嗨，我是 Sam Chen。現在是一位學習AI 的生活實踐家。我喜歡探索新的事物，也熱衷於在城市街道間的隨心漫遊中的觀察與學習路上的體悟，轉化成文字圖片與你分享。</p>

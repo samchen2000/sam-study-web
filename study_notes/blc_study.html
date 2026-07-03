@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLC（黑電平校正）概念與原理 - Sam's Study Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        /* 根據您的提示詞設計的風格 (與 study_notes.html 一致) */
+        :root {
+            --primary-bg: #FDFDFD; /* 雪花白 */
+            --heading-text: #2C3E50; /* 深灰藍 */
+            --body-text: #6A737D;    /* 中性灰 */
+            --accent: #E67E22;      /* 溫暖橘 */
+            --subtle-bg: #FFFBE6;   /* 淡米黃 */
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--body-text);
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- 頁首導覽列 --- */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+        .nav-links a {
+            color: #2C3E50;
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #E67E22;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Noto Serif TC', serif;
+            color: var(--heading-text);
+            margin-top: 2em;
+            margin-bottom: 1em;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.3em;
+            margin-top: 1em;
+        }
+
+        h2 {
+            font-size: 2em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+        }
+
+        p, li {
+            font-size: 1rem;
+            margin-bottom: 1em;
+        }
+
+        code {
+            background-color: #f0f0f0;
+            color: var(--accent);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .info-box {
+            background-color: var(--subtle-bg);
+            border-left: 4px solid var(--accent);
+            padding: 15px 20px;
+            margin: 2em 0;
+            font-size: 0.95em;
+            border-radius: 0 4px 4px 0;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        /* --- 頁尾 --- */
+        .footer {
+            background-color: #2C3E50;
+            color: #FDFDFD;
+            padding: 60px 20px;
+            margin-top: 80px;
+            text-align: center;
+        }
+        .footer p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.75em; }
+            h3 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>BLC（黑電平校正）概念與原理</h1>
+
+        <h2>1. 什麼是黑電平 (Black Level)？</h2>
+        <p>在理想情況下，當沒有光線進入相機感光元件（Sensor）時，輸出的影像應該是全黑的，像素值為 0。然而，由於**暗電流（Dark Current）**和**電路偏移（Circuit Offset）**等物理因素，即使在完全黑暗的環境下，Sensor 輸出的原始數據（Raw Data）也不會是 0，而是存在一個基礎的數值。這個基礎值就是「黑電平」。</p>
+
+        <h2>2. 為什麼需要黑電平校正 (BLC)？</h2>
+        <p>黑電平校正（Black Level Correction, BLC）是 ISP (Image Signal Processor) 流程中至關重要且通常是第一步的操作。其主要目的有：</p>
+        <ul>
+            <li><strong>避免色彩偏移</strong>：如果這個基礎的黑電平不被減去，影像的暗部會整體偏亮，並且可能因為 R, G, B 四個通道的黑電平不完全一致而產生色彩偏移（例如暗部偏紫、偏綠）。</li>
+            <li><strong>確保動態範圍</strong>：不準確的黑電平會壓縮影像的有效動態範圍，使得最暗的細節無法被正確呈現。</li>
+            <li><strong>提供後續模組正確輸入</strong>：ISP 中的許多演算法，如白平衡（AWB）、色彩校正（CCM）、Gamma 校正等，都假設輸入的信號是從 0 開始的。錯誤的黑電平會導致這些模組計算錯誤，產生連鎖反應。</li>
+        </ul>
+
+        <div class="info-box">
+            <p><strong>簡單比喻：</strong> 就像體重計在沒人站上去時，指針沒有歸零，而是指在 1 公斤。那麼每個人量出來的體重都會多 1 公斤。BLC 的作用就是先把這基礎的 1 公斤扣掉，讓測量回歸準確。
+            </p>
+        </div>
+
+        <h2>3. 黑電平的來源與校正方式</h2>
+        <p>Sensor 廠商通常會在感光區域周圍設計一些被物理遮蔽的像素，稱為**光學黑區 (Optical Black, OB)**。這些像素理論上不會接收到任何光線，它們的輸出值就直接反映了當前的黑電平。</p>
+
+        <h3>校正方式主要分為兩種：</h3>
+        <ul>
+            <li>
+                <strong>靜態黑電平校正 (Static BLC)</strong>
+                <p>在相機初始化或固定條件下，測量一組固定的黑電平值，並將其寫入參數。在處理每一幀影像時，直接減去這個固定的值。這種方式簡單快速，但無法應對因溫度、曝光時間變化而導致的黑電平浮動。</p>
+                <p><code>Output_Pixel = Input_Pixel - Static_Black_Level</code></p>
+            </li>
+            <li>
+                <strong>動態黑電平校正 (Dynamic BLC)</strong>
+                <p>利用 Sensor 的 OB 區，實時計算每一幀影像的平均黑電平，然後從有效像素區域減去這個動態計算出的值。這種方式能更精準地校正隨環境變化的黑電平，是目前主流的做法。</p>
+                <p><code>Dynamic_Black_Level = Average(OB_Pixels)</code><br>
+                   <code>Output_Pixel = Input_Pixel - Dynamic_Black_Level</code></p>
+            </li>
+        </ul>
+
+        <h2>4. BLC 的挑戰與注意事項</h2>
+        <ul>
+            <li><strong>OB 區的穩定性</strong>：OB 區的平均值可能會因為噪點而有輕微波動。因此在計算時通常會加入平滑濾波（如 IIR filter），避免黑電平校正值劇烈跳動導致畫面閃爍。</li>
+            <li><strong>通道差異</strong>：Bayer 格式的 Sensor 有 R, Gr, Gb, B 四個通道，它們的黑電平可能不完全相同。精確的 BLC 需要對四個通道分別進行校正。</li>
+            <li><strong>過曝與漏光</strong>：在極端情況下，強光可能會「滲透」到 OB 區域，造成 OB 值異常升高，進而導致動態 BLC 計算錯誤。ISP 演算法需要有能力偵測並處理這種異常情況。</li>
+        </ul>
+
+        <div class="info-box">
+            <p><strong>總結：</strong> BLC 是保證影像品質的基石。一個穩定且準確的 BLC 模組，是實現優質色彩和寬廣動態範圍的第一步。它確保了影像信號從一個乾淨的「零點」開始，為後續所有 ISP 處理流程打下良好基礎。</p>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 Sam Chen. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>

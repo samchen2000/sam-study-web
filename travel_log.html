@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅遊足跡 - Sam Chen 的生活探索</title>
+
+    <!-- 引入 Google Fonts 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 全域設定 (與 index.html 保持一致) --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FDFDFD;
+            color: #6A737D;
+            line-height: 1.7;
+        }
+
+        /* --- 頁首導覽列 (與 index.html 保持一致) --- */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.5rem;
+            color: #2C3E50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a {
+            color: #2C3E50;
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #E67E22;
+        }
+
+        /* --- 通用容器與標題樣式 --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+        .page-title {
+            font-family: 'Noto Serif TC', serif;
+            color: #2C3E50;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 60px;
+            border-bottom: 2px solid #E67E22;
+            padding-bottom: 0.5em;
+            display: inline-block;
+        }
+        .title-wrapper {
+            text-align: center;
+        }
+
+        /* --- 卡片網格佈局 --- */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .note-card {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.1);
+        }
+        .note-card a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .note-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .note-card-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+        .note-card-content h3 {
+            font-family: 'Noto Serif TC', serif;
+            color: #2C3E50;
+            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+        }
+        .note-card-content p {
+            font-size: 0.95rem;
+            margin: 0;
+            color: #6A737D;
+        }
+
+        /* --- 頁尾 (與 index.html 保持一致) --- */
+        .footer {
+            background-color: #2C3E50;
+            color: #FDFDFD;
+            padding: 60px 20px;
+            margin-top: 80px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .footer-col h4 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        .footer-col a {
+            color: #FDFDFD;
+            text-decoration: none;
+            margin: 0 10px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .footer-col a:hover {
+            opacity: 1;
+        }
+        .footer-col p {
+            margin: 0;
+            opacity: 0.8;
+        }
+        .footer-socials svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* --- 響應式設計 --- */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                position: static;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <a href="index.html" class="navbar-brand">Sam Chen 的生活探索</a>
+        <nav class="nav-links">
+            <a href="index.html#about">關於我</a>
+            <a href="index.html#pillars">主題分類</a>
+            <a href="./travel_plan/Hangzhou/杭州八天七夜旅遊規劃.html">旅遊筆記</a>
+            <a href="contact.html">聯絡我</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="title-wrapper">
+            <h1 class="page-title">旅遊足跡</h1>
+        </div>
+
+        <div class="notes-grid">
+            <!-- 您可以在此處添加旅遊足跡的卡片 -->
+            <!-- 
+            <div class="note-card">
+                <a href="./travel_log/your_log.html">
+                    <img src="path/to/your/image.jpg" alt="旅遊故事">
+                    <div class="note-card-content">
+                        <h3>一篇旅遊故事的標題</h3>
+                        <p>這裡是這篇故事的簡短描述...</p>
+                    </div>
+                </a>
+            </div>
+            -->
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>網站導覽</h4>
+                <p>
+                    <a href="index.html">首頁</a>｜
+                    <a href="#">所有影片</a>｜
+                    <a href="#">所有筆記</a>｜
+                    <a href="index.html#about">關於我</a>｜
+                    <a href="contact.html">聯絡我</a>
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>在其他地方找到我</h4>
+                <!-- 社群連結 SVG 圖示 -->
+                <div class="footer-socials">
+                    <a href="https://www.youtube.com/" target="_blank" aria-label="YouTube">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.254,4,12,4,12,4S5.746,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.746,2,12,2,12s0,4.254,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.746,20,12,20,12,20s6.254,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.254,22,12,22,12S22,7.746,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"/></svg>
+                    </a>
+                    <a href="https://www.instagram.com/" target="_blank" aria-label="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,2c-2.717,0-3.056,0.01-4.122,0.06c-1.065,0.05-1.79,0.217-2.428,0.465c-0.66,0.255-1.214,0.588-1.77,1.144 c-0.556,0.556-0.89,1.11-1.144,1.77C2.277,6.21,2.11,6.935,2.06,8.002C2.01,9.066,2,9.305,2,12s0.01,2.934,0.06,4.002 c0.05,1.065,0.217,1.79,0.465,2.428c0.255,0.66,0.588,1.214,1.144,1.77c0.556,0.556,1.11,0.89,1.77,1.144 c0.638,0.248,1.363,0.415,2.428,0.465c1.066,0.05,1.405,0.06,4.122,0.06s3.056-0.01,4.122-0.06 c1.065-0.05,1.79-0.217,2.428-0.465c0.66-0.255,1.214-0.588,1.77-1.144c0.556-0.556,0.89-1.11,1.144-1.77 c0.248-0.638,0.415-1.363,0.465-2.428c0.05-1.066,0.06-1.405,0.06-4.122s-0.01-2.934-0.06-4.002 c-0.05-1.065-0.217-1.79-0.465-2.428c-0.255-0.66-0.588-1.214-1.77-1.144C20.088,3.11,19.534,2.777,18.874,2.522 c-0.638-0.248-1.363-0.415-2.428-0.465C15.356,2.01,15.017,2,12,2z M12,7c-2.761,0-5,2.239-5,5s2.239,5,5,5s5-2.239,5-5 S14.761,7,12,7z M12,15c-1.657,0-3-1.343-3-3s1.343-3,3-3s3,1.343,3,3S13.657,15,12,15z M16.804,6.116 c-0.596,0-1.08,0.484-1.08,1.08s0.484,1.08,1.08,1.08c0.596,0,1.08-0.484,1.08-1.08S17.401,6.116,16.804,6.116z"/></svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>版權資訊</h4>
+                <p>© 2026 Sam Chen. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

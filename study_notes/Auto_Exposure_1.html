@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AE（自動曝光）概念及基本原理 - Sam's Study Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        /* 根據您的提示詞設計的風格 */
+        :root {
+            --color-bg: #FDFDFD; /* 雪花白 */
+            --color-primary-text: #2C3E50; /* 深灰藍 */
+            --color-secondary-text: #6A737D; /* 中性灰 */
+            --color-accent: #E67E22; /* 溫暖橘 */
+            --color-subtle-bg: #FFFBE6; /* 淡米黃 */
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Back to Top Button Styles */
+        #back-to-top-btn {
+            display: none; /* Hidden by default */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400; /* Darker orange */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+        <h1>AE（自動曝光）概念及基本原理</h1>
+
+        <h2>1. 概念介紹</h2>
+        <h3>自動曝光（Auto Exposure, AE）對於拍照或攝影至關重要。</h3>
+        <ul>
+            <li>曝光過度：畫面整體太亮，會損失很多細節。</li>
+            <li>曝光不足：畫面太黑，細節同樣看不見。</li>
+            <li>核心目標：將畫面亮度穩定在合適的區間，而非追求與目標亮度完全相等，以避免頻繁調節導致畫面閃爍。</li>
+        </ul>
+        <figure>
+            <img src="../image/Study_note_image/Auto_Exposure/AE曝光.jpg" alt="AE曝光效果對比圖">
+            <figcaption>曝光效果對比：曝光過度、正常曝光、曝光不足</figcaption>
+        </figure>
+
+        <h2>2. 曝光三要素</h2>
+        <h3>曝光主要由光圈、快門、感光度（ISO/增益）三個要素決定，可比喻為接水過程：</h3>
+        <figure>
+            <img src="../image/Study_note_image/Auto_Exposure/曝光三要素.jpg" alt="曝光三要素比喻圖">
+            <figcaption>曝光三要素與接水過程的比喻</figcaption>
+        </figure>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>要素</th>
+                    <th>功能描述</th>
+                    <th>比喻 (接水)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>光圈</td>
+                    <td>控制進光量；影響景深</td>
+                    <td>水龍頭開關大小</td>
+                </tr>
+                <tr>
+                    <td>快門</td>
+                    <td>控制曝光時間；影響動態模糊</td>
+                    <td>開水龍頭的時間長短</td>
+                </tr>
+                <tr>
+                    <td>感光度/增益</td>
+                    <td>底片對光的敏感度；影響噪點與畫面細膩度</td>
+                    <td>濾網孔徑的大小</td>
+                </tr>
+            </tbody>
+        </table>
+        <ul>
+            <li><strong>光圈：</strong>越大進光量越大，景深越小（背景易虛化）；越小進光量越小，景深越大（背景不易虛化）。</li>
+            <li><strong>快門：</strong>越長畫面越亮，移動物體拖影越明顯；越短畫面越暗，拖影越不明顯。</li>
+            <li><strong>感光度：</strong>越大畫面越亮，噪點越明顯；越小畫面越暗，畫面越細膩。</li>
+        </ul>
+
+        <h2>3. 基本工作原理</h2>
+        <h3>AE 系統透過統計亮度並與目標亮度比對來調整參數。</h3>
+        <ul>
+            <li><strong>統計亮度與 ROI統計亮度：</strong>最簡單的方式是將指定區域內所有像素點的值加起來。</li>
+            <li><strong>ROI (Region of Interest)：</strong>感興趣區域，用於指定計算統計亮度的範圍。常見設定為整個畫面、居中區域，或車載產品中常用的「居中偏下」區域。</li>
+        </ul>
+        <p>如圖所示，用最簡單的方式理解統計亮度，可以將黃框內所有圖元點的值加起來作為當前畫面的統計亮度。而目標亮度就是在不同環境下採集的統計亮度的值。</p>
+        <figure>
+            <img src="../image/Study_note_image/Auto_Exposure/ROI.jpg" alt="曝光統計ROI示意圖">
+            <figcaption>曝光統計ROI示意圖</figcaption>
+        </figure>
+        <ul>
+            <li><strong>曝光區域權重：</strong>將畫面劃分為網格（如 16x16），每一塊區域有不同的權重值。權重越高，該區對整體亮度計算影響越大；權重為 0 則表示不參與計算。</li>
+        </ul>
+        <p>如圖所示為一個16*16的曝光區域權重，一般情況下的曝光權重是與整個畫面對應的。每一塊的值代表了該區域參與最終計算最終統計亮度的權重值，權重值越高表示該區域對整體畫面亮度越大，權重為0表示畫面亮度與該區域沒有關係。</p>
+        <figure>
+            <img src="../image/Study_note_image/Auto_Exposure/曝光區域權重.jpg" alt="曝光區域權重示意圖">
+            <figcaption>16x16曝光區域權重示意圖</figcaption>
+        </figure>
+
+        <h3>調節邏輯</h3>
+        <ul>
+            <li>當統計亮度 > 目標亮度：降低曝光時間和增益，使畫面變暗。</li>
+            <li>當統計亮度 < 目標亮度：增大曝光時間和增益，使畫面變亮。</li>
+            <li>透過設置不同的增益等級對應不同目標亮度，並進行插值計算，即可得到簡單的自動曝光模組。</li>
+        </ul>
+
+        <h2>4. 曝光策略</h2>
+        <h3>在一般相機光圈固定的前提下，AE 主要調節曝光時間與增益。</h3>
+        <div class="strategy-box">
+            <p>如果我要畫面變亮一些，我既可以增大光圈，也可以增大曝光時間，還可以增大感光度，那到底採用哪種方式呢？答案是根據應用場景採取策略。比如，在拍風景照時，經常有近景和遠景，那麼要使畫面都對焦清晰就需要較大的景深，因此需要用小光圈。再比如，拍運動物體時，如果曝光時間較長，那麼拍到的運動物體會是模糊到根本看不清，此時就需要減少曝光時間，增大感光度來提升亮度。。。這些就是曝光策略的部分，不過除了單反相機，一般相機的光圈都是固定的，這裡會只關注曝光和增益部分的調整。</p>
+        </div>
+
+        <ul>
+            <li><strong>基礎策略：</strong>當畫面變暗時，先增加曝光時間，待達到最大值後再增加增益；反之，畫面變亮時，先減小增益再減少曝光時間。</li>
+        </ul>
+        <p>如圖所示，橫坐標表示增益的大小（增益越大，畫面越暗），縱坐標表示曝光時間。這是最常見的策略就是跟隨箭頭的方向，當畫面逐漸變暗時，先走曝光時間，等到曝光時間達到最大之後再增加增益；反之，當畫面從極黑逐漸變亮時，先減小增益再調小曝光時間。當然採取這種策略也會存在一些限制，比如，一般情況下晴天白天的曝光時間比較短，增益為0dB，而黃昏場景曝光可能比較大，增益也為0dB，但是晴天白天場景的亮度遠遠高於黃昏場景，而如果黃昏時採用白天場景的參數可能噪點會非常明顯，因為相機內一般不同的參數是根據增益來進行區分的。</p>
+        <figure>
+            <img src="../image/Study_note_image/Auto_Exposure/曝光策略_1.jpg" alt="基礎曝光策略示意圖">
+            <figcaption>基礎曝光策略：先調曝光時間，再調增益</figcaption>
+        </figure>
+        
+        <ul>
+            <li><strong>優化策略：</strong>針對不同場景（如白天與黃昏），可採取階梯式調整（例如先增長部分曝光時間，再走小部分增益，依此循環），藉由不同的增益等級來區分場景參數，降低噪點。</li>
+        </ul>
+        <p>因此這種情況下，可以將曝光策略更改當畫面逐漸變暗時，先增大一部分曝光時間，再走一小部分增益；再增大曝光時間，等到曝光時間達到最大之後再增加增益。這樣的情況下，可以讓晴天白天的場景對應於圖中藍色箭頭段，而黃昏場景端對應于紅色箭頭段，增益的不同就能區分兩個場景來設置不同的參數，當然具體設置什麼時候作為拐點需要經過實際測試。曝光策略的還有一個就是增益的策略，曝光時間只有一個，但是增益會有AG(Analog Gian)、DG(Digital Gain)、ISP Gain、可能還會有CG(Conversion Gain)，先起用哪個再啟用哪一個也是有講究的，其中，AG、DG和CG都屬於Sensor增益，是在Sensor端生效的，而ISP Gain是在ISP端生效的。</p>
+        <figure>
+            <img src="../image/Study_note_image/Auto_Exposure/曝光策略_2.jpg" alt="優化曝光策略示意圖">
+            <figcaption>優化曝光策略：階梯式調整</figcaption>
+        </figure>
+        
+        <ul>
+            <li><strong>增益類型與順序：</strong>
+                <ul>
+                    <li><strong>Sensor 增益：</strong>包括 AG (類比增益)、DG (數位增益)、CG (轉換增益)。Sensor 手冊通常會規定先走滿 AG 再走 DG。</li>
+                    <li><strong>ISP Gain：</strong>在 ISP 端生效。主要用於補償曝光行劇烈變化引起的亮度突變，或輔助 HDR 合成（如透過調整 ISP DG 來控制長短幀合成比重）。</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="strategy-box">
+            <p><strong>增益小結：</strong>Sensor端的增益（AG/DG/CG）是在影像信號處理的早期階段介入，而ISP Gain則在後端。通常，優先使用類比增益（AG）可以獲得更好的信噪比，數位增益（DG）則應謹慎使用，因為它會放大噪點。</p>
+        </div>
+    </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

@@ -18,6 +18,10 @@
             --font-body: 'Noto Sans TC', sans-serif;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: var(--font-body);
             background-color: var(--color-bg);
@@ -205,8 +209,8 @@
         <div class="navbar-content">
             <a href="#" class="navbar-brand">Sam's Study Notes</a>
             <div class="nav-links">
-                <a href="#">首頁</a>
-                <a href="#">文章</a>
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
                 <a href="#">關於我</a>
             </div>
         </div>
@@ -344,7 +348,33 @@
     </main>
 
     <footer class="footer">
-        <p>&copy; 2024 Sam's Study Notes. All Rights Reserved.</p>
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
     </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
 </body>
 </html>

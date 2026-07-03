@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 網頁猜數字遊戲</title>
+    <!-- 引入穩定版 PyScript 核心資源 -->
+    <link rel="stylesheet" href="https://pyscript.net" />
+    <script type="module" src="https://pyscript.net"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74abe2, #5563c1);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .hint { color: #666; font-size: 14px; margin-bottom: 20px; }
+        input[type="number"] {
+            width: 80%;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            outline: none;
+            text-align: center;
+        }
+        input[type="number"]:focus { border-color: #5563c1; }
+        button {
+            background-color: #5563c1;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 5px;
+        }
+        button:hover { background-color: #4350ac; }
+        #restart_btn { background-color: #28a745; display: none; }
+        #restart_btn:hover { background-color: #218838; }
+        #msg {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #d9534f;
+            min-height: 27px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>猜數字遊戲</h1>
+        <div class="hint" id="range_text">請猜一個 1 到 100 之間的數字</div>
+        
+        <!-- 網頁互動元素，使用 py-click 直接綁定 Python 函式 -->
+        <input type="number" id="guess_input" placeholder="輸入你的答案">
+        <br>
+        <button id="guess_btn" py-click="guess_number">送出答案</button>
+        <button id="restart_btn" py-click="restart_game">再玩一次</button>
+        
+        <!-- 訊息顯示區域 -->
+        <div id="msg"></div>
+    </div>
+
+    <!-- Python 邏輯區塊 -->
+    <script type="py">
+        import random
+        from pyscript import document
+
+        # 初始化遊戲變數
+        secret_number = random.randint(1, 100)
+        min_num = 1
+        max_num = 100
+        attempts = 0
+
+        # 注意：使用 py-click 綁定時，函式不需要帶入 event 參數
+        def guess_number():
+            global min_num, max_num, attempts, secret_number
+            
+            # 獲取網頁元素
+            input_el = document.querySelector("#guess_input")
+            msg_el = document.querySelector("#msg")
+            range_el = document.querySelector("#range_text")
+            
+            val = input_el.value.strip()
+            
+            # 沒輸入內容時的阻斷
+            if not val:
+                msg_el.innerText = "請先輸入數字！"
+                return
+                
+            guess = int(val)
+            attempts += 1
+            
+            # 核心判斷邏輯與訊息反饋
+            if guess < min_num or guess > max_num:
+                msg_el.innerText = f"超出範圍了！請輸入 {min_num} ~ {max_num}"
+            elif guess < secret_number:
+                min_num = guess + 1
+                msg_el.innerText = "太小了！再試一次"
+                range_el.innerText = f"請猜一個 {min_num} 到 {max_num} 之間的數字"
+            elif guess > secret_number:
+                max_num = guess - 1
+                msg_el.innerText = "太大了！再試一次"
+                range_el.innerText = f"請猜一個 {min_num} 到 {max_num} 之間的數字"
+            else:
+                msg_el.style.color = "#28a745"
+                msg_el.innerText = f"恭喜答對！答案就是 {secret_number}（共猜了 {attempts} 次）"
+                
+                # 切換按鈕狀態
+                document.querySelector("#guess_btn").style.display = "none"
+                document.querySelector("#restart_btn").style.display = "inline-block"
+                
+            # 每次清空輸入框方便下一次輸入
+            input_el.value = ""
+
+        def restart_game():
+            global min_num, max_num, attempts, secret_number
+            
+            # 重設所有變數
+            secret_number = random.randint(1, 100)
+            min_num = 1
+            max_num = 100
+            attempts = 0
+            
+            # 恢復網頁 UI 初始狀態
+            document.querySelector("#msg").innerText = ""
+            document.querySelector("#msg").style.color = "#d9534f"
+            document.querySelector("#range_text").innerText = "請猜一個 1 到 100 之間的數字"
+            document.querySelector("#guess_input").value = ""
+            document.querySelector("#guess_btn").style.display = "inline-block"
+            document.querySelector("#restart_btn").style.display = "none"
+    </script>
+
+</body>
+</html>

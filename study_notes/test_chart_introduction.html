@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影像調整與驗證測試圖表介紹</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD; /* 雪花白 */
+            --color-primary-text: #2C3E50; /* 深灰藍 */
+            --color-secondary-text: #6A737D; /* 中性灰 */
+            --color-accent: #E67E22; /* 溫暖橘 */
+            --color-subtle-bg: #FFFBE6; /* 淡米黃 */
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Back to Top Button Styles */
+        #back-to-top-btn {
+            display: none; /* Hidden by default */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400; /* Darker orange */
+        }
+        /* image size */
+        .img-container {
+            display: flex;         /* 啟用 Flexbox */
+            justify-content: center; /* 水平置中 */
+            align-items: center;     /* 垂直置中 (若需要) */
+            gap: 15px; /* 圖片與文字之間的間距 */
+            font-size: 1.5rem;
+        }
+
+        .img-container img {
+            width: 100%;             /* 寬度佔滿容器 */
+            max-width: 500px;        /* 限制圖片最大寬度為 500px */
+            height: auto;            /* 高度自動等比例縮放 */
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>影像調整與驗證測試圖表介紹</h1>
+            <p>使用影像圖表（如Gray chart、Q-13、ColorChecker）進行影像處理與校正，是為了建立客觀的色彩與亮度標準，消除環境光與硬體設備造成的失真。</p>
+
+            <!--<figure>-->
+            <div class="img-container">
+            <img src="../image/Study_note_image/test_chart/image-task-unified-1783330261-82ntd5e0.png" alt="影像測試圖卡">
+            </div>
+            <div class="img-container">
+            <figcaption>依照需求選擇適合影像調整與生產用的影像圖卡 </figcaption>
+            </div>
+            <!--</figure>-->
+
+            <h2>為什麼需要影像圖表？</h2>
+            <p>在影像系統（如智慧型手機、車載鏡頭、安防監控、醫療內視鏡）的開發與優化過程中，「影像圖表（Image Quality Test Charts）」就像是影像工程師的「量尺」與「砝碼」。如果沒有影像圖表，影像調整（Tuning）與標準確認將完全失去依據。</p>
+            <h3>使用它的核心原因可以總結為以下四大點：</h3>
+            <ol>
+                <h4><strong>1.  將「主觀感受」轉化為「客觀數據」 ：</strong></h4>
+                <p>人眼對影像的感覺是極度主觀且容易疲勞的。例如，兩個人觀看同一張人像，對於「膚色夠不夠紅潤」或「畫面夠不夠清晰」往往會有不同的標準。</p>
+                    <ul>
+                        <li><strong>圖表的作用 ：</strong>影像圖表上的色塊、線條和灰階，都經過極其精密的物理與光學定量設計。</li>
+                        <li><strong>數據化呈現 ：</strong>影透過拍攝圖表並由軟體（如 Imatest）分析，能將主觀的「清晰」變成 MTF/解像力數值；將「鮮豔」變成 ΔE 色差值；將「雜訊」變成 信噪比（SNR）分貝數。有了客觀數據，團隊才能訂定明確的優化目標（例如：目標是將色差 ΔE 降到 2 以內）。</li>
+                    </ul>
+                <h4><strong>2.  提供「標準的輸入源」，排除環境變數：</strong></h4>
+                <p>影像調整的核心是「控制變因」。如果今天拿相機去拍窗外的風景來調整畫面，陽光的角度、雲層的厚度、甚至風吹動樹葉，都會隨時改變畫面的亮度和色彩，工程師根本無法判斷影像的改變是因為調校了參數，還是因為外在環境變了。</p>
+                    <ul>
+                        <li><strong>圖表的作用：</strong>圖表（不論是反射式還是透射式菲林）的反射率、透光率和顏色坐標都是恆定不變的。</li>
+                        <li><strong>確保實驗唯一性：</strong>在標準實驗室（光源、亮度固定）下拍攝同一張圖表，可以確保<strong>「每一次拍攝的輸入源完全一模一樣」</strong>。此時影像產生的任何變化，都百分之百是由工程師調整的軟體演算法（如白平衡、調色盤 3D-LUT、降噪強度）所引起的。</li>
+                    </ul>
+                <h4><strong>3.  提供用於「極限測試」與跨平台的「橫向對比」 ：</strong></h4>
+                <p>普通的自然風景很難在同一個畫面中同時包含「極致的亮點」與「極致的暗部」，也無法同時包含各種不同頻率的細密線條。</p>
+                    <ul>
+                        <li><strong>極限測試 ：</strong>像 36 階動態範圍測試卡（36-Patch Chart）可以在一個畫面上呈現跨越 100dB 以上的明暗對比，這種極端環境是高階影像晶片（ISP）的試金石，能逼出感光元件的真實極限。</li>
+                        <li><strong>橫向對比（Benchmarking） ：</strong>當公司要評估自家新手機與競爭對手手機的畫質優劣，或者要測試不同感光元件（Sensor）的硬體效能時，讓所有設備在同一個標準環境下拍攝同一張圖表，才能得到公平、可信的對比結果。</li>
+                    </ul>
+                <h4><strong>4.  建立產線端（Production Line）的品質驗證標準 ：</strong></h4>
+                <p>在研發階段調整好最佳的影像參數（Golden Firmware）後，必須確保工廠組裝出來的百萬台設備都能達到相同的畫質水準。</p>
+                    <ul>
+                        <li><strong>產線品管（QC） ：</strong>工廠產線上無法搬一幅畫或放一盆花讓機器去對焦測試。</li>
+                        <li><strong>自動化辨識 ：</strong>產線透過架設標準的測試圖表（如 SFR 測試卡），配合自動化檢測系統，可以在 1~2 秒內快速判定這台剛組裝好的鏡頭<strong>有沒有失焦（Out of focus）、有沒有組裝偏心（Tilt/Decenter）、或者發色有沒有異常</strong>。只要數據不達標，立刻打為不良品，這就是影像標準確認（Validation）的最後一道防線。。</li>
+                    </ul>
+            </ol>
+            
+            <h2>影像圖表種類</h2>
+            <p>常用的分析圖卡（Chart）主要依據測試項目分類，包含色彩與階調、清晰度（銳度）、紋理與動態範圍等。</p>
+            <ol>
+                <li><strong>銳利度分析圖表（Sharpness Chart） :</strong></li>
+            <table border="1">
+                <tr>
+                    <th>名稱</th>
+                    <th>圖片</th>
+                    <th>說明</th>
+                </tr>
+                <tr>
+                    <td>ISO 12233</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/iso12233.webp" alt="iso12233" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>ISO 12233 Edge SFR</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/ISO_12233_2017_Edge_eSFR.webp" alt="iso12233 2017 Edge SFR" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>ISO 12233 Edge SFR</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/eSFR_ISO_2023.webp" alt="iso12233 2023 Edge SFR" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>ISO 12233 Edge SFR</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/Siemens_star.webp" alt="Siemens star" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>ISO 12233 Edge SFR</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/SFRPlus.webp" alt="SFRPlus" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+            </table>
+
+                <li><strong>色彩分析圖卡（Sharpness Chart） :</strong></li>
+            <table border="1">
+                <tr>
+                    <th>名稱</th>
+                    <th>圖片</th>
+                    <th>說明</th>
+                </tr>
+                <tr>
+                    <td>36 patch dynamic range</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/colorcheck_24.webp" alt="colorcheck 24" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/colorcheck_24_nano.webp" alt="colorcheck 24 nano" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/colorcheck_SG.webp" alt="colorcheck SG" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/ChromaDuMonde_28R.webp" alt="chroma du monde 28R" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/RezCheck.webp" alt="RezCheck" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+            </table>
+
+                <li><strong>階調分析圖卡（Sharpness Chart） :</strong></li>
+            <table border="1">
+                <tr>
+                    <th>名稱</th>
+                    <th>圖片</th>
+                    <th>說明</th>
+                </tr>
+                <tr>
+                    <td>36 patch dynamic range</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/36_patch_dynamic_range.webp" alt="36 patch" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/contrast_resolution.webp" alt="contrast rsolution" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/ISO_14524.webp" alt="ISO 14524" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/ISO_15739_digital_camera_noise.webp" alt="ISO 15739" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+                <tr>
+                    <td>風景照</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/gamma/Q13.webp" alt="Q-13" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+            </table>
+
+                <li><strong>均勻度分析圖表（Sharpness Chart） :</strong></li>
+            <table border="1">
+                <tr>
+                    <th>名稱</th>
+                    <th>圖片</th>
+                    <th>說明</th>
+                </tr>
+                <tr>
+                    <td>36 patch dynamic range</td>
+                    <!-- 在 <td> 標籤內使用 <img> 標籤插入圖片 -->
+                    <td><img src="../image/Study_note_image/test_chart/gray_18.webp" alt="18% Gray chart" width="150" height="100"></td>
+                    <td>傳統測試需要拍攝多張不同曝光量的照片進行合成，而 36-Patch 測試卡的最大價值在於「單張照片、一次拍攝」即可完成完整的動態範圍與階調分析</td>
+                </tr>
+            </table>
+
+            </ol>
+            
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

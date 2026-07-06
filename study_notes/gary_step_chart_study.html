@@ -202,6 +202,20 @@
             font-size: 0.9rem;
             border-top: 1px solid #e0e0e0;
         }
+        /* image size */
+        .img-container {
+            display: flex;         /* 啟用 Flexbox */
+            justify-content: center; /* 水平置中 */
+            align-items: center;     /* 垂直置中 (若需要) */
+            gap: 15px; /* 圖片與文字之間的間距 */
+            font-size: 1.5rem;
+        }
+
+        .img-container img {
+            width: 100%;             /* 寬度佔滿容器 */
+            max-width: 500px;        /* 限制圖片最大寬度為 500px */
+            height: auto;            /* 高度自動等比例縮放 */
+        }
     </style>
 </head>
 <body>
@@ -227,6 +241,12 @@
 
             <h2>1. Q‑13 是什麼（背景）</h2>
             <p>Q‑13（Kodak/Tiffen Q‑13 Color Separation Guide & Grayscales）是一組業界長期使用的色階/灰階參考卡組。它包含色階（color patches）與灰階（20 階 neutral gray steps），設計用來：校正白平衡、確定曝光與黑/白點、繪製 OECF（Opto‑Electronic Conversion Function）/tonescale、以及作為色彩及調性一致性檢測的標準目標。</p>
+            <div class="img-container">
+                <img src="../image/Study_note_image/Q13/Q13_garychart.jpg" alt="Q-13 灰階卡圖表" class="center-img">
+            </div>
+            <div class="img-container">
+                <span>Q-13 灰階卡圖表</span>
+            </div>
             <p><strong>用途重點：</strong></p>
             <ul>
                 <li>量測調性（tonescale）及建立理想的 RGB aim‑points（依 patch 的反射率計算）。</li>
@@ -318,7 +338,7 @@
                 <li><input type="checkbox" disabled> A（paper white）、M（mid gray）、B（near black）三點位於合理數值範圍？</li>
                 <li><input type="checkbox" disabled> OECF 曲線（R/G/B）落在專案允收範圍？</li>
                 <li><input type="checkbox" disabled> Gain modulation（highlights）介於 80%–110%（或專案指定）？</li>
-                <li><input type="checkbox" disabled> ΔE2000（色差）平均值與最大值是否低於專案容忍度（建議：平均 <3 為較佳）？</li>
+                <li><input type="checkbox" disabled> ΔE2000（色差）平均值與最大值是否低於專案容忍度（建議：平均 < 3 為較佳）？</li>
                 <li><input type="checkbox" disabled> 照度非均勻性、邊緣暗角是否在可接受範圍？</li>
             </ul>
             <hr>

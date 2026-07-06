@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>標準多色溫對色燈箱說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD; /* 雪花白 */
+            --color-primary-text: #2C3E50; /* 深灰藍 */
+            --color-secondary-text: #6A737D; /* 中性灰 */
+            --color-accent: #E67E22; /* 溫暖橘 */
+            --color-subtle-bg: #FFFBE6; /* 淡米黃 */
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Back to Top Button Styles */
+        #back-to-top-btn {
+            display: none; /* Hidden by default */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400; /* Darker orange */
+        }
+        /* image size */
+        .img-container {
+            display: flex;         /* 啟用 Flexbox */
+            justify-content: center; /* 水平置中 */
+            align-items: center;     /* 垂直置中 (若需要) */
+            gap: 15px; /* 圖片與文字之間的間距 */
+            font-size: 1.5rem;
+        }
+
+        .img-container img {
+            width: 100%;             /* 寬度佔滿容器 */
+            max-width: 500px;        /* 限制圖片最大寬度為 500px */
+            height: auto;            /* 高度自動等比例縮放 */
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>標準光源對色燈箱說明與運用</h1>
+            <p>標準光源對色燈箱是一種專業的照明設備，專門用來模擬各種標準光源環境。它能消除外在環境光源干擾，提供穩定一致的光學環境，廣泛應用於紡織、印刷、塑膠與塗料等行業，進行準確的目視比色與色彩品管。</p>
+
+            <!--<figure>-->
+            <img src="../image/Study_note_image/LightBox/多色溫燈箱.png" alt="標準光源對色燈箱">
+            <figcaption>依照購賣需求選擇: D65, D50, CWF,TL84, U35, U30, Horixon, incandescent A, UV ... 標準光源 </figcaption>
+            <!--</figure>-->
+
+            <h2>標準光源對色燈箱的規範與目的</h2>
+            <p>標準光源對色燈箱提供穩定色溫與亮度，可以提供標準環境給ISP 進行色彩的標定與調整。它的主要調整的項目是：</p>
+            <ul>
+                <li><strong>自動白平衡標定 (AWB)：</strong>在多種標準光源（如 D65, A, TL84）下拍攝色卡，獲取靜態白平衡係數並生成白點條件框。</li>
+                <li><strong>色彩校正矩陣標定 (CCM)：</strong>利用 AWB 的 Raw 圖生成顏色校正矩陣，使色彩還原符合人眼視覺或特定目標。</li>
+                <li><strong>LSC（鏡頭陰影標定）：</strong>為不同光源生成獨立的校正表，以補償因紅外截止濾光片（IR-Cut）透過率隨角度變化而產生的 Color Shading。</li>
+                <li><strong>Gamma 調整 (Gamma)：</strong>在多種標準光源（主要依賴 D65 光源下的灰階卡進行客觀測試）下針對不同環境照度微調 Gamma，例如夜間模式下可能需要適當壓低暗區以減輕噪聲負擔。</li>
+            </ul>
+            <p>調整完的影像，在做完基礎標定模組（如 BLC、LSC、AE、AWB/CCM、Gamma）已完成，透過工具進行可視化調試，它的主要確認的項目是：</p>
+            <ul>
+                <li><strong>自動白平衡：</strong>檢測AWB(自動白平衡)通過校正照片中的色溫，以使白色區域看起來更加真實和中性。自動白平衡的目標是消除照片中的色溫偏差，使白色物體在不同的光照條件下看起來都是白色或是盡量接近白色。</li>
+                <li><strong>飽和度與準確性 (Saturation & Accuracy) ：</strong>檢測不同色溫下,色彩飽和度與色彩的正確性是否在規範中。</li>
+            </ul>
+            <h2>常用光源的光譜</h2>
+            <p>常用光源的光譜圖主要分為連續光譜、不連續帶狀光譜以及兩者結合的混和光譜。光源的光譜功率分布（SPD）決定了該光源的演色性（CRI）與視覺色溫。</p>
+            <ol>
+                <li><strong>太陽光（自然光 / D65 標準光源）：</strong>
+                    <ul>
+                        <li><strong>光譜類型：</strong>完美的連續光譜。</li>
+                        <li><strong>特徵說明：</strong>從紫外線、可見光（紅橙黃綠藍靛紫）到紅外線皆均勻連續分布，能量在各波段相當平緩。CIE D65 標準光源即是用來模擬平均晝光（色溫約 6500K）的標準。</li>
+                        <li><strong>演色性：</strong>最高（CRI = 100）。</li>
+                        <div class="img-container">
+                            <img src="../image/Study_note_image/LightBox/D65.jpg" alt="D65 光源的光譜圖" class="center-img">
+                        </div>
+                        <div class="img-container">
+                            <span>D65 光源的光譜圖</span>
+                        </div>
+                    </ul>
+                </li>
+                <li><strong>白熾燈與鹵素燈（A 光源））：</strong>
+                    <ul>
+                        <li><strong>光譜類型：</strong>連續光譜（平滑曲線）。</li>
+                        <li><strong>特徵說明：</strong>源於鎢絲熱輻射發光。光譜在藍光（短波）區域能量極低，隨著波長增長，在綠、黃、紅光（長波）及紅外線區域的能量急遽上升。這也是為什麼白熾燈色溫較低（約 2856K），視覺上強烈偏黃偏紅。</li>
+                        <li><strong>演色性：</strong>極佳（CRI ≈ 100）。</li>
+                        <div class="img-container">
+                            <img src="../image/Study_note_image/LightBox/A-Light.jpg" alt="A 光源的光譜圖" class="center-img">
+                        </div>
+                        <div class="img-container">
+                            <span>A 光源的光譜圖</span>
+                        </div>
+                    </ul>
+                </li>
+                <li><strong>螢光燈 / 省電燈泡（三基色日光燈）：</strong>
+                    <ul>
+                        <li><strong>光譜類型：</strong>不連續的線狀與帶狀光譜。</li>
+                        <li><strong>特徵說明：</strong>利用汞蒸氣放電激發燈管壁的螢光粉發光。光譜圖上會出現數個極其突出的不連續尖峰（譜線），通常集中在藍（435nm）、綠（546nm）和紅（611nm）等特定汞發射線與三基色波長上。</li>
+                        <li><strong>演色性：</strong>：一般（CRI 約 60 - 80），容易導致特定物體顏色失真。</li>
+                        <div class="img-container">
+                            <img src="../image/Study_note_image/LightBox/CWF.jpg" alt="CWF 光源的光譜圖" class="center-img">
+                        </div>
+                        <div class="img-container">
+                            <span>CWF(4200k) 光源的光譜圖</span>
+                        </div>
+                        <div class="img-container">
+                            <img src="../image/Study_note_image/LightBox/TL84.jpg" alt="TL84 光源的光譜圖" class="center-img">
+                        </div>
+                        <div class="img-container">
+                            <span>TL84(4000k) 光源的光譜圖</span>
+                        </div>
+                        <div class="img-container">
+                            <img src="../image/Study_note_image/LightBox/U30.jpg" alt="U30 光源的光譜圖" class="center-img">
+                        </div>
+                        <div class="img-container">
+                            <span>U30(3000k) 光源的光譜圖</span>
+                        </div>
+                    </ul>
+                </li>
+                <li><strong>普通 LED 燈（藍光晶片 + 黃色螢光粉）：</strong>
+                    <ul>
+                        <li><strong>光譜類型：</strong>雙峰混和光譜。</li>
+                        <li><strong>特徵說明：</strong>市面上最常見的白光 LED 燈。其光譜圖有一個尖銳的藍光波峰（約 450nm），隨後是一個由螢光粉激發產生的寬溫黃綠光波谷與緩坡（500nm - 650nm）。這種光譜在青光（約 480nm）和深紅光波段常有明顯斷層。</li>
+                        <li><strong>演色性：</strong>全光譜 LED（Full Spectrum）：近年新技術改用「紫光晶片」搭配「紅、綠、藍多色螢光粉」，演色性可高達 CRI 97 - 98，光譜幾乎與太陽光一模一樣，徹底解決了普通 LED 演色性不足與高藍光危害的問題。。</li>
+                        <div class="img-container">
+                            <img src="../image/Study_note_image/LightBox/Led.png" alt="LED 光源的光譜圖" class="center-img">
+                        </div>
+                        <div class="img-container">
+                            <span>照明LED 光源的光譜圖</span>
+                        </div>
+                    </ul>
+                </li>
+            </ol>
+            <p>通過 標準光源對色燈箱 和 調整標定圖表(24 colr chart, Q13, 灰階卡) ，進行標定校正與影像目視調整，確保其影像輸出符合預期的視覺效果和行業標準。</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

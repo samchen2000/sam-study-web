@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鏡頭軸心偏離與 Lens Shading 模擬演示 (終極相容版)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h2 {
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        .canvas-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .canvas-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #4da6ff;
+        }
+        canvas {
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #000;
+        }
+        /* 本地安全防護：如果 Canvas 被瀏覽器核心阻擋，用這個 CSS 層直接做畫面呈現 */
+        #fallbackSensor {
+            width: 300px;
+            height: 300px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            display: none; /* 預設隱藏，萬一 Canvas 失敗會自動開啟 */
+            position: relative;
+            overflow: hidden;
+        }
+        .grid-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0,0,0,0.07) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,0,0,0.07) 1px, transparent 1px);
+            background-size: 15px 15px;
+            pointer-events: none;
+        }
+        .crosshair {
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 1px; background-color: rgba(255,0,0,0.25);
+            pointer-events: none;
+        }
+        .crosshair-v {
+            position: absolute;
+            left: 50%; top: 0; height: 100%; width: 1px; background-color: rgba(255,0,0,0.25);
+            pointer-events: none;
+        }
+        .controls {
+            width: 100%;
+            max-width: 600px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .status-text {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+        .description {
+            max-width: 800px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #aaaaaa;
+            margin-top: 25px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Lens Shading & 光學偏移模擬演示</h2>
+
+    <div class="container">
+        <!-- 左側：光路物理模擬 -->
+        <div class="canvas-box">
+            <div class="canvas-title">🔬 光路與感測器剖面模擬</div>
+            <canvas id="rayCanvas" width="450" height="300"></canvas>
+        </div>
+        
+        <!-- 右側：Image Sensor 實際成像結果 -->
+        <div class="canvas-box">
+            <div class="canvas-title">📸 感測器實際成像 (Image Sensor View)</div>
+            <!-- 主要 Canvas -->
+            <canvas id="sensorCanvas" width="300" height="300"></canvas>
+            <!-- 終極本地安全備援元素 (CSS Fallback) -->
+            <div id="fallbackSensor">
+                <div class="grid-overlay"></div>
+                <div class="crosshair"></div>
+                <div class="crosshair-v"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 控制滑桿區 -->
+    <div class="controls">
+        <div class="control-group">
+            <label for="offsetSlider">
+                <span>🎛️ 鏡片水平軸心偏離 (Lens Offset)</span>
+                <span id="statusLabel" class="status-text">鏡片對齊</span>
+            </label>
+            <input type="range" id="offsetSlider" min="-100" max="100" value="0" step="1">
+        </div>
+        <div class="control-group">
+            <label for="distanceSlider">
+                <span>📏 鏡頭與感測器距離 (焦距/光程調整)</span>
+                <span id="distanceLabel" style="color: #4da6ff;">標準距離</span>
+            </label>
+            <input type="range" id="distanceSlider" min="150" max="250" value="200" step="1">
+        </div>
+    </div>
+
+    <div class="description">
+        <strong>原理說明：</strong><br>
+        當鏡頭與感光元件完美對齊時，光線能均勻垂直入射主光角（CRA），影像亮度一致。當鏡片向上或向下偏離中央軸心時，邊緣像素的光線入射角度變得極為傾斜，穿透微透鏡（Microlens）的效率大幅降低，導致相機感測器產生嚴重的 <strong>Lens Shading（暗角與局部失光）</strong>。
+    </div>
+
+    <script>
+        // 不依賴 window.onload，直接抓取 DOM 元素
+        const rayCanvas = document.getElementById('rayCanvas');
+        const rayCtx = rayCanvas.getContext('2d');
+        const sensorCanvas = document.getElementById('sensorCanvas');
+        const sensorCtx = sensorCanvas.getContext('2d');
+        const fallbackSensor = document.getElementById('fallbackSensor');
+
+        // UI 元件
+        const offsetSlider = document.getElementById('offsetSlider');
+        const distanceSlider = document.getElementById('distanceSlider');
+        const statusLabel = document.getElementById('statusLabel');
+        const distanceLabel = document.getElementById('distanceLabel');
+
+        function updateSimulation() {
+            // 強制確保讀取到合法的數值
+            let lensOffsetY = parseFloat(offsetSlider.value);
+            if (isNaN(lensOffsetY)) lensOffsetY = 0;
+
+            let sensorX = parseFloat(distanceSlider.value);
+            if (isNaN(sensorX)) sensorX = 200;
+
+            // 1. 更新狀態文字提示
+            const absOffset = Math.abs(lensOffsetY);
+            if (absOffset === 0) {
+                statusLabel.innerText = "鏡片對齊：光線均勻，無明顯明暗變化";
+                statusLabel.style.color = "#00ffcc";
+            } else if (absOffset > 0 && absOffset <= 45) {
+                statusLabel.innerText = "輕微偏離：光線開始不均，邊緣出現輕微暗角";
+                statusLabel.style.color = "#ffcc00";
+            } else {
+                statusLabel.innerText = "明顯偏離：光線嚴重偏斜，產生極深暗角 (Lens Shading)";
+                statusLabel.style.color = "#ff3333";
+            }
+
+            if (sensorX === 200) {
+                distanceLabel.innerText = "標準焦距";
+            } else if (sensorX < 200) {
+                distanceLabel.innerText = "光程較短 (廣角端周邊失光加劇)";
+            } else {
+                distanceLabel.innerText = "光程較長";
+            }
+
+            // 2. 繪製左側：光路物理光學圖
+            drawRaySimulation(lensOffsetY, sensorX);
+
+            // 3. 繪製右側：感測器 2D 畫面 (加入終極安全機制)
+            drawSensorImage(lensOffsetY, sensorX);
+        }
+
+        function drawRaySimulation(lensOffsetY, sensorX) {
+            rayCtx.clearRect(0, 0, rayCanvas.width, rayCanvas.height);
+            
+            const width = rayCanvas.width;
+            const height = rayCanvas.height;
+            const centerY = height / 2;
+            const lensX = 150; 
+            const currentLensY = centerY + lensOffsetY; 
+
+            // 繪製光學中心光軸線 (中斷虛線)
+            rayCtx.strokeStyle = '#555555';
+            rayCtx.setLineDash([5, 5]);
+            rayCtx.beginPath();
+            rayCtx.moveTo(0, centerY);
+            rayCtx.lineTo(width, centerY);
+            rayCtx.stroke();
+            rayCtx.setLineDash([]); 
+
+            // 繪製白光平行入射光線
+            const rayInputsY = [centerY - 60, centerY - 20, centerY + 20, centerY + 60];
+            rayCtx.lineWidth = 2;
+            
+            rayInputsY.forEach(y => {
+                rayCtx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                rayCtx.beginPath();
+                rayCtx.moveTo(0, y);
+                rayCtx.lineTo(lensX, y);
+                rayCtx.stroke();
+                
+                // 箭頭
+                rayCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                rayCtx.beginPath();
+                rayCtx.moveTo(70, y);
+                rayCtx.lineTo(60, y - 5);
+                rayCtx.lineTo(60, y + 5);
+                rayCtx.fill();
+            });
+
+            // 繪製模擬鏡片 (凸透鏡)
+            rayCtx.save();
+            rayCtx.fillStyle = 'rgba(150, 200, 255, 0.4)';
+            rayCtx.strokeStyle = '#4da6ff';
+            rayCtx.lineWidth = 3;
+            rayCtx.beginPath();
+            rayCtx.moveTo(lensX, currentLensY - 90);
+            rayCtx.quadraticCurveTo(lensX + 25, currentLensY, lensX, currentLensY + 90);
+            rayCtx.quadraticCurveTo(lensX - 25, currentLensY, lensX, currentLensY - 90);
+            rayCtx.fill();
+            rayCtx.stroke();
+            rayCtx.restore();
+
+            // 繪製鏡片中心點標記
+            rayCtx.fillStyle = '#ff3333';
+            rayCtx.beginPath();
+            rayCtx.arc(lensX, currentLensY, 4, 0, Math.PI * 2);
+            rayCtx.fill();
+
+            // 繪製右側 Image Sensor
+            const drawSensorX = lensX + sensorX; 
+            rayCtx.fillStyle = '#2d5a27'; 
+            rayCtx.fillRect(drawSensorX, centerY - 100, 12, 200);
+            rayCtx.strokeStyle = '#00ff00';
+            rayCtx.strokeRect(drawSensorX, centerY - 100, 12, 200);
+            
+            rayCtx.fillStyle = '#111111';
+            rayCtx.fillRect(drawSensorX, centerY - 95, 3, 190);
+
+            rayCtx.fillStyle = '#ffffff';
+            rayCtx.font = '12px sans-serif';
+        }

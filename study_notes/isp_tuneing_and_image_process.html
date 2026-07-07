@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影像調整與驗證測試圖表介紹</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD; /* 雪花白 */
+            --color-primary-text: #2C3E50; /* 深灰藍 */
+            --color-secondary-text: #6A737D; /* 中性灰 */
+            --color-accent: #E67E22; /* 溫暖橘 */
+            --color-subtle-bg: #FFFBE6; /* 淡米黃 */
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        h4 {
+            font-size: 1.0rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Back to Top Button Styles */
+        #back-to-top-btn {
+            display: none; /* Hidden by default */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400; /* Darker orange */
+        }
+        /* image size */
+        .img-container {
+            display: flex;         /* 啟用 Flexbox */
+            justify-content: center; /* 水平置中 */
+            align-items: center;     /* 垂直置中 (若需要) */
+            gap: 15px; /* 圖片與文字之間的間距 */
+            font-size: 1.5rem;
+        }
+
+        .img-container img {
+            width: 100%;             /* 寬度佔滿容器 */
+            max-width: 500px;        /* 限制圖片最大寬度為 500px */
+            height: auto;            /* 高度自動等比例縮放 */
+        }
+
+        td, th {
+            text-align: center; /* 水平居中 */
+            vertical-align: middle; /* 垂直居中 */
+            height: 40px; /* 设置固定高度以便观察垂直居中效果 */
+        }
+        .image-gallery {
+            display: flex; /* 讓容器內的項目水平排列 */
+            gap: 20px; /* 設定圖片之間的間距 */
+        }
+
+        .image-item {
+            margin: 0; /* 清除預設的外邊距 */
+            text-align: center; /* 讓文字水平置中 */
+        }
+
+        .image-item img {
+            max-width: 100%; /* 確保圖片不會超出容器寬度 */
+            height: auto;
+            display: block; /* 消除圖片下方微小的空白縫隙 */
+        }
+
+        .image-item figcaption {
+            margin-top: 8px; /* 圖片與註解之間的距離 */
+            color: #555; /* 註解文字顏色 */
+            font-size: 18px; /* 註解文字大小 */
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="container">
+            <h1>ISP 影像介紹及影像處理</h1>
+            <p>此篇文章主要是想要介紹ISP基本介紹與處理影像的功能。</p>
+            
+            <div class="img-container">
+            <img src="../image/Study_note_image/isp_tuneing_process/Gemini_Generated_Image.png" alt="影像測試圖卡">
+            </div>
+            <div class="img-container">
+            <figcaption>Camera module 爆炸圖說明 </figcaption>
+            </div>
+            <h2>ISP function(Image Signal Processor(ISP))</h2>
+            <p><strong>(Image Signal Processing)</strong> : 為影像訊號處理。主要用來對前端圖像感測器輸出信號處理的元件，依照不同廠商的image sensor 進行影像演算處理。</p>
+            <p>ISP 通過一系列數位影像處理演算法完成對數位圖像的效果處理。主要包括3A(AE ,AWB,AF)、壞點校正(BPC)、去噪(De-noise)、強光抑制(HLC)、背光補償(BLC)、色彩增強(CCM , Saturation)、鏡頭陰影校正(LSC)等處理。ISP 包括邏輯部分以及運行在其上的firmware。</p>
+            <div class="img-container">
+            <img src="../image/Study_note_image/isp_tuneing_process/camera_flow.png" alt="Camera 從 sensor 取得影像到輸出的過程">
+            </div>
+            <div class="img-container">
+            <figcaption>Camera 從 sensor 取得影像到輸出的過程 </figcaption>
+            </div>
+            
+            <h3>目前ISP類型分類：</h3>
+            <ol>
+                <h4><strong>1.  相機自帶ISP ：</strong></h4>
+                <p>高畫素相機設備廠商為了更好的配合後端壓縮、功能開發，自行研發ISP處理演算，將算法集成至FPGA或DSP晶片中，連接前端sensor。</p>
+                <h4><strong>2.  第三方研發 (Backend IC)：</strong></h4>
+                <p>IC廠商推出的ISP解決方案直接出售不同的ISP IC給相機客戶搭配各種廠牌的sensor。</p>
+                <h4><strong>3.  Sensor自帶ISP：</strong></h4>
+                <p>由廠商自主開發結合sensor解決方案推向客戶，其中的影像處理算法及各種調試工作已經完成，相機廠商只需要做接口對接合併後端壓縮或轉換成數字訊號(HD-SDI)即可。</p>
+            </ol>
+            <h3>ISP function(pipeline)：</h3>
+            <ol>
+                <div class="img-container">
+                <img src="../image/Study_note_image/isp_tuneing_process/isp_pipeline.png" alt="Camera 從 sensor 取得影像到輸出的過程">
+                </div>
+                <div class="img-container">
+                <figcaption>Camera ISP 調整影像的流程 </figcaption>
+            </ol>
+            <h3>ISP function(Contents)</h3>
+            <ol>
+                <h4><strong>Contents</strong></h4>
+                <table border="1">
+                <tr>
+                    <th>項次</th>
+                    <th>名稱</th>
+                    <th>前往內容</th>
+                </tr>
+                <tr>
+                    <td>1.      </td>
+                    <td>Black level Correction(BLC) &#10142; <span style="color: red;">黑電平校正</span>。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>2. </td>
+                    <td>Lens Shading Correction(LSC) &#10142; 鏡頭陰影校正。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>3. </td>
+                    <td>Defective Pixel Correction(DPC) &#10142; 缺陷壞點校正。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>4. </td>
+                    <td>De-Mosaic &#10142; 去馬賽克。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>5. </td>
+                    <td>DNR (Digital Noise Reduction) &#10142; 數位降噪。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>6. </td>
+                    <td>Auto White Balance (AWB) &#10142; 自動白平衡。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>7. </td>
+                    <td>Auto Exposure (AE) &#10142; 自動曝光。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>8. </td>
+                    <td>High Dynamic Range(HDR) &#10142; 高動態範圍。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>9. </td>
+                    <td>Color Correction(CC) &#10142; 顏色校正矩陣。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>9. </td>
+                    <td>Gamma &#10142; 亮度/色彩 曲線。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>9. </td>
+                    <td>Sharpness &#10142; 銳利度。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>9. </td>
+                    <td>SHV &#10142; 色彩空間 。</td>
+                    <td>&#128512;</td>
+                </tr>
+                <tr>
+                    <td>13. </td>
+                    <td>Lens Distortion Correction(LDC) &#10142; 鏡頭變形校正 </td>
+                    <td>&#128512;</td>
+                </tr>
+            </table>
+            </ol>
+            <h2>ISP 調整項目功能說明：</h2>
+            <h3><strong>Black Level Correction(BLC)</strong></h3>
+            <ol>
+                <h4>黑電平(Black Level Correction)為全黑場景下，sensor 仍會輸出的亮度值。需要扣除此亮度值以進行後續的影像處理。在不同應用場景下，線性模式或HDR 模式，黑電平可能需要在不同的地方做處理。使用者只須設定所需的黑電平，ISP 會自動依不同應用場景在特定位置扣除黑電平。</h4>        
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/blc_1.png" alt="設定過小(暗處偏紫)">
+                        <figcaption>設定過小(暗處偏紫)</figcaption>
+                    </figure>
+  
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/blc_2.png" alt="影像畫面正常">
+                        <figcaption>影像畫面正常</figcaption>
+                    </figure>
+
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/blc_3.png" alt="影像畫面偏綠">
+                        <figcaption>影像畫面偏綠</figcaption>
+                    </figure>
+                </div>
+                <h4>sensor的電路本身會存在暗電流，導致在沒有光線照射的時候，圖元單位也有一定的輸出電壓，暗電流這個東西跟曝光時間和gain都有關係，不同的位置也是不一樣的。因此在gain增大的時候，電路的增益增大，暗電流也會增強，因此很多ISP會選擇在不同gain下減去不同的黑電平的值。</h4>
+                <p><span style="color :red">IQ tool 調整介面(依不同平台,或有不同調整介面), 調整工具的 r gr gb b 的扣除值, 將顏色數值盡量讓影像 Avg R = G =B, 趨近於零, 表示校正完成 .</span></p>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/blc_4.png" alt="BLC tune tool">
+                        <figcaption>設定初始值拍攝圖片</figcaption>
+                    </figure>
+  
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/blc_5.png" alt="BLC tune tool">
+                        <figcaption>依照影像上r, gr, gb, b 數值調整扣除值, 趨近於零</figcaption>
+                    </figure>
+
+                </div>
+            </ol>
+            <h3><strong>Lens shading correction(LSC)</strong></h3>
+            <ol>
+                <h4>由於 lens 的光學特性，鏡頭對於光學折射不均勻導致的鏡頭周圍出現陰影的情況。shading可以細分為 luma shading 和 color shading，鏡頭陰影校正（Lens Shading Correction）是為了解決由於 lens 的光學特性。</h4>        
+                <li>
+                    <h4><span style="color :red">luma shading：</span></h4>
+                    <h4>由於 Lens 的光學特性，Sensor 影像區的邊緣區域接收的光強比中心小，所造成的中心和四角亮度不一致的現象。鏡頭本身就是一個凸透鏡，由於凸透鏡原理，中心的感光必然比周邊多。表現為四周的亮度相對於中心的亮度偏低,如圖所示</h4>
+                    <div class="image-gallery">
+                        <figure class="image-item">
+                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_1.png" alt="示意圖">
+                            <figcaption>光線聚焦示意圖</figcaption>
+                        </figure>
+    
+                        <figure class="image-item">
+                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_2.png" alt="鏡頭光學特性陰影">
+                            <figcaption>luma shading 影像</figcaption>
+                        </figure>
+
+                    </div>
+                    <h4><span style="color :red">color shading：</span></h4>
+                    <h4>由於各種顏色的波長不同，經過了透鏡的折射，折射的角度也不一樣，因此會造成 color shading 的現象，表現為四周和中心顏色有偏差的問題,這也是為什麼太陽光經過三棱鏡可以呈現彩虹的效果。</h4>
+                    <div class="image-gallery">
+                        <figure class="image-item">
+                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_3.png" alt="示意圖">
+                            <figcaption>光線聚焦示意圖</figcaption>
+                        </figure>
+    
+                        <figure class="image-item">
+                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_4.png" alt="鏡頭光學折射角度不同陰影">
+                            <figcaption>color shading 影像</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ol>
+
+        

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamma 非線性轉換與色彩重現演示</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h2 {
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+        .subtitle {
+            color: #aaaaaa;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+        .workflow {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 1100px;
+        }
+        .box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            width: 280px;
+        }
+        .box-graph {
+            width: 320px;
+        }
+        .title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            color: #ffffff;
+            text-align: center;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        canvas {
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #151515;
+        }
+        .arrow {
+            font-size: 2rem;
+            color: #555555;
+            user-select: none;
+        }
+        .controls {
+            width: 100%;
+            max-width: 500px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+        .gamma-value {
+            font-weight: bold;
+            color: #4da6ff;
+            font-size: 1.1rem;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .explain-text {
+            font-size: 0.85rem;
+            color: #ffcc00;
+            margin-top: 5px;
+            text-align: center;
+            min-height: 20px;
+        }
+        .desc-p2020 {
+            max-width: 850px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #888888;
+            margin-top: 30px;
+            text-align: center;
+            border-top: 1px solid #333;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Gamma 非線性轉換處理演示</h2>
+    <div class="subtitle">模擬數位影像從「感光元件原始輸出」到「符合人眼知覺」的 ISP 核心工作流</div>
+
+    <div class="workflow">
+        <!-- 左側：原始影像 -->
+        <div class="box">
+            <div class="title">📷 數位感光元件輸出的原始影像<br><span style="color:#888; font-size:0.8rem;">(Linear 露光不足/未壓縮狀態)</span></div>
+            <canvas id="leftCanvas" width="250" height="180"></canvas>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <!-- 中央：Gamma 曲線圖 -->
+        <div class="box box-graph">
+            <div class="title">📈 Gamma Transfer 非線性處理曲線<br><span style="color:#888; font-size:0.8rem;">(曲線即時數學擬合)</span></div>
+            <canvas id="graphCanvas" width="280" height="240"></canvas>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <!-- 右側：處理後影像 -->
+        <div class="box">
+            <div class="title">📺 經過 Gamma 非線性轉換處理的影像<br><span style="color:#00ffcc; font-size:0.8rem;">(重建色彩與明暗，較接近人眼感受)</span></div>
+            <canvas id="rightCanvas" width="250" height="180"></canvas>
+        </div>
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="controls">
+        <label for="gammaSlider">
+            <span>🎛️ 調整 Gamma 曲線倍率 (&gamma; 值) ：</span>
+            <span id="gammaLabel" class="gamma-value">1.0</span>
+        </label>
+        <input type="range" id="gammaSlider" min="0.1" max="3.0" value="1.0" step="0.05">
+        <div id="explainText" class="explain-text">線性狀態 (未做任何非線性拉伸補償)</div>
+    </div>
+
+    <div class="desc-p2020">
+        <strong>💡 光學與知覺物理學原理：</strong><br>
+        數位感光元件（Sensor）對光子數量的計數是<strong>物理線性的（Linear, Gamma = 1.0）</strong>。然而人類眼睛對亮度的感知卻是非線性的（對暗部細節極度敏感，對亮部變化相對遲鈍）。ISP 晶片內部必須透過 Gamma 轉換（通常標準為 2.2），<strong>大量提升暗部亮度，而亮部相對提升較少</strong>。這樣不僅符合人眼視覺，也能將有限的 8-bit 編碼空間高效率分配給人眼最敏感的暗部區域。
+    </div>
+
+    <script>
+        const leftCanvas = document.getElementById('leftCanvas');
+        const leftCtx = leftCanvas.getContext('2d');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const graphCtx = graphCanvas.getContext('2d');
+        const rightCanvas = document.getElementById('rightCanvas');
+        const rightCtx = rightCanvas.getContext('2d');
+
+        const gammaSlider = document.getElementById('gammaSlider');
+        const gammaLabel = document.getElementById('gammaLabel');
+        const explainText = document.getElementById('explainText');
+
+        // 標準 ColorChecker 24 色卡的 sRGB 近似值
+        // 這些色彩已經過離散數據採樣，能代表自然界膚色、綠葉、天空與標準灰階
+        const colorCheckerMap = [
+            // Row 1,  [194,150,130], [98,122,157], [87,108,67], , [102,190,170],
+            // Row 2, [72,92,169], ,  [91,59,106], ,  [229,160,41],
+            // Row 3,  [77,141,67], ,  [222,182,39], ,  [42,134,155],
+            // Row 4 (Gray Scale)
+            [243,242,237],[201,201,200], [161,162,161],[122,122,121], [83,84,84],    [49,49,50]
+        ];
+
+        // 核心運算：更新與重繪所有畫布
+        function renderAll() {
+            const gamma = parseFloat(gammaSlider.value) || 1.0;
+            gammaLabel.innerText = gamma.toFixed(2);
+
+            // 動態文字診斷提示
+            if (gamma === 1.0) {
+                explainText.innerText = "⚖️ 線性狀態：與左側 Sensor 原始輸出完全一致";
+                explainText.style.color = "#aaaaaa";
+            } else if (gamma > 1.0) {
+                explainText.innerText = "🚀 大量提升暗部亮度，亮部相對提升較少 (符合人眼曲線)";
+                explainText.style.color = "#00ffcc";
+            } else {
+                explainText.innerText = "📉 壓低暗部細節，整體影像對比強烈但極度昏暗";
+                explainText.style.color = "#ff3333";
+            }
+
+            drawLeftImage();
+            drawMiddleGraph(gamma);
+            drawRightImage(gamma);
+        }
+
+        // 1. 繪製左側：感測器輸出的 Linear 原始影像（未經任何處理，畫面較暗、平淡）
+        function drawLeftImage() {
+            leftCtx.fillStyle = '#2b2b2b'; // 模擬牆面背景
+            leftCtx.fillRect(0, 0, leftCanvas.width, leftCanvas.height);
+            
+            // 繪製色卡黑框背板
+            leftCtx.fillStyle = '#111111';
+            leftCtx.fillRect(25, 25, 200, 130);
+
+            const cellW = 28;
+            //const cellH = 25;
+            const cellH = 24;
+            const gap = 4;
+            const startX = 31;
+            const startY = 31;
+
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 6; c++) {
+                    const idx = r * 6 + c;
+                    // 為了讓演示更清晰，這裡只使用灰階行
+                    // const rgb = colorCheckerMap[idx];
+                    if (r < 3) continue;
+                    const grayIndex = c;
+                    const rgb = colorCheckerMap[grayIndex];
+                    
+                    // 【光學模擬】將標準色彩進行反向 Linear 化，並乘上曝光衰減（模擬硬體原始訊號）
+                    const r_lin = Math.pow(rgb[0] / 255, 2.2) * 0.35;
+                    const g_lin = Math.pow(rgb[1] / 255, 2.2) * 0.35;
+                    const b_lin = Math.pow(rgb[2] / 255, 2.2) * 0.35;
+
+                    leftCtx.fillStyle = `rgb(${Math.floor(r_lin * 255)}, ${Math.floor(g_lin * 255)}, ${Math.floor(b_lin * 255)})`;
+                    //leftCtx.fillRect(startX + c * (cellW + gap), startY + r * (cellH + gap), cellW, cellH);
+                    leftCtx.fillRect(startX + c * (cellW + gap), startY + 3 * (cellH + gap), cellW, cellH);
+                }
+            }
+        }
+
+        // 2. 繪製中央：Gamma 曲線動態數學擬合圖表
+        function drawMiddleGraph(gamma) {
+            graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+            
+            const paddingLeft = 40;
+            const paddingBottom = 40;
+            const graphW = 220;
+            const graphH = 160;
+            const startX = paddingLeft;
+            const startY = graphCanvas.height - paddingBottom;
+
+            // 繪製座標網格線
+            graphCtx.strokeStyle = '#333333';
+            graphCtx.lineWidth = 1;
+            for(let i = 0; i <= 4; i++) {
+                const x = startX + (graphW / 4) * i;
+                const y = startY - (graphH / 4) * i;
+                // 垂直網格
+                graphCtx.beginPath(); graphCtx.moveTo(x, startY); graphCtx.lineTo(x, startY - graphH); graphCtx.stroke();
+                // 水平網格
+                graphCtx.beginPath(); graphCtx.moveTo(startX, y); graphCtx.lineTo(startX + graphW, y); graphCtx.stroke();
+            }
+
+            // 繪製標籤與座標軸文字
+            graphCtx.fillStyle = '#888888';
+            graphCtx.font = '11px sans-serif';
+            graphCtx.fillText('input', startX + graphW / 2 - 15, startY + 20); // X 軸
+            graphCtx.fillText('output', startY - graphH - 120, startY - graphH - 10); // Y 軸
+            
+            // 刻度文字
+            graphCtx.fillText('0', startX - 12, startY + 5);
+            graphCtx.fillText('255', startX + graphW - 10, startY + 15);
+            graphCtx.fillText('255', startX - 30, startY - graphH + 5);
+            
+            // 繪製理想紅線基準（未處理的直線性直線）
+            graphCtx.strokeStyle = 'rgba(255, 51, 51, 0.4)';
+            graphCtx.lineWidth = 1.5;
+            graphCtx.beginPath();
+            graphCtx.moveTo(startX, startY);
+            graphCtx.lineTo(startX + graphW, startY - graphH);
+            graphCtx.stroke();
+
+            // 核心演算法：根據滑桿動態繪製 Gamma Transfer 曲線
+            // 數式：Output = Input ^ (1 / Gamma)
+            graphCtx.strokeStyle = '#4da6ff';
+            graphCtx.lineWidth = 3;
+            graphCtx.beginPath();
+            graphCtx.moveTo(startX, startY);
+
+            for (let i = 0; i <= graphW; i++) {
+                const inputNorm = i / graphW;
+                const outputNorm = Math.pow(inputNorm, 1 / gamma);
+                const plotX = startX + i;
+                const plotY = startY - outputNorm * graphH;
+                graphCtx.lineTo(plotX, plotY);
+            }
+            graphCtx.stroke();
+        }
+
+        // 3. 繪製右側：經過 Gamma 處理後的影像
+        function drawRightImage(gamma) {
+            rightCtx.fillStyle = '#2b2b2b';
+            rightCtx.fillRect(0, 0, rightCanvas.width, rightCanvas.height);
+
+            rightCtx.fillStyle = '#111111';
+            rightCtx.fillRect(25, 25, 200, 130);
+
+            const cellW = 28;
+            const cellH = 24;
+            const gap = 4;
+            const startX = 31;
+            const startY = 31;
+
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 6; c++) {
+                    if (r < 3) continue;
+                    const grayIndex = c;
+                    const rgb = colorCheckerMap[grayIndex];
+
+                    const r_lin = Math.pow(rgb[0] / 255, 2.2) * 0.35;
+                    const g_lin = Math.pow(rgb[1] / 255, 2.2) * 0.35;
+                    const b_lin = Math.pow(rgb[2] / 255, 2.2) * 0.35;
+
+                    // 【核心處理】將 Linear 訊號套用 Gamma 曲線
+                    const r_gamma = Math.pow(r_lin, 1 / gamma);
+                    const g_gamma = Math.pow(g_lin, 1 / gamma);
+                    const b_gamma = Math.pow(b_lin, 1 / gamma);
+
+                    rightCtx.fillStyle = `rgb(${Math.floor(r_gamma * 255)}, ${Math.floor(g_gamma * 255)}, ${Math.floor(b_gamma * 255)})`;
+                    rightCtx.fillRect(startX + c * (cellW + gap), startY + 3 * (cellH + gap), cellW, cellH);
+                }
+            }
+        }
+
+        // --- 事件綁定與初始繪製 ---
+        gammaSlider.addEventListener('input', renderAll);
+        document.addEventListener('DOMContentLoaded', renderAll);
+
+    </script>
+</body>
+</html>

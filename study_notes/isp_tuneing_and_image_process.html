@@ -369,35 +369,94 @@
             <h3><strong>Lens shading correction(LSC)</strong></h3>
             <ol>
                 <h4>由於 lens 的光學特性，鏡頭對於光學折射不均勻導致的鏡頭周圍出現陰影的情況。shading可以細分為 luma shading 和 color shading，鏡頭陰影校正（Lens Shading Correction）是為了解決由於 lens 的光學特性。</h4>        
-                <li>
-                    <h4><span style="color :red">luma shading：</span></h4>
-                    <h4>由於 Lens 的光學特性，Sensor 影像區的邊緣區域接收的光強比中心小，所造成的中心和四角亮度不一致的現象。鏡頭本身就是一個凸透鏡，由於凸透鏡原理，中心的感光必然比周邊多。表現為四周的亮度相對於中心的亮度偏低,如圖所示</h4>
-                    <div class="image-gallery">
-                        <figure class="image-item">
-                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_1.png" alt="示意圖">
-                            <figcaption>光線聚焦示意圖</figcaption>
-                        </figure>
-    
-                        <figure class="image-item">
-                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_2.png" alt="鏡頭光學特性陰影">
-                            <figcaption>luma shading 影像</figcaption>
-                        </figure>
+                <h4><span style="color :red">1. luma shading：</span></h4>
+                <h4>由於 Lens 的光學特性，Sensor 影像區的邊緣區域接收的光強比中心小，所造成的中心和四角亮度不一致的現象。鏡頭本身就是一個凸透鏡，由於凸透鏡原理，中心的感光必然比周邊多。表現為四周的亮度相對於中心的亮度偏低,如圖所示</h4>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_1.png" alt="示意圖">
+                        <figcaption>光線聚焦示意圖</figcaption>
+                    </figure>
 
-                    </div>
-                    <h4><span style="color :red">color shading：</span></h4>
-                    <h4>由於各種顏色的波長不同，經過了透鏡的折射，折射的角度也不一樣，因此會造成 color shading 的現象，表現為四周和中心顏色有偏差的問題,這也是為什麼太陽光經過三棱鏡可以呈現彩虹的效果。</h4>
-                    <div class="image-gallery">
-                        <figure class="image-item">
-                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_3.png" alt="示意圖">
-                            <figcaption>光線聚焦示意圖</figcaption>
-                        </figure>
-    
-                        <figure class="image-item">
-                            <img src="../image/Study_note_image/isp_tuneing_process/lsc_4.png" alt="鏡頭光學折射角度不同陰影">
-                            <figcaption>color shading 影像</figcaption>
-                        </figure>
-                    </div>
-                </li>
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_2.png" alt="鏡頭光學特性陰影">
+                        <figcaption>luma shading 影像</figcaption>
+                    </figure>
+
+                </div>
+                <h4><span style="color :red">2. color shading：</span></h4>
+                <h4>由於各種顏色的波長不同，經過了透鏡的折射，折射的角度也不一樣，因此會造成 color shading 的現象，表現為四周和中心顏色有偏差的問題,這也是為什麼太陽光經過三棱鏡可以呈現彩虹的效果。</h4>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_3.png" alt="示意圖">
+                        <figcaption>光線聚焦示意圖</figcaption>
+                    </figure>
+
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_4.png" alt="鏡頭光學折射角度不同陰影">
+                        <figcaption>color shading 影像</figcaption>
+                    </figure>
+                </div>                
             </ol>
+            <ol>
+                <h4>根據攝像頭鏡頭大小和品質的不同，圖像中心看起來通常要比邊角區域亮。鏡頭陰影校正(LSC) 會校正亮度衰減和色差（色彩陰影不均勻）。</h4>        
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_5.png" alt="LSC前後差異">
+                        <figcaption>Lens shading correction 前後差異</figcaption>
+                    </figure>
+                </div>
+            </ol>
+            <ol>
+                <h4>鏡頭是決定 Lens Shading 嚴重度主要關鍵元件，在鏡頭的選擇上，與image sensor 匹配有幾個關鍵數據。</h4>
+                <h4><strong>1. CRA(Chief Ray Angle)主光線角 ：</strong></h4>
+                <h4><span style="color :red">我們在挑選Lens的時候會有一個CRA的參數，在選擇sensor的時候同樣有一個CRA的參數，一般我們要求Lens的CRA曲線與sensor的CRA曲線完全匹配，如果實在不能匹配，我們也要求在同樣的像高位置，CRA相差不能超過<strong>3度</strong>，而且最好是Lens的CRA比sensor的CRA小。否則將會導致成像照度或色彩問題。</span></h3>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_6.png" alt="鏡頭 CRA 參數">
+                        <figcaption>TRC-2125A6-04 鏡頭 CRA 參數</figcaption>
+                    </figure>
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_7.png" alt="Image sensor CRA 參數">
+                        <figcaption>Sony IMX577 Image sensor CRA 參數</figcaption>
+                    </figure>
+                </div>
+                <h4><strong>2. Sensor diagonal size(mm) :</strong></h4>
+                <h4><span style="color :red">在正常情況下,Lens 的 image circle 要大於 sensor 的對角長度 , 如果鏡頭的image circle 小於sensor 則會出現遮角的情況,這就無法使用 LSC 來校正,因為遮住的部分沒有影像色彩資訊。</span></h3>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_8.png" alt="鏡頭 CRA 參數">
+                    </figure>
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_9.png" alt="鏡頭 CRA 參數">
+                </div>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_10.png" alt="鏡頭 CRA 參數">
+                        <figcaption>Sony IMX577 Image sensor image size 參數</figcaption>
+                    </figure>
+                </div>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_11.png" alt="鏡頭 CRA 參數">
+                        <figcaption>TRC-2125A6-04 鏡頭 image circle  參數</figcaption>
+                    </figure>
+                </div>
+                <h4><strong>3. Relative illumination (%) :</strong></h4>
+                <h4><span style="color :red">物體或被照面上被光源照射所呈現的光亮程度稱為照度。相對照度則是中心照度與週邊照度的比值。</span></h3>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_12.png" alt="鏡頭 CRA 參數">
+                    </figure>
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_13.png" alt="鏡頭 CRA 參數">
+                </div>
+                <div class="image-gallery">
+                    <figure class="image-item">
+                        <img src="../image/Study_note_image/isp_tuneing_process/lsc_14.png" alt="鏡頭 CRA 參數">
+                        <figcaption>TRC-2125A6-04 鏡頭 Relative illumination參數</figcaption>
+                    </figure>
+                </div>      
+            </ol>
+
 
         

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鏡頭畸變校正演示工具 (Lens Distortion)</title>
+    <style>
+        /* CSS 系統樣式與現代化排版 */
+        :root {
+            --primary-color: #2563eb;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            color: #0f172a;
+        }
+
+        p.subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            max-width: 900px;
+            width: 100%;
+            background: var(--card-background);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 320px 1fr;
+            }
+        }
+
+        /* 控制面板樣式 */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: none;
+            padding-right: 0;
+        }
+
+        @media (min-width: 768px) {
+            .controls {
+                border-right: 1px solid #e2e8f0;
+                padding-right: 20px;
+            }
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #cbd5e1;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        .value-display {
+            font-variant-numeric: tabular-nums;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            background: #e2e8f0;
+        }
+
+        /* 畫布顯示區域 */
+        .viewer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        canvas {
+            background: #000;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.06);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .legend {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>鏡頭畸變校正演示</h1>
+    <p class="subtitle">利用數學幾何重映射（Remapping），模擬與校正相機鏡頭的徑向畸變。</p>
+
+    <div class="container">
+        <!-- 左側控制面板 -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="distortion-slider">畸變係數 (k₁)</label>
+                <div class="slider-container">
+                    <input type="range" id="distortion-slider" min="-0.5" max="0.5" step="0.01" value="0.2">
+                    <span id="slider-value" class="value-display">0.20</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>目前狀態模擬</label>
+                <div id="status-text" class="status-badge">桶狀畸變 (廣角鏡頭)</div>
+            </div>
+
+            <div class="control-group" style="font-size: 13px; color: #64748b; line-height: 1.5; margin-top: 10px;">
+                <strong>操作說明：</strong><br>
+                1. 調整滑桿至 <b>正值</b>：模擬未校正的廣角鏡頭（邊緣向外凸）。<br>
+                2. 調整滑桿至 <b>0</b>：完美校正狀態（直線保持水平垂直）。<br>
+                3. 調整滑桿至 <b>負值</b>：模擬枕狀畸變（邊緣向內縮）。
+            </div>
+        </div>
+
+        <!-- 右側畫布區域 -->
+        <div class="viewer">
+            <canvas id="canvas" width="500" height="500"></canvas>
+            <div class="legend">網頁即時使用 Canvas 像素級幾何變換運算</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('distortion-slider');
+        const sliderValue = document.getElementById('slider-value');
+        const statusText = document.getElementById('status-text');
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // 1. 在記憶體中建立一個「完美的、未畸變」的標定棋盤格圖形
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width = width;
+        srcCanvas.height = height;
+        const srcCtx = srcCanvas.getContext('2d');
+
+        function drawSourcePattern() {
+            srcCtx.fillStyle = '#ffffff';
+            srcCtx.fillRect(0, 0, width, height);
+            
+            // 繪製黑白相間棋盤格
+            const gridSize = 50;
+            for (let y = 0; y < height; y += gridSize) {
+                for (let x = 0; x < width; x += gridSize) {
+                    if ((Math.floor(x / gridSize) + Math.floor(y / gridSize)) % 2 === 0) {
+                        srcCtx.fillStyle = '#1e293b';
+                        srcCtx.fillRect(x, y, gridSize, gridSize);
+                    }
+                }
+            }
+            
+            // 繪製中心與邊緣紅線，更易於觀察彎曲
+            srcCtx.strokeStyle = '#ef4444';
+            srcCtx.lineWidth = 3;
+            // 外框線
+            srcCtx.strokeRect(10, 10, width - 20, height - 20);
+            // 中心十字線
+            srcCtx.beginPath();
+            srcCtx.moveTo(width / 2, 0); srcCtx.lineTo(width / 2, height);
+            srcCtx.moveTo(0, height / 2); srcCtx.lineTo(width, height / 2);
+            srcCtx.stroke();
+        }
+
+        // 預先繪製好來源圖案
+        drawSourcePattern();
+        const srcImgData = srcCtx.getImageData(0, 0, width, height);
+
+        // 2. 核心影像處理演算法：逆向映射 (Inverse Mapping) 與 徑向畸變公式
+        function applyDistortion(k1) {
+            // 建立目標畫布的 ImageData 緩衝區
+            const destImgData = ctx.createImageData(width, height);
+            
+            const cx = width / 2;
+            const cy = height / 2;
+            
+            // 用來將半徑正規化的基準值（中心到角落的距離）
+            const rMax = Math.sqrt(cx * cx + cy * cy);
+
+            // 雙層迴圈走訪目標畫布的每一個像素 (x_dest, y_dest)
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    
+                    // 步驟 A: 將坐標轉換至以影像中心為原點 (0,0) 的相對坐標
+                    const xRel = x - cx;
+                    const yRel = y - cy;
+                    
+                    // 步驟 B: 計算當前點到中心的物理距離 r 及其正規化比例
+                    const r = Math.sqrt(xRel * xRel + yRel * yRel);
+                    const rNorm = r / rMax; 
+
+                    // 步驟 C: 應用徑向畸變泰勒級數簡化模型：改動公式項
+                    // 為了使滑桿符合視覺直覺（正值=桶狀，0=校正，負值=枕狀），採用逆向計算
+                    const distortionFactor = 1 + k1 * (rNorm * rNorm);
+                    
+                    // 步驟 D: 反推該像素在「原始完美影像」中的對應坐標 (x_src, y_src)
+                    const xSrc = cx + xRel * distortionFactor;
+                    const ySrc = cy + yRel * distortionFactor;
+
+                    // 步驟 E: 邊界檢查與像素顏色取樣 (最鄰近內插法 Nearest Neighbor)
+                    let rIdx = 0, gIdx = 0, bIdx = 0, aIdx = 0; // 預設邊界外為黑色
+                    
+                    const xSrcInt = Math.round(xSrc);
+                    const ySrcInt = Math.round(ySrc);
+
+                    if (xSrcInt >= 0 && xSrcInt < width && ySrcInt >= 0 && ySrcInt < height) {
+                        const srcPixelPos = (ySrcInt * width + xSrcInt) * 4;
+                        rIdx = srcImgData.data[srcPixelPos];
+                        gIdx = srcImgData.data[srcPixelPos + 1];
+                        bIdx = srcImgData.data[srcPixelPos + 2];
+                        aIdx = srcImgData.data[srcPixelPos + 3];
+                    }
+
+                    // 將顏色填入目標像素位置
+                    const destPixelPos = (y * width + x) * 4;
+                    destImgData.data[destPixelPos] = rIdx;
+                    destImgData.data[destPixelPos + 1] = gIdx;
+                    destImgData.data[destPixelPos + 2] = bIdx;
+                    destImgData.data[destPixelPos + 3] = aIdx;
+                }
+            }
+
+            // 將運算完的影像渲染至網頁 Canvas 上
+            ctx.putImageData(destImgData, 0, 0);
+        }
+
+        // 3. UI 互動事件監聽
+        function updateDisplay() {
+            const k1 = parseFloat(slider.value);
+            sliderValue.textContent = k1.toFixed(2);
+
+            // 動態更新狀態標籤
+            if (k1 > 0.02) {
+                statusText.textContent = "未校正：桶狀畸變 (廣角鏡頭)";
+                statusText.style.background = "#fee2e2";
+                statusText.style.color = "#ef4444";
+            } else if (k1 < -0.02) {
+                statusText.textContent = "未校正：枕狀畸變 (長焦鏡頭)";
+                statusText.style.background = "#ffedd5";
+                statusText.style.color = "#f97316";
+            } else {
+                statusText.textContent = "已完美校正 (直線復原)";
+                statusText.style.background = "#dcfce7";
+                statusText.style.color = "#22c55e";
+            }
+
+            // 執行畸變運算
+            applyDistortion(k1);
+        }
+
+        slider.addEventListener('input', updateDisplay);
+
+        // 初始觸發渲染
+        updateDisplay();
+    </script>
+</body>
+</html>

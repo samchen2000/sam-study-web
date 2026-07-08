@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISP CCM (Color Correction Matrix) 演示程式</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --accent-red: #ff4d4d;
+            --accent-green: #2ecc71;
+            --accent-blue: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 24px;
+            max-width: 1100px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+        }
+
+        /* 左側：影像顯示區 */
+        .preview-section {
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            background-color: #000;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* 右側：控制面板 */
+        .control-section {
+            flex: 1;
+            min-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .matrix-container {
+            display: grid;
+            grid-template-columns: repeat(3, 110px);
+            gap: 12px;
+            justify-content: center;
+            background: #222;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #444;
+        }
+
+        .matrix-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .matrix-cell.row-r { border-top: 2px solid var(--accent-red); padding-top: 4px;}
+        .matrix-cell.row-g { border-top: 2px solid var(--accent-green); padding-top: 4px;}
+        .matrix-cell.row-b { border-top: 2px solid var(--accent-blue); padding-top: 4px;}
+
+        .matrix-cell label {
+            font-size: 12px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .matrix-cell input[type="range"] {
+            width: 100px;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none; /* 👈 補上這行 */
+            background: #555;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        /* 各別通道滑桿按鈕顏色 */
+        .row-r input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-red); cursor: pointer; }
+        .row-g input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-green); cursor: pointer; }
+        .row-b input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; }
+
+        .val-txt {
+            font-family: monospace;
+            font-size: 14px;
+            width: 45px;
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: #555; }
+        button.primary { background-color: #2980b9; }
+        button.primary:hover { background-color: #3498db; }
+
+        .info-panel {
+            font-size: 12px;
+            color: #aaa;
+            line-height: 1.6;
+            background: #222;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        h2 { margin-bottom: 5px; }
+        h4 { margin-top: 0; color: #aaa; margin-bottom: 20px;}
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <h2>CCM (色彩校正矩陣) 演示程式</h2>
+    <h4>ISP Color Correction Matrix Real-time Simulation</h4>
+
+    <div class="main-layout">
+        <!-- 左側：影像顯示 -->
+        <div class="preview-section">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <!-- 右側：控制面板 -->
+        <div class="control-section">
+            <div class="btn-group">
+                <input type="file" id="image-loader" accept="image/png, image/jpeg, image/bmp" style="display: none;">
+                <button id="btn-upload" class="primary">上傳自訂圖片</button>
+            </div>
+            <div class="btn-group">
+                <button id="btn-identity">重設為單位矩陣 (原圖)</button>
+                <button id="btn-grayscale">單色混色測試</button>
+            </div>
+
+            <!-- 3x3 矩陣配置 -->
+            <div class="matrix-container">
+                <!-- R row -->
+                <div class="matrix-cell row-r">
+                    <label style="color: var(--accent-red)">Rr</label>
+                    <input type="range" id="ccm_Rr" min="-1" max="1" step="0.05" value="1">
+                    <span class="val-txt" id="txt_Rr">1.00</span>
+                </div>
+                <div class="matrix-cell row-r">
+                    <label style="color: var(--accent-red)">Rg</label>
+                    <input type="range" id="ccm_Rg" min="-1" max="1" step="0.05" value="0">
+                    <span class="val-txt" id="txt_Rg">0.00</span>
+                </div>
+                <div class="matrix-cell row-r">
+                    <label style="color: var(--accent-red)">Rb</label>
+                    <input type="range" id="ccm_Rb" min="-1" max="1" step="0.05" value="0">
+                    <span class="val-txt" id="txt_Rb">0.00</span>
+                </div>
+
+                <!-- G row -->
+                <div class="matrix-cell row-g">
+                    <label style="color: var(--accent-green)">Gr</label>
+                    <input type="range" id="ccm_Gr" min="-1" max="1" step="0.05" value="0">
+                    <span class="val-txt" id="txt_Gr">0.00</span>
+                </div>
+                <div class="matrix-cell row-g">
+                    <label style="color: var(--accent-green)">Gg</label>
+                    <input type="range" id="ccm_Gg" min="-1" max="1" step="0.05" value="1">
+                    <span class="val-txt" id="txt_Gg">1.00</span>
+                </div>
+                <div class="matrix-cell row-g">
+                    <label style="color: var(--accent-green)">Gb</label>
+                    <input type="range" id="ccm_Gb" min="-1" max="1" step="0.05" value="0">
+                    <span class="val-txt" id="txt_Gb">0.00</span>
+                </div>
+
+                <!-- B row -->
+                <div class="matrix-cell row-b">
+                    <label style="color: var(--accent-blue)">Br</label>
+                    <input type="range" id="ccm_Br" min="-1" max="1" step="0.05" value="0">
+                    <span class="val-txt" id="txt_Br">0.00</span>
+                </div>
+                <div class="matrix-cell row-b">
+                    <label style="color: var(--accent-blue)">Bg</label>
+                    <input type="range" id="ccm_Bg" min="-1" max="1" step="0.05" value="0">
+                    <span class="val-txt" id="txt_Bg">0.00</span>
+                </div>
+                <div class="matrix-cell row-b">
+                    <label style="color: var(--accent-blue)">Bb</label>
+                    <input type="range" id="ccm_Bb" min="-1" max="1" step="0.05" value="1">
+                    <span class="val-txt" id="txt_Bb">1.00</span>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <strong>數學計算公式：</strong><br>
+                <code>R' = (R * Rr) + (G * Rg) + (B * Rb)</code><br>
+                <code>G' = (R * Gr) + (G * Gg) + (B * Gb)</code><br>
+                <code>B' = (R * Br) + (G * Bg) + (B * Bb)</code><br>
+                <span style="display:block; margin-top:8px; color:#e74c3c;">
+                * 註：為了維持影像總亮度不變，矩陣每一橫列（Row）的加總理想上應等於 1.0（例如 Rr+Rg+Rb = 1）。
+                </span>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 定義 9 個矩陣滑桿與對應的數值文字元素
+        const paramKeys = ['Rr', 'Rg', 'Rb', 'Gr', 'Gg', 'Gb', 'Br', 'Bg', 'Bb'];
+        const sliders = {};
+        const texts = {};
+
+        paramKeys.forEach(key => {
+            sliders[key] = document.getElementById(`ccm_${key}`);
+            texts[key] = document.getElementById(`txt_${key}`);
+            
+            // 監聽滑桿，即時重新計算並渲染圖片
+            sliders[key].addEventListener('input', () => {
+                texts[key].textContent = parseFloat(sliders[key].value).toFixed(2);
+                applyCCM();
+            });
+        });
+
+        // 圖片處理相關元素
+        const img = new Image();
+        let originalPixels = null;
+        const imageLoader = document.getElementById('image-loader');
+        const uploadButton = document.getElementById('btn-upload');
+
+        // 點擊「上傳」按鈕時，觸發隱藏的 file input
+        uploadButton.addEventListener('click', () => {
+            imageLoader.click();
+        });
+
+        // 當使用者選擇檔案後
+        imageLoader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                img.src = event.target.result; // 將圖片 src 設為讀取到的 Data URL
+            }
+            reader.readAsDataURL(file);
+        });
+
+        img.onload = function() {
+            // 設定畫布尺寸與圖片一致
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // 繪製原圖並讀取原始像素資料
+            ctx.drawImage(img, 0, 0);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            originalPixels = new Uint8ClampedArray(imgData.data); // 複製一份不變的原始數據
+            
+            applyCCM(); // 進行初始渲染
+        };
+
+        // 頁面初次載入時，使用預設的 Base64 圖片
+        img.src ='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAADwCAMAAACwG62hAAAAXVBMVEV/f39+fn59fX18fHx7e3t6enp5enp4eHh3d3d2dnZ1dXV0dHRzc3NybW1xa2twamptbW1sammEgoKFhISJiYmOjo6Pj4+Tk5OZmZmcnJyenp6fn5+jo6OlpaWqqqqWzR/KAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAWJQAAFiUBkVQfdAAAAm9pVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KTMInWQAAAm9JREFUeNrt1mFrwyAQBmC9pYstW7f+/2/eW9K9VscYg8K+D4S88XgcnSgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgL9gcnunO6YfNre38Vq9uY7u3u0X/U5vLtfR3bT5ZbyOnXG+ju6uS2S8ju7G1XVsZ/86urd9fM+76e66eWw7NqXf/Z6O6e0O+Kndfbeu7X33Y3uPzHwZ3U0fePHeN3W8ju3bCjK6677feyyjuz7vsc2f3a6gN8bM/+eP0d283N7H9h6Zbe7XbH+6fP6U3mO/6HdmT+e7eZ8fHntP7K8f36unN/vV266eRnfbtYzs689uM/++q+FpYwD/mOndH08b2G++36Gf7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsId5O7f3yGxzt923p9v99vba3eX+f6SHeX4O1N9p7nN0l/vbY+8pd7mO7tpt9+3pdr/p7fW/bU9vd8BPbe67dW3vu++398hsf9vd7feRGe99v7fM+70L6A350/nuvsc7+x7f6Wc8vfd1zZ/druB+e3PZHevtdmSm+7FfIvt0vnv6pffYp9p0vnt628Xzq97+AnpnzOxeR3f79S6hN+YpOnv6t0zvep/f6ecpumf/C+it/wLYZf8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAMUfE/vX1M78p3bI5jve2OcfH6N6ZfdYxMvPtcY7u7m1zXG8uO8e/ju5unscbM962WUZ3Z8wYme68ju7G7XVsF/9/Hdvf3f/37b99fO92BdXw1DGAf877fQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8OfMXwEw9A65T6bZlgAAAABJRU5ErkJggg==';
+
+        // 核心矩陣運算函式
+        function applyCCM() {
+            if (!originalPixels) return;
+
+            // 讀取當前 9 個滑桿的浮點數值
+            const Rr = parseFloat(sliders.Rr.value);
+            const Rg = parseFloat(sliders.Rg.value);
+            const Rb = parseFloat(sliders.Rb.value);
+            const Gr = parseFloat(sliders.Gr.value);
+            const Gg = parseFloat(sliders.Gg.value);
+            const Gb = parseFloat(sliders.Gb.value);
+            const Br = parseFloat(sliders.Br.value);
+            const Bg = parseFloat(sliders.Bg.value);
+            const Bb = parseFloat(sliders.Bb.value);
+
+            // 建立畫布的渲染緩衝區
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imgData.data;
+
+            // 像素級逐點進行矩陣相乘 (RGBA, 步進為 4)
+            for (let i = 0; i < pixels.length; i += 4) {
+                const r = originalPixels[i];
+                const g = originalPixels[i + 1];
+                const b = originalPixels[i + 2];
+
+                // 矩陣乘法公式應用
+                let rPrime = r * Rr + g * Rg + b * Rb;
+                let gPrime = r * Gr + g * Gg + b * Gb;
+                let bPrime = r * Br + g * Bg + b * Bb;
+
+                // 溢位裁剪限制 (Clamp 0~255)
+                pixels[i]     = rPrime < 0 ? 0 : (rPrime > 255 ? 255 : rPrime);
+                pixels[i + 1] = gPrime < 0 ? 0 : (gPrime > 255 ? 255 : gPrime);
+                pixels[i + 2] = bPrime < 0 ? 0 : (bPrime > 255 ? 255 : bPrime);
+                // pixels[i + 3] 為 Alpha 透明度，保持不變
+            }
+            // 將調整後的像素覆寫回畫布
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        // 輔助函式：設定矩陣值並更新畫面
+        function setMatrixValues(values) {
+            paramKeys.forEach(key => {
+                sliders[key].value = values[key];
+                texts[key].textContent = values[key].toFixed(2);
+            });
+            applyCCM();
+        }
+
+        // 快捷鍵：重設為標準單位矩陣
+        document.getElementById('btn-identity').addEventListener('click', () => {
+            const identityValues = {Rr:1, Rg:0, Rb:0, Gr:0, Gg:1, Gb:0, Br:0, Bg:0, Bb:1};
+            setMatrixValues(identityValues);
+        });
+
+        // 快捷鍵：單色交叉混色測試
+        document.getElementById('btn-grayscale').addEventListener('click', () => {
+            // 這會把 R 通道抽乾，並把 G 混入 50% 藍色等特殊的色彩校正模擬
+            const testValues = {Rr:0.5, Rg:0.5, Rb:0, Gr:0, Gg:0.8, Gb:0.2, Br:0.3, Bg:0, Bb:0.7};
+            setMatrixValues(testValues);
+        });
+
+    </script>
+</body>
+</html 

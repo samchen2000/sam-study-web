@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGB 影像色彩調整演示</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* 影像顯示區域 */
+        .image-preview-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 8px;
+            background-color: #000;
+            margin-bottom: 24px;
+            line-height: 0;
+            /* 套用 JavaScript 動態控制的 CSS 濾鏡（用於亮度控制） */
+            filter: brightness(1);
+        }
+
+        /* 原始圖片 */
+        .preview-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 顏色覆蓋濾鏡層 */
+        .color-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            /* 使用比 multiply 更適合做雙向增益的 overlay 或配合 JS 計算 */
+            mix-blend-mode: multiply; 
+            background-color: rgb(127, 127, 127);
+            transition: background-color 0.05s ease;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .slider-group label {
+            width: 110px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .slider-group input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none; /* 👈 補上這行 */
+            background: #444;
+        }
+
+        /* 調整滑桿外觀 */
+        #r-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #ff4d4d; cursor: pointer; }
+        #g-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #2ecc71; cursor: pointer; }
+        #b-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #3498db; cursor: pointer; }
+        #brightness-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #f1c40f; cursor: pointer; }
+
+        .value-display {
+            width: 45px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .info-text {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+            line-height: 1.6;
+        }
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+    <h2>RGB 與亮度影像調整演示</h2>
+
+    <div class="container">
+        <!-- 影像顯示區 -->
+        <div class="image-preview-container" id="img-container">
+            <!-- 這裡預設使用您上傳的 ColorChecker 圖片（已轉為 Base64 格式確保能直接讀取） -->
+            <img class="preview-image" id="target-img" src="../image/Study_note_image/isp_tuneing_process/msccc_colorchecker_classic_front.webp" alt="ColorChecker">
+            <!-- 覆蓋層 -->
+            <div class="color-overlay" id="overlay"></div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <!-- R 滑桿 -->
+            <div class="slider-group">
+                <label for="r-slider" style="color: #ff4d4d;">Red (R)</label>
+                <input type="range" id="r-slider" min="1" max="100" value="50">
+                <span class="value-display" id="r-val">50</span>
+            </div>
+
+            <!-- G 滑桿 -->
+            <div class="slider-group">
+                <label for="g-slider" style="color: #2ecc71;">Green (G)</label>
+                <input type="range" id="g-slider" min="1" max="100" value="50">
+                <span class="value-display" id="g-val">50</span>
+            </div>
+
+            <!-- B 滑桿 -->
+            <div class="slider-group">
+                <label for="b-slider" style="color: #3498db;">Blue (B)</label>
+                <input type="range" id="b-slider" min="1" max="100" value="50">
+                <span class="value-display" id="b-val">50</span>
+			</div>
+
+            <!-- 亮度滑桿 -->
+            <div class="slider-group">
+                <label for="brightness-slider" style="color: #f1c40f;">影像亮度 (Y)</label>
+                <input type="range" id="brightness-slider" min="1" max="100" value="50">
+                <span class="value-display" id="brightness-val">50</span>
+            </div>
+        </div>
+        
+        <div class="info-text">
+            💡 <strong>演示原理說明：</strong><br>
+            1. <strong>RGB 控制：</strong> 預設值 50 代表原始色彩（不增不減）。調至 100 時通道強度加倍，調至 1 時通道強度趨近零。<br>
+            2. <strong>亮度控制：</strong> 預設值 50 為標準亮度。向右調整（最高 100）模擬曝光增加；向左調整（最低 1）模擬曝光不足。
+        </div>
+    </div>
+        <footer class="footer">
+            <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+        </footer>
+    <script>
+        // 取得 DOM 元素
+        const rSlider = document.getElementById('r-slider');
+        const gSlider = document.getElementById('g-slider');
+        const bSlider = document.getElementById('b-slider');
+        const brightnessSlider = document.getElementById('brightness-slider');
+        
+        const rVal = document.getElementById('r-val');
+        const gVal = document.getElementById('g-val');
+        const bVal = document.getElementById('b-val');
+        const brightnessVal = document.getElementById('brightness-val');
+        
+        const overlay = document.getElementById('overlay'); 
+        const imgContainer = document.getElementById('img-container');
+
+        // 更新影像狀態的主功能函式
+        function updateImageSettings() {
+            const rPercent = parseInt(rSlider.value);
+            const gPercent = parseInt(gSlider.value);
+            const bPercent = parseInt(bSlider.value);
+            const briPercent = parseInt(brightnessSlider.value);
+
+            // 更新介面上的文字數值
+            rVal.textContent = rPercent;
+            gVal.textContent = gPercent;
+            bVal.textContent = bPercent;
+            brightnessVal.textContent = briPercent;
+
+            /* 
+              [RGB 計算公式與邏輯說明]
+              因為預設值改為 50 且使用 multiply 混合模式：
+              - 當滑桿 = 50 時，我們希望它是原圖，所以覆蓋層顏色必須是滿值 (255)。
+              - 當滑桿 < 50 時，顏色等比例變暗（減弱通道）。
+              - 當滑桿 > 50 時，因為 multiply 本身無法「提亮」，我們改在後續透過 CSS 增益補償。
+              公式：(滑桿數值 / 50) * 255，最大值限制在 255。
+            */
+            const rByte = Math.min(255, Math.round((rPercent / 50) * 255));
+            const gByte = Math.min(255, Math.round((gPercent / 50) * 255));
+            const bByte = Math.min(255, Math.round((bPercent / 50) * 255));
+            overlay.style.backgroundColor = `rgb(${rByte}, ${gByte}, ${bByte})`;
+
+            /* 
+              [亮度計算公式說明]
+              使用 CSS brightness 屬性：
+              - 滑桿 = 50 時，值為 1 (100% 原始亮度)。
+              - 滑桿 = 100 時，值為 2 (200% 兩倍亮度)。
+              - 滑桿 = 1 時，值為 0.02 (趨近全黑)。
+            */
+            const brightnessSetting = briPercent / 50;
+            
+            /*
+              [額外色彩補償]
+              若 RGB 滑桿超過 50，將超過的部分轉換為額外的亮度增益放大，
+              這樣就能完美模擬單獨將特定 R/G/B 通道「調得比原圖更亮」的效果。
+            */
+            const rGain = rPercent > 50 ? (rPercent / 50) : 1;
+            const gGain = gPercent > 50 ? (gPercent / 50) : 1;
+            const bGain = bPercent > 50 ? (bPercent / 50) : 1;
+            // 綜合計算出最終套用至容器的總亮度
+            const finalBrightness = brightnessSetting * ((rGain + gGain + bGain) / 3);
+
+            imgContainer.style.filter = `brightness(${finalBrightness})`;
+        }
+
+        // 監聽滑桿的 input 事件以達到即時更新
+        // 綁定監聽事件
+        rSlider.addEventListener('input', updateImageSettings);
+        gSlider.addEventListener('input', updateImageSettings);
+        bSlider.addEventListener('input', updateImageSettings);
+        brightnessSlider.addEventListener('input', updateImageSettings);
+
+        // 初始執行一次
+        updateImageSettings();
+    </script>
+</body>
+</html>

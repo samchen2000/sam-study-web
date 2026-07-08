@@ -109,10 +109,55 @@
             border-top: 1px solid #333;
             padding-top: 15px;
         }
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
     </style>
 </head>
 <body>
 
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
     <h2>Gamma 非線性轉換處理演示</h2>
     <div class="subtitle">模擬數位影像從「感光元件原始輸出」到「符合人眼知覺」的 ISP 核心工作流</div>
 
@@ -154,7 +199,9 @@
         <strong>💡 光學與知覺物理學原理：</strong><br>
         數位感光元件（Sensor）對光子數量的計數是<strong>物理線性的（Linear, Gamma = 1.0）</strong>。然而人類眼睛對亮度的感知卻是非線性的（對暗部細節極度敏感，對亮部變化相對遲鈍）。ISP 晶片內部必須透過 Gamma 轉換（通常標準為 2.2），<strong>大量提升暗部亮度，而亮部相對提升較少</strong>。這樣不僅符合人眼視覺，也能將有限的 8-bit 編碼空間高效率分配給人眼最敏感的暗部區域。
     </div>
-
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
     <script>
         const leftCanvas = document.getElementById('leftCanvas');
         const leftCtx = leftCanvas.getContext('2d');

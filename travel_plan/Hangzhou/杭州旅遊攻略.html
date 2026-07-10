@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>杭州旅遊攻略 - Sam Chen 的生活探索</title>
+
+    <!-- 引入 Google Fonts 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 全域設定 (與 index.html 保持一致) --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FDFDFD;
+            color: #6A737D;
+            line-height: 1.8; /* 增加行高以提升文章可讀性 */
+        }
+
+        /* --- 頁首導覽列 (與 index.html 保持一致) --- */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.5rem;
+            color: #2C3E50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a {
+            color: #2C3E50;
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #E67E22;
+        }
+
+        /* --- 通用容器與標題樣式 --- */
+        .container {
+            max-width: 900px; /* 調整文章頁面寬度以優化閱讀體驗 */
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+        .page-title {
+            font-family: 'Noto Serif TC', serif;
+            color: #2C3E50;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 60px;
+        }
+
+        /* --- 文章內容樣式 --- */
+        .article-content h2 {
+            font-family: 'Noto Serif TC', serif;
+            color: #2C3E50;
+            font-size: 2.2rem;
+            margin-top: 2.5em;
+            margin-bottom: 1em;
+            border-bottom: 2px solid #E67E22;
+            padding-bottom: 0.3em;
+        }
+        .article-content h3 {
+            font-family: 'Noto Serif TC', serif;
+            color: #2C3E50;
+            font-size: 1.6rem;
+            margin-top: 2em;
+            margin-bottom: 0.8em;
+        }
+        .article-content ul {
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+        .article-content li {
+            margin-bottom: 0.8em;
+        }
+        .article-content strong {
+            color: #2C3E50;
+            font-weight: 700;
+        }
+        .article-content .tips {
+            background-color: #FFFBE6;
+            border-left: 4px solid #E67E22;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 4px;
+        }
+
+        /* --- 頁尾 (與 index.html 保持一致) --- */
+        .footer {
+            background-color: #2C3E50;
+            color: #FDFDFD;
+            padding: 60px 20px;
+            margin-top: 80px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .footer-col h4 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        .footer-col a {
+            color: #FDFDFD;
+            text-decoration: none;
+            margin: 0 10px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .footer-col a:hover {
+            opacity: 1;
+        }
+        .footer-col p {
+            margin: 0;
+            opacity: 0.8;
+        }
+        .footer-socials svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* --- 響應式設計 --- */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                position: static;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .page-title {
+                font-size: 2.2rem;
+            }
+            .article-content h2 {
+                font-size: 1.8rem;
+            }
+            .article-content h3 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <a href="../../index.html" class="navbar-brand">Sam Chen 的生活探索</a>
+        <nav class="nav-links">
+            <a href="../../index.html#about">關於我</a>
+            <a href="../../index.html#pillars">主題分類</a>
+            <a href="../../travel_log.html">旅遊筆記</a>
+            <a href="../../contact.html">聯絡我</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">杭州旅遊攻略</h1>
+
+        <article class="article-content">
+            <h2>一、 核心景點攻略：古街與人文</h2>
+            <h3>1. 清河坊與南宋御街 (Qinghefang & Southern Song Imperial Street)</h3>
+            <p>這兩條老街是杭州歷史的縮影，保留了明清與民國時期的建築風格。</p>
+            <ul>
+                <li><strong>河坊街：</strong> 充滿觀光與購物趣處，可以看到現場打鐵、售賣絲綢與古風飾品的攤販。</li>
+                    <ol>
+                        <li><strong>地理位置 ： </strong> 位於杭州市上城區（吳山腳下），距離西湖東岸約20分鐘車程。</li>
+                        <li><strong>交通方式 ： </strong> 可搭乘杭州地鐵1號線至「安定路站」或7號線至「吳山廣場站」，步行數分鐘即可抵達。</li>
+                        <li><strong>推薦玩法：  </strong> 可結合與其十字相交的「南宋御街」一同遊覽，欣賞仿古與近代建築交織的夜景，感受古今交融的氛圍。</li>
+                    </ol>
+
+                <img src="../../image/杭州旅遊/雷峰塔.jpg" alt="雷峰塔" title="雷峰塔">
+                <li><strong>南宋御街：</strong> 曾是南宋皇帝出行的專用道路，現今呈現新舊文化交融，有許多文青咖啡店與歷史建築（如仿西洋式的拱窗白牆）。</li>
+                <li><strong>重要地標：</strong>
+                    <ul>
+                        <li>胡慶餘堂： 由「紅頂商人」胡雪岩創立的百年老字號中藥店，建築古色古香，至今仍有看診抓藥服務。</li>
+                        <li>鼓樓： 仿明代風格重建的壯麗建築，是古代報時與預警的場所。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>2. 胡雪岩故居 (Hu Xueyan’s Former Residence)</h3>
+            <p>這座宅邸耗資巨大，展現了江南富商的豪氣。亮點： 擁有精緻的園林造景（亭台樓閣、小橋流水）與極其講究的建築細節，如當時罕見的彩色玻璃與精細的木石雕刻。此外，還能見到古代出行的「八人抬實木轎子」。</p>
+
+            <h3>3. 靈隱寺與法喜寺 (Temples)</h3>
+            <p><strong>靈隱寺：</strong> 著名的千年古剎，隱身於群山之間，是避世與尋求淨土的好去處。<br>
+               <strong>法喜寺：</strong> 適合在煙雨朦朧中感受古寺氛圍，是近年熱門的打卡點。</p>
+
+            <h2>二、 自然景觀：西湖與濕地</h2>
+            <h3>1. 西湖 (West Lake)</h3>
+            <p><strong>夏季推薦：</strong> 6月至7月是西湖荷花盛開的季節（「接天蓮葉無窮碧」）。<br>
+               <strong>經典遊玩：</strong> 漫步於蘇堤看垂柳搖曳，或在斷橋感受浪漫傳說，傍晚則可欣賞「雷峰夕照」。</p>
+
+            <h3>2. 西溪國家濕地公園 (Xixi Wetland)</h3>
+            <p><strong>特色：</strong> 杭州的「城市綠肺」，夏季可觀賞滿池的睡蓮。遊客可以搭乘小船穿梭於綠意盎然的水道，享受自然寧靜。</p>
+
+            <h3>3. 九溪煙樹 (Jiuxi Yanshu)</h3>
+            <p><strong>評價：</strong> 被稱為「小九寨溝」，溪流與紅楓交織。晴天時色彩繽紛，雨天則霧氣繚繞，極具詩情畫意。</p>
+
+            <h2>三、 特色小鎮與現代景觀</h2>
+            <p><strong>古鎮體驗：</strong> 影片推薦了塘棲古鎮（800年歷史、橫跨大運河的古橋）以及烏鎮、西塘等典型江南水鄉。<br>
+               <strong>現代地標：</strong> 錢江新城城市陽台，在此可觀賞代表現代杭州的「日月同輝」建築（國際會議中心與大劇院），夜晚還有震撼的燈光秀。</p>
+
+            <h2>四、 必吃美食與伴手禮清單</h2>
+            <h3>1. 正餐推薦：狀元麵館 (Zhuangyuan Noodle House)</h3>
+            <p>位於河坊街尾端，適合體驗杭州特色麵食。</p>
+            <ul>
+                <li><strong>片兒川：</strong> 杭州最具代表性的湯麵，湯底料經炒製而成。</li>
+                <li><strong>香干肉絲拌川：</strong> 乾拌麵形式，料頭炒得很有「鑊氣」（焦香味），口味較重，建議搭配清爽的拍黃瓜一起食用。</li>
+            </ul>
+
+            <h3>2. 名牌糕點：知味觀 (Zhi Wei Guan)</h3>
+            <ul>
+                <li>杭州知名的百年糕餅店，西湖邊多分店，常需排隊。</li>
+                <li><strong>龍井茶餅：</strong> 招牌推薦，口感潤澤如綠豆糕，帶有濃郁茶味。</li>
+                <li><strong>桃花酥：</strong> 外型美觀，內餡包裹酸甜的山楂。</li>
+                <li><strong>鮮花餅：</strong> 內餡有滿滿的玫瑰花香，口感微軟。</li>
+                <li><strong>紫薯芝士餅：</strong> 濕潤度高，紫薯與芝士香氣結合。</li>
+                <li><strong>建議：</strong> 購買現場現做的餅皮更酥脆，不建議買保存期限長的盒裝版。</li>
+            </ul>
+
+            <h3>3. 街頭小吃與特產</h3>
+            <ul>
+                <li><strong>三楂條（山楂條）：</strong> 在河坊街隨處可見，口感酸甜，是當地常見的零嘴。</li>
+                <li><strong>特色醬菜：</strong> 如辣醬、醃蘿蔔等，有些攤位提供現場試吃，但要注意部分醬料辣度極高。</li>
+                <li><strong>龍井茶與絲綢：</strong> 杭州是著名產地，在南宋御街與河坊街有許多專業店鋪可供選擇。</li>
+            </ul>
+
+            <div class="tips">
+                <h3>💡 旅遊小貼士</h3>
+                <ul>
+                    <li><strong>最佳時間：</strong> 每年 6月到7月 是淡季，人潮較少，且能欣賞到夏季特有的荷花與綠意。</li>
+                    <li><strong>交通規劃：</strong> 老街區（清河坊、南宋御街、胡雪岩故居）相距不遠，適合安排在同一天步行遊覽。</li>
+                    <li><strong>穿著建議：</strong> 夏季多雨且濕熱，建議攜帶雨具並穿著輕便透氣的衣物，若要逛老街，建議選擇好走的鞋子。</li>
+                </ul>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>網站導覽</h4>
+                <p>
+                    <a href="../../index.html">首頁</a>｜
+                    <a href="#">所有影片</a>｜
+                    <a href="../../travel_log.html">所有筆記</a>｜
+                    <a href="../../index.html#about">關於我</a>｜
+                    <a href="../../contact.html">聯絡我</a>
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>在其他地方找到我</h4>
+                <div class="footer-socials">
+                    <a href="https://www.youtube.com/" target="_blank" aria-label="YouTube">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.254,4,12,4,12,4S5.746,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.746,2,12,2,12s0,4.254,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.746,20,12,20,12,20s6.254,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.254,22,12,22,12S22,7.746,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"/></svg>
+                    </a>
+                    <a href="https://www.instagram.com/" target="_blank" aria-label="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,2c-2.717,0-3.056,0.01-4.122,0.06c-1.065,0.05-1.79,0.217-2.428,0.465c-0.66,0.255-1.214,0.588-1.77,1.144 c-0.556,0.556-0.89,1.11-1.144,1.77C2.277,6.21,2.11,6.935,2.06,8.002C2.01,9.066,2,9.305,2,12s0.01,2.934,0.06,4.002 c0.05,1.065,0.217,1.79,0.465,2.428c0.255,0.66,0.588,1.214,1.144,1.77c0.556,0.556,1.11,0.89,1.77,1.144 c0.638,0.248,1.363,0.415,2.428,0.465c1.066,0.05,1.405,0.06,4.122,0.06s3.056-0.01,4.122-0.06 c1.065-0.05,1.79-0.217,2.428-0.465c0.66-0.255,1.214-0.588,1.77-1.144c0.556-0.556,0.89-1.11,1.144-1.77 c0.248-0.638,0.415-1.363,0.465-2.428c0.05-1.066,0.06-1.405,0.06-4.122s-0.01-2.934-0.06-4.002 c-0.05-1.065-0.217-1.79-0.465-2.428c-0.255-0.66-0.588-1.214-1.77-1.144C20.088,3.11,19.534,2.777,18.874,2.522 c-0.638-0.248-1.363-0.415-2.428-0.465C15.356,2.01,15.017,2,12,2z M12,7c-2.761,0-5,2.239-5,5s2.239,5,5,5s5-2.239,5-5 S14.761,7,12,7z M12,15c-1.657,0-3-1.343-3-3s1.343-3,3-3s3,1.343,3,3S13.657,15,12,15z M16.804,6.116 c-0.596,0-1.08,0.484-1.08,1.08s0.484,1.08,1.08,1.08c0.596,0,1.08-0.484,1.08-1.08S17.401,6.116,16.804,6.116z"/></svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>版權資訊</h4>
+                <p>© 2024 Sam Chen. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

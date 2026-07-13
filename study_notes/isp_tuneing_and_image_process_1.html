@@ -267,72 +267,49 @@
                 <tr>
                     <td>1.      </td>
                     <td>Black level Correction(BLC) &#10142; <span style="color: red;">黑電平校正</span>。</td>
-                    <td>&#128512;</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#BLC">&#128512;</a></td>
                 </tr>
                 <tr>
                     <td>2. </td>
                     <td>Lens Shading Correction(LSC) &#10142; 鏡頭陰影校正。</td>
-                    <td>&#128512;</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#LSC">&#128512;</a></td>
                 </tr>
                 <tr>
                     <td>3. </td>
                     <td>Defective Pixel Correction(DPC) &#10142; 缺陷壞點校正。</td>
-                    <td>&#128512;</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#BPC">&#128512;</a></td>
                 </tr>
                 <tr>
                     <td>4. </td>
-                    <td>De-Mosaic &#10142; 去馬賽克。</td>
-                    <td>&#128512;</td>
+                    <td>De-Mosaic &#10142; 去馬賽克,Color Filter Array(CFA)。</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#De-Mosaic">&#128512;</a></td>
                 </tr>
                 <tr>
                     <td>5. </td>
                     <td>DNR (Digital Noise Reduction) &#10142; 數位降噪。</td>
-                    <td>&#128512;</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#DNR">&#128512;</a></td>
                 </tr>
                 <tr>
                     <td>6. </td>
                     <td>Auto White Balance (AWB) &#10142; 自動白平衡。</td>
-                    <td>&#128512;</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#AWB">&#128512;</a></td>
                 </tr>
                 <tr>
                     <td>7. </td>
                     <td>Auto Exposure (AE) &#10142; 自動曝光。</td>
-                    <td>&#128512;</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#AE">&#128512;</a></td>
                 </tr>
                 <tr>
                     <td>8. </td>
-                    <td>High Dynamic Range(HDR) &#10142; 高動態範圍。</td>
-                    <td>&#128512;</td>
-                </tr>
-                <tr>
-                    <td>9. </td>
                     <td>Color Correction(CC) &#10142; 顏色校正矩陣。</td>
-                    <td>&#128512;</td>
-                </tr>
-                <tr>
-                    <td>9. </td>
-                    <td>Gamma &#10142; 亮度/色彩 曲線。</td>
-                    <td>&#128512;</td>
-                </tr>
-                <tr>
-                    <td>9. </td>
-                    <td>Sharpness &#10142; 銳利度。</td>
-                    <td>&#128512;</td>
-                </tr>
-                <tr>
-                    <td>9. </td>
-                    <td>SHV &#10142; 色彩空間 。</td>
-                    <td>&#128512;</td>
-                </tr>
-                <tr>
-                    <td>13. </td>
-                    <td>Lens Distortion Correction(LDC) &#10142; 鏡頭變形校正 </td>
-                    <td>&#128512;</td>
+                    <td><a href="isp_tuneing_and_image_process_1.html#CCM">&#128512;</a></td>
                 </tr>
             </table>
             </ol>
             <h2>ISP 調整項目功能說明：</h2>
+            <section id="BLC">
             <h3><strong>Black Level Correction(BLC)</strong></h3>
+            </section>
             <ol>
                 <h4>黑電平(Black Level Correction)為全黑場景下，sensor 仍會輸出的亮度值。需要扣除此亮度值以進行後續的影像處理。在不同應用場景下，線性模式或HDR 模式，黑電平可能需要在不同的地方做處理。使用者只須設定所需的黑電平，ISP 會自動依不同應用場景在特定位置扣除黑電平。</h4>        
                 <div class="image-gallery">
@@ -366,7 +343,9 @@
 
                 </div>
             </ol>
+            <section id="LSC">
             <h3><strong>Lens shading correction(LSC)</strong></h3>
+            </section>
             <ol>
                 <h4>由於 lens 的光學特性，鏡頭對於光學折射不均勻導致的鏡頭周圍出現陰影的情況。shading可以細分為 luma shading 和 color shading，鏡頭陰影校正（Lens Shading Correction）是為了解決由於 lens 的光學特性。</h4>        
                 <h4><span style="color :red">1. luma shading：</span></h4>
@@ -458,7 +437,9 @@
                     </figure>
                 </div>      
             </ol>
+            <section id="BPC">
             <h3><strong>Bad Pixel Correction(BPC)</strong></h3>
+            </section>
             <ol>
                 <h4>靜態和動態壞點去除；壞點校正（Bad Pixel Correction，簡稱BPC）是一種常用的影像處理技術，用於修復圖像中存在的壞點或損壞圖元。 壞點通常是由於感測器故障、雜訊干擾或損壞等因素導致的。</h4>
                 <div class="image-gallery">
@@ -482,7 +463,9 @@
                     </ul>
                 </li>
             </ol>
+            <section id="De-Mosaic">
             <h3><strong>De-mosaic</strong></h3>
+            </section>
              <ol>
                 <h4>去馬賽克是一種數位影像處理演算法，目的是從覆有濾色陣列的感光元件所輸出的不完全色彩取樣中，重建出全彩影像。此法也稱為濾色陣列內插法或色彩重建法。 大多數現代數位相機使用單個覆上濾色陣列的感光元件來取得影像，所以去馬賽克是影像處理管線中一個必要環節，以將影像重建成一般可瀏覽的格式。</h4>        
                 <div class="image-gallery">
@@ -530,7 +513,9 @@
                     </figure>
                 </div>
             </ol>
+            <section id="DNR">
             <h3><strong>Digital Noise Reduction(DNR)</strong></h3>
+            </section>
             <ol>
                 <h4><strong>DNR (Digital Noise Reduction)：</strong>影像雜訊是視訊訊號中的干擾，表現為顆粒狀斑點。它可能是由低照明情況、附近的電源幹擾、熱量或設備演算法引起的。</h4>
                 <h4><strong>DNR</strong>是一種透過應用數位梳狀濾波器從視訊訊號中消除影像雜訊的技術。它使圖像更清晰並減小視訊檔案大小。</h4>
@@ -579,7 +564,9 @@
                     </figure>
                     </div>
             </ol>
+            <section id="AWB">
             <h3>Auto White balance(AWB)</h3>
+            </section>
             <ol>
                 <h4><strong>為了將拍攝場景中的白色物體在顯示時正確還原為白色，首先需要知道真實的白色物體在sensor RGB 空間中呈現什麼顏色。常用的方法是通過實驗標定標準白色在一些典型色溫下呈現的sensor RGB 顏色，然後通過幾個標定的色溫點可以外推白色在所有可能色溫下呈現的顏色，從而建立場景色溫與sensor RGB 白色的對應關係，這個對應關係通常用白平衡增益來描述。</strong></h4>
                     <div class="image-gallery">
@@ -612,7 +599,9 @@
                     </figure>
                     </div>
             </ol>
+            <section id="AE">
             <h3>Auto Exposure(AE)</h3>
+            </section>
             <ol>
                 <h4><strong>自動曝光的是為了使感光器件獲得合適的曝光量，自動曝光控制了自動調節圖像的亮度。將根據外界的光線自動調整曝光量和增益。但當主體拍攝物和背景的亮度相差很大時，一般會造成主體拍攝物的過曝光或曝光不足，因此也有某些特定的AE演算法著重考慮了主體拍攝物與背景，來克服此問題，在進行亮度調整時給予不同的曝光比重。</strong></h4>
                 <h4><strong>自動曝光控制 (AEC) 參數是 3A 標頭檔的組成部分。調試 AEC 參數是攝像頭調試過程的關鍵步驟。如果 AEC 參數正確調試，可優化數位攝像頭感測器陣列的圖像和視頻捕捉性能。AE的目的在於透過收到的統計值將畫面整體亮度控制在一個理想的狀態。</strong></h4>
@@ -652,9 +641,15 @@
                     <img src="../image/Study_note_image/Auto_Exposure/ae_8.png" alt="AE">
                     <img src="../image/Study_note_image/Auto_Exposure/ae_7.png" alt="AE">
                 </figure>
+                <h4><strong>ROI 區域與統計亮度 ：</strong></h4>
+                <h4><strong>用最簡單的方式理解統計亮度，可以將 ROI（感興趣區域，Region of Interest）內所有圖元點的值加起來作為當前畫面的統計亮度 。ROI 區域用於指定計算統計亮度的區域 。比如常見的取整個畫面，也可以居中取一塊區域，而在車載產品中可以居中偏下取一塊區域 。</strong></h4>
+                <h4><strong>目標亮度與調節機制 ：</strong></h4>
+                <h4><strong>目標亮度就是在不同環境下採集的統計亮度的值 。比如在很亮環境下取一個目標亮度 Target1，再在較暗的環境下取一個目標亮度 Target2，這樣就有了一個簡單的自動曝光模組 。一般情況下，不同的目標亮度是根據增益等級進行區分的，有 2 個目標等級之後，其他增益環境下的目標亮度可以插值得到 。</strong></h4>
                 </div>
             </ol>
+            <section id="CCM">
             <h3>Color correction martix(CCM)</h3>
+            </section>
             <ol>
                 <h4><strong>由於人類眼睛可見光的頻譜回應度和影像感測器頻譜回應度之間存在差別，還有透鏡等的影響， 得到的RGB 值顏色會存在偏差， 因此必須對顏色進行校正， 通常的做法是通過一個3x3 的顏色變化矩陣來進行顏色矯正。</strong></h4>
                     <figure class="image-item">

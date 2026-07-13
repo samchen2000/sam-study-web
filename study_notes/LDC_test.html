@@ -8,9 +8,11 @@
         /* CSS 系統樣式與現代化排版 */
         :root {
             --primary-color: #2563eb;
-            --background-color: #f8fafc;
+            /*--background-color: #f8fafc;*/
+            --background-color: #121212;
             --card-background: #ffffff;
-            --text-color: #1e293b;
+            /*--text-color: #1e293b;*/
+            --text-color: #e0e0e0;
         }
 
         body {
@@ -26,7 +28,7 @@
 
         h1 {
             margin-bottom: 5px;
-            color: #0f172a;
+            color: #ffffff;
         }
 
         p.subtitle {
@@ -134,10 +136,54 @@
             color: #64748b;
             text-align: center;
         }
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
     </style>
 </head>
 <body>
-
+     <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
     <h1>鏡頭畸變校正演示</h1>
     <p class="subtitle">利用數學幾何重映射（Remapping），模擬與校正相機鏡頭的徑向畸變。</p>
 
@@ -171,7 +217,9 @@
             <div class="legend">網頁即時使用 Canvas 像素級幾何變換運算</div>
         </div>
     </div>
-
+        <footer class="footer">
+            <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+        </footer>
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AF 自動對焦與變焦光學模擬器</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-focus: #38bdf8;
+            --accent-aperture: #a78bfa; /* 新增：光圈的代表色 */
+            --accent-zoom: #f43f5e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin-bottom: 5px; font-size: 24px; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 25px; text-align: center; font-size: 14px; }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            max-width: 1000px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+        }
+
+        @media (min-width: 768px) {
+            .main-container { grid-template-columns: 320px 1fr; }
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            border-right: none;
+            padding-right: 0;
+        }
+
+        @media (min-width: 768px) {
+            .control-panel { border-right: 1px solid #334155; padding-right: 24px; }
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .val-focus { color: var(--accent-focus); font-variant-numeric: tabular-nums; }
+        .val-zoom { color: var(--accent-zoom); font-variant-numeric: tabular-nums; }
+        .val-aperture { color: var(--accent-aperture); font-variant-numeric: tabular-nums; }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #475569;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #focus-slider::-webkit-slider-thumb { background: var(--accent-focus); }
+        #aperture-slider::-webkit-slider-thumb { background: var(--accent-aperture); }
+        #zoom-slider::-webkit-slider-thumb { background: var(--accent-zoom); }
+
+        .effect-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* 重設按鈕樣式 */
+        .reset-btn {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        .reset-btn:hover { background-color: #475569; }
+
+        /* 觀景窗模擬區域 */
+        .viewfinder-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 模擬相機觀景窗 */
+        .viewfinder {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 16 / 10;
+            background: #020617;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+            border: 2px solid #334155;
+        }
+
+        /* 3D 鏡頭空間：所有變焦縮放與透視由此延伸 */
+        .lens-space {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            /* 由 JS 動態控制 transform: scale() 模擬 Zoom */
+            transform-origin: center center;
+            transition: transform 0.1s linear;
+        }
+
+        /* 虛擬場景物件基底 */
+        .scene-object {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            transform-origin: center bottom;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* 背景：遠方樹木與森林 */
+        .bg-trees {
+            height: 85%;
+            background-color: #1b4332; /* 新增：確保元素有基礎背景色可渲染 */
+            background-image: url('../image/Study_note_image/test_chart/背景圖.png'); /* 修改：請替換成您的背景圖片路徑 */
+            z-index: 1;
+            /* 使用 SVG 濾鏡來達成更真實的相機散景效果 */
+            filter: url(#blur-bg);
+        }
+
+        /* 前景：近處人像 */
+        .fg-portrait {
+            height: 80%;
+            left: 25%;
+            width: 50%;
+            background-color: #fb8500; /* 新增：確保元素有基礎背景色可渲染 */
+            background-color: transparent;
+            background-position: center bottom;
+            background-image: url('../image/Study_note_image/test_chart/人像圖.png'); /* 修改：請替換成您的前景圖片路徑 */
+            z-index: 2;
+            filter: url(#blur-fg);
+        }
+
+        /* 相機對焦邊框裝飾 */
+        .viewfinder-hud {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: 1px solid rgba(255,255,255,0.15);
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .af-bracket {
+            width: 40px; height: 40px;
+            border: 2px solid rgba(255,255,255,0.4);
+            position: relative;
+        }
+        .af-bracket::before {
+            content: ''; position: absolute; width: 4px; height: 4px;
+            background: rgba(255,255,255,0.4); top: 16px; left: 16px; border-radius: 50%;
+        }
+
+        .status-bar {
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 15px;
+        }
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <h1>AF 鏡頭對焦與變焦幾何光學模擬</h1>
+    <p class="subtitle">拉動滑桿改變像距（對焦平面）與鏡頭焦距（視角放大），觀察前景與背景的虛實與透視聯動。</p>
+
+    <div class="main-container">
+        <!-- 左側控制面板 -->
+        <div class="control-panel">
+            
+            <!-- 對焦距離滑桿 -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>對焦距離 (Focus Plane)</span>
+                    <span id="focus-indicator" class="val-focus">前景清晰</span>
+                </div>
+                <input type="range" id="focus-slider" min="0" max="100" value="20">
+                <div class="effect-desc">
+                    改變相機對焦平面。拉到左側（近處）時<b>人像清晰、樹木模糊</b>；拉到右側（遠處）時<b>樹木清晰、人像模糊</b>。
+                </div>
+            </div>
+
+            <!-- 新增：光圈滑桿 -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>光圈大小 (Aperture)</span>
+                    <span id="aperture-indicator" class="val-aperture">f/2.8</span>
+                </div>
+                <input type="range" id="aperture-slider" min="0" max="7" value="2" step="1">
+                <div class="effect-desc">
+                    控制景深。<b>大光圈 (f/1.4)</b> 景深最淺，背景最模糊；<b>小光圈 (f/16)</b> 景深最長，前景與背景都更清晰。
+                </div>
+            </div>
+
+            <!-- 變焦滑桿 -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>鏡頭變焦 (Zoom / Focal Length)</span>
+                    <span id="zoom-indicator" class="val-zoom">1.0x (廣角)</span>
+                </div>
+                <input type="range" id="zoom-slider" min="100" max="300" value="100">
+                <div class="effect-desc">
+                    改變鏡頭焦距。<b>Zoom In (3.0x)</b> 時視角變窄，前景與背景同步放大，且由於空間透視壓縮，背景的模糊感（散景）會被進一步放大。
+                </div>
+            </div>
+
+            <!-- 新增重設按鈕 -->
+            <div style="text-align: center; margin-top: 10px;">
+                <button id="reset-button" class="reset-btn">↻ 重設為預設值</button>
+            </div>
+
+            <!-- 光學原理提示 -->
+            <div style="font-size: 13px; color: var(--text-muted); border-top: 1px solid #334155; padding-top: 15px; line-height: 1.6;">
+                <strong>光學物理現象觀察點：</strong><br>
+                1. <b>景深三要素：</b>「對焦距離」、「光圈大小」與「鏡頭焦距」共同決定了景深的範圍。<br>
+                2. <b>望遠散景效應：</b>當您 Zoom In 時，即使光圈不變，背景的模糊感（散景）也會被顯著放大。
+            </div>
+        </div>
+
+        <!-- 右側觀景窗顯示區域 -->
+        <div class="viewfinder-container">
+            <div class="viewfinder">
+                <!-- 3D 鏡頭空間 -->
+                <div class="lens-space" id="lens-space">
+                    <!-- 背景：樹木 -->
+                    <div class="scene-object bg-trees"></div>
+                    <!-- 前景：人像 -->
+                    <div class="scene-object fg-portrait"></div>
+                </div>
+
+                <!-- 相機電子觀景窗 HUD 介面 -->
+                <div class="viewfinder-hud">
+                    <div class="af-bracket" id="af-box"></div>
+                </div>
+            </div>
+
+            <!-- 底部相機狀態參數 -->
+            <div class="status-bar">
+                <span id="hud-aperture">APERTURE: f/2.8</span>
+                <span id="hud-focus">FOCUS: 1.2m</span>
+                <span id="hud-zoom">LENS: 24mm</span>
+                <span>[AF-S]</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 關鍵：SVG 高品質光學濾鏡 (SVG Filter) -->
+    <!-- 真實相機散景(Bokeh)是由均勻的圓形光斑組成，CSS 預設的 blur 是高斯模糊(會讓邊緣太虛)，
+         利用 SVG 的 stdDeviation 配合幾何變焦，能模擬出更逼真的硬邊鏡頭彌散圓效果 -->
+    <svg width="0" height="0" style="position:absolute;">
+        <defs>
+            <filter id="blur-bg">
+                <feGaussianBlur id="svg-blur-bg" stdDeviation="15" />
+            </filter>
+            <filter id="blur-fg">
+                <feGaussianBlur id="svg-blur-fg" stdDeviation="0" />
+            </filter>
+        </defs>
+    </svg>
+        <footer class="footer">
+            <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+        </footer>
+    <script>
+        // 取得 DOM 節點
+        const focusSlider = document.getElementById('focus-slider');
+        const apertureSlider = document.getElementById('aperture-slider');
+        const zoomSlider = document.getElementById('zoom-slider');
+        const lensSpace = document.getElementById('lens-space');
+        const resetButton = document.getElementById('reset-button');
+        
+        const focusIndicator = document.getElementById('focus-indicator');
+        const apertureIndicator = document.getElementById('aperture-indicator');
+        const zoomIndicator = document.getElementById('zoom-indicator');
+        
+        const hudAperture = document.getElementById('hud-aperture');
+        const hudFocus = document.getElementById('hud-focus');
+        const hudZoom = document.getElementById('hud-zoom');
+        const afBox = document.getElementById('af-box');
+        const svgBlurBg = document.getElementById('svg-blur-bg');
+        const svgBlurFg = document.getElementById('svg-blur-fg');
+
+        function updateOptics() {
+            // 定義光圈級數
+            const apertureStops = [1.4, 2.0, 2.8, 4.0, 5.6, 8.0, 11.0, 16.0];
+
+            // 1. 讀取滑桿參數
+            const focusVal = parseInt(focusSlider.value); // 0 (前景人像位置) ~ 100 (背景樹木位置)
+            const apertureIdx = parseInt(apertureSlider.value); // 0-7
+            const zoomVal = parseInt(zoomSlider.value);   // 100 (1x) ~ 300 (3x)
+
+            // 更新光圈 UI
+            const currentAperture = apertureStops[apertureIdx];
+            apertureIndicator.textContent = `f/${currentAperture.toFixed(1)}`;
+            hudAperture.textContent = `APERTURE: f/${currentAperture.toFixed(1)}`;
+            // 光圈值越小（f/1.4），模糊效應越強；光圈值越大（f/16），模糊效應越弱。
+            const apertureFactor = 1 / currentAperture;
+
+            // 2. 處理變焦 (Zoom In / Out)
+            const scale = zoomVal / 100;
+            lensSpace.style.transform = `scale(${scale})`; // 使用模板字串 (backticks)
+
+            // 更新變焦文字與 HUD 參數 (模擬 24mm - 70mm 鏡頭變焦)
+            zoomIndicator.textContent = `${scale.toFixed(1)}x`; // 使用模板字串
+            const currentFocalLength = Math.round(24 + (scale - 1) * 23);
+            hudZoom.textContent = `LENS: ${currentFocalLength}mm`; // 使用模板字串
+
+            // 3. 計算光學模糊 (像距與彌散圓模擬)
+            // 假設前景人像在軸向位置 20，背景樹木在軸向位置 80
+            const fgPosition = 20;
+            const bgPosition = 80;
+
+            // 模糊基礎強度會隨着 Zoom 放大而等比例被放大（這是長焦鏡頭容易爆散景的物理原理）
+            const zoomFactor = scale;
+
+            // 計算當前對焦平面與物件的絕對距離
+            const distToFg = Math.abs(focusVal - fgPosition);
+            const distToBg = Math.abs(focusVal - bgPosition);
+
+            // 計算模糊係數 (開根號或線性映射，讓焦點中心有一段清晰的「景深帶」)
+            let fgBlur = distToFg < 8 ? 0 : (distToFg - 8) * 0.5 * zoomFactor * apertureFactor;
+            let bgBlur = distToBg < 12 ? 0 : (distToBg - 12) * 0.6 * zoomFactor * apertureFactor;
+
+            // 限制最大模糊度，避免畫面完全消失
+            fgBlur = Math.min(25, fgBlur);
+            bgBlur = Math.min(40, bgBlur);
+
+            // 將計算好的模糊像素值寫入 SVG 光學濾鏡
+            svgBlurFg.setAttribute('stdDeviation', fgBlur);
+            svgBlurBg.setAttribute('stdDeviation', bgBlur);
+
+            // 4. 更新 UI 提示文字與對焦框顏色
+            if (focusVal <= 35) {
+                focusIndicator.textContent = "前景清晰 (人像)";
+                focusIndicator.style.color = "var(--accent-focus)";
+                hudFocus.textContent = `FOCUS: ${(0.5 + focusVal*0.03).toFixed(1)}m`; // 使用模板字串
+                afBox.style.borderColor = "#4ade80"; // 對焦成功綠框
+            } else if (focusVal >= 65) {
+                focusIndicator.textContent = "背景清晰 (樹木)";
+                focusIndicator.style.color = "#4ade80";
+                hudFocus.textContent = "FOCUS: 遠景 (∞)"; // 使用模板字串
+                afBox.style.borderColor = "#4ade80";
+            } else {
+                focusIndicator.textContent = "全面失焦 (迷焦中)";
+                focusIndicator.style.color = "#ef4444";
+                hudFocus.textContent = "FOCUS: 搜尋中..."; // 使用模板字串
+                afBox.style.borderColor = "#ef4444"; // 迷焦紅框
+            }
+        }
+
+        // 綁定監聽事件，達成極致流暢的即時渲染
+        focusSlider.addEventListener('input', updateOptics);
+        apertureSlider.addEventListener('input', updateOptics);
+        zoomSlider.addEventListener('input', updateOptics);
+
+        // 綁定重設按鈕的點擊事件
+        resetButton.addEventListener('click', () => {
+            // 將滑桿數值恢復到 HTML 中定義的預設值
+            focusSlider.value = 20;
+            apertureSlider.value = 2; // f/2.8
+            zoomSlider.value = 100;
+            // 呼叫更新函式以立即套用變更
+            updateOptics();
+        });
+
+        // 初始化首次執行
+        updateOptics();
+    </script>
+</body>
+</html>

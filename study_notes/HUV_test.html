@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSV 色彩空間與感光度模擬工具</title>
+    <style>
+        :root {
+            --bg-color: #121212;;
+            --card-bg: #000000;
+            --text-main: #ffffff;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin-bottom: 5px; font-size: 24px; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 25px; text-align: center; font-size: 14px; }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            max-width: 950px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        @media (min-width: 768px) {
+            .main-container { grid-template-columns: 340px 1fr; }
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: none;
+            padding-right: 0;
+        }
+
+        @media (min-width: 768px) {
+            .control-panel { border-right: 1px solid #e2e8f0; padding-right: 24px; }
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .current-value {
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #cbd5e1;
+            outline: none;
+            accent-color: var(--accent);
+        }
+
+        .effect-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* 畫布顯示區域 */
+        .display-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        canvas {
+            background: #000;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 100%;
+            height: auto;
+        }
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <h1>HSV 色彩空間與影像感光度模擬</h1>
+    <p class="subtitle">動態調整飽和度、明度與感光度雜訊，即時觀察影像像素的物理光學變化。</p>
+
+    <div class="main-container">
+        <!-- 左側控制面板 -->
+        <div class="control-panel">
+            <!-- 色調 -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>色調 (Hue)</span>
+                    <span id="hue-val" class="current-value">0°</span>
+                </div>
+                <input type="range" id="hue-slider" min="-180" max="180" value="0">
+                <div class="effect-desc">調整整體色相。例如，將紅色轉為紫色或橘色。</div>
+            </div>
+
+            <!-- 飽和度 -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>飽和度 (Saturation)</span>
+                    <span id="sat-val" class="current-value">100%</span>
+                </div>
+                <input type="range" id="sat-slider" min="0" max="200" value="100">
+                <div class="effect-desc">控制色彩純度。0% 為完全灰階（黑白），值越高色彩越鮮豔。</div>
+            </div>
+
+            <!-- 明度 -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>明度 (Value / Brightness)</span>
+                    <span id="val-val" class="current-value">100%</span>
+                </div>
+                <input type="range" id="val-slider" min="0" max="200" value="100">
+                <div class="effect-desc">控制光線明暗。0% 為全黑，100% 為正常，200% 模擬強光過曝。</div>
+            </div>
+
+            <!-- 感光度 -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>感光度雜訊 (ISO / Gain)</span>
+                    <span id="iso-val" class="current-value">ISO 100</span>
+                </div>
+                <input type="range" id="iso-slider" min="0" max="5" value="0" step="1">
+                <div class="effect-desc">模擬相機高感光度。值越高，訊號放大產生的數位熱噪點越明顯。</div>
+            </div>
+
+            <div style="font-size: 13px; color: var(--text-muted); border-top: 1px dashed #e2e8f0; padding-top: 15px; line-height: 1.6;">
+                <strong>視覺提示：</strong><br>
+                畫面左側模擬圖包含豐富的<b>漸層色調（Hue 0° ~ 360°）</b>，最適合用來觀察當飽和度降為 0 時的純灰階狀態，以及明度與噪點對各色系的影響。
+            </div>
+        </div>
+
+        <!-- 右側畫布區域 -->
+        <div class="display-container">
+            <canvas id="color-canvas" width="500" height="380"></canvas>
+            <div style="font-size: 12px; color: var(--text-muted);">網頁端 Canvas 像素級色彩空間（RGB ⇄ HSV）矩陣運算</div>
+        </div>
+    </div>
+        <footer class="footer">
+            <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+        </footer>
+    <script>
+        const canvas = document.getElementById('color-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 取得 UI 節點
+        const hueSlider = document.getElementById('hue-slider');
+        const satSlider = document.getElementById('sat-slider');
+        const valSlider = document.getElementById('val-slider');
+        const isoSlider = document.getElementById('iso-slider');
+
+        const hueVal = document.getElementById('hue-val');
+        const satVal = document.getElementById('sat-val');
+        const valVal = document.getElementById('val-val');
+        const isoVal = document.getElementById('iso-val');
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // 1. 在記憶體中建立一張包含豐富「色調（Hue）」與物件的原始完美影像
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width = width;
+        srcCanvas.height = height;
+        const srcCtx = srcCanvas.getContext('2d');
+
+        function generateSourceImage() {
+            // 背景：豐富的漸層色輪擴散（涵蓋 0 到 360 度色調）
+            const gradient = srcCtx.createLinearGradient(0, 0, width, 0);
+            for (let i = 0; i <= 360; i += 30) {
+                gradient.addColorStop(i / 360, `hsl(${i}, 100%, 50%)`);
+            }
+            srcCtx.fillStyle = gradient;
+            srcCtx.fillRect(0, 0, width, height);
+
+            // 繪製一些幾何物件，方便觀察明暗與對比
+            // 黑色與白色圓形（觀察明度與不具備飽和度的色彩）
+            srcCtx.fillStyle = '#ffffff';
+            srcCtx.beginPath(); srcCtx.arc(120, 190, 45, 0, Math.PI * 2); srcCtx.fill();
+            srcCtx.fillStyle = '#1e293b';
+            srcCtx.beginPath(); srcCtx.arc(240, 190, 45, 0, Math.PI * 2); srcCtx.fill();
+
+            // 灰階漸層條（位於底部，用於與彩色做對比）
+            const grayGrad = srcCtx.createLinearGradient(50, 0, width - 50, 0);
+            grayGrad.addColorStop(0, '#000000');
+            grayGrad.addColorStop(1, '#ffffff');
+            srcCtx.fillStyle = grayGrad;
+            srcCtx.fillRect(50, 310, width - 100, 30);
+            
+            // 標示文字
+            srcCtx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            srcCtx.font = 'bold 20px sans-serif';
+            srcCtx.fillText("色彩空間測試圖表", 50, 60);
+        }
+
+        generateSourceImage();
+        const srcImgData = srcCtx.getImageData(0, 0, width, height);
+
+        // 2. 數學演算法：RGB 與 HSV 色彩空間轉換
+        // 輸入：r, g, b (0-255) -> 輸出：[h (0-360), s (0-1), v (0-1)]
+        function rgbToHsv(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, v = max;
+            const d = max - min;
+            s = max === 0 ? 0 : d / max;
+
+            if (max === min) {
+                h = 0; // 灰階
+            } else {
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h * 360, s, v];
+        }
+
+        // 輸入：h (0-360), s (0-1), v (0-1) -> 輸出：[r, g, b (0-255)]
+        function hsvToRgb(h, s, v) {
+            let r, g, b;
+            const i = Math.floor(h / 60);
+            const f = h / 60 - i;
+            const p = v * (1 - s);
+            const q = v * (1 - f * s);
+            const t = v * (1 - (1 - f) * s);
+
+            switch (i % 6) {
+                case 0: r = v; g = t; b = p; break;
+                case 1: r = q; g = v; b = p; break;
+                case 2: r = p; g = v; b = t; break;
+                case 3: r = p; g = q; b = v; break;
+                case 4: r = t; g = p; b = v; break;
+                case 5: r = v; g = p; b = q; break;
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        // 3. 影像處理解析與動態渲染
+        function renderEffect() {
+            // 讀取滑桿參數並轉換為權重乘數
+            const hueShift = parseInt(hueSlider.value);            // -180 ~ 180
+            const sMultiplier = parseFloat(satSlider.value) / 100; // 0.0 ~ 2.0
+            const vMultiplier = parseFloat(valSlider.value) / 100; // 0.0 ~ 2.0
+            const isoLevel = parseInt(isoSlider.value);            // 0 ~ 5
+
+            // 更新 UI 數據顯示
+            hueVal.textContent = `${hueShift}°`;
+            satVal.textContent = `${satSlider.value}%`;
+            valVal.textContent = `${valSlider.value}%`;
+            
+            const isoDisplayMap = ["ISO 100 (無雜訊)", "ISO 400", "ISO 1600", "ISO 6400", "ISO 12800", "ISO 25600 (高噪點)"];
+            isoVal.textContent = isoDisplayMap[isoLevel];
+
+            // 建立目標緩衝像素陣列
+            const destImgData = ctx.createImageData(width, height);
+            const srcData = srcImgData.data;
+            const destData = destImgData.data;
+
+            // 定義感光度雜訊強度（ISO 越高，干擾範圍越大）
+            const noiseIntensity = isoLevel * 12; 
+
+            // 走訪每一個像素節點
+            for (let i = 0; i < srcData.length; i += 4) {
+                const r = srcData[i];
+                const g = srcData[i+1];
+                const b = srcData[i+2];
+                const a = srcData[i+3];
+
+                // 步驟 A: 將目前的 RGB 轉換至 HSV 色彩空間
+                let [h, s, v] = rgbToHsv(r, g, b);
+
+                // 新增步驟: 進行色調偏移
+                h = (h + hueShift + 360) % 360; // 加上偏移量並確保結果在 0-360 範圍內
+
+                // 步驟 B: 計算滑桿對「飽和度」與「明度」的影響
+                s = Math.min(1.0, s * sMultiplier); // 飽和度最大值為 1.0
+                v = Math.min(1.0, v * vMultiplier); // 明度最大值為 1.0
+
+                // 步驟 C: 將調整後的 HSV 轉回網頁可讀的 RGB
+                let [newR, newG, newB] = hsvToRgb(h, s, v);
+
+                // 步驟 D: 模擬數位感光度（ISO Gain）的隨機粒子雜訊
+                if (isoLevel > 0) {
+                    // 產生隨機正負高斯分佈雜訊
+                    const noise = (Math.random() - 0.5) * noiseIntensity;
+                    newR = Math.max(0, Math.min(255, newR + noise));
+                    newG = Math.max(0, Math.min(255, newG + noise));
+                    newB = Math.max(0, Math.min(255, newB + noise));
+                }
+
+                // 寫入目標像素陣列
+                destData[i]   = newR;
+                destData[i+1] = newG;
+                destData[i+2] = newB;
+                destData[i+3] = a; // 保持原本不透明度
+            }
+            // 將運算完的矩陣渲染至畫面畫布上
+            ctx.putImageData(destImgData, 0, 0);
+        }
+        // 綁定監聽事件
+        [hueSlider, satSlider, valSlider, isoSlider].forEach(slider => {
+            slider.addEventListener('input', renderEffect);
+        });
+        // 初始首次渲染
+        renderEffect();
+    </script>
+</body>
+</html>

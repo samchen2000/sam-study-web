@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數字影像處理-3D降噪與2D降噪</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD; /* 雪花白 */
+            --color-primary-text: #2C3E50; /* 深灰藍 */
+            --color-secondary-text: #6A737D; /* 中性灰 */
+            --color-accent: #E67E22; /* 溫暖橘 */
+            --color-subtle-bg: #FFFBE6; /* 淡米黃 */
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        table th, table td {
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        table th {
+            background-color: var(--color-subtle-bg);
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        table tr:hover {
+            background-color: #fafafa;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Back to Top Button Styles */
+        #back-to-top-btn {
+            display: none; /* Hidden by default */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400; /* Darker orange */
+        }
+
+        .emoji {
+            display: inline-block;
+            font-size: 1.3rem;
+            margin-right: 0.5rem;
+        }
+
+        sub {
+            vertical-align: baseline;
+            position: relative;
+            bottom: -0.4em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>數字影像處理-3D降噪與2D降噪</h1>
+            <img src="../image/Study_note_image/DNR/2DNR與3DNR影像降噪解析.png" alt="3D/2DNR 運作原理">
+            
+            <h2>什麼是3D降噪和2D降噪？</h2>
+            <p>比較簡單的解釋：<strong>一個演算法如果只利用同幀圖像資訊，稱為2D降噪；利用前後幀資訊稱為3D降噪。</strong></p>
+            
+            <h2>空域降噪（Spatial）</h2>
+            <p>是一種2D降噪方法，它只處理一幀圖像內部的雜訊，計算當前這一張畫面（單影格）內相鄰像素之間的幾何空間與亮度關係，不涉及前後影格的時間序列變化。降噪演算法根據實現原理不同可以分成很多種類型，比如線性/非線性、空域/頻域，頻域又包括小波變換、傅裡葉變換或其他變換。</p>
+            <img src="../image/Study_note_image/DNR/dnr_1.png" alt="空域降噪">
+            
+            <p>在camera ISP 中使用的降噪演算法需要足夠簡單、快速、節省記憶體、適合硬體實現。經典的低通濾波器如中值濾波或高斯濾波雖然足夠簡單但是容易破壞圖像中的邊緣，所以主流ISP產品一般會使用某個加強了邊緣保持特性的改進版本，如引導濾波（guided filter），雙邊濾波（bilateral filter）等。</p>
+            <img src="../image/Study_note_image/DNR/dnr_2.png" alt="降噪演算方式">
+            
+            <h2>2DNR 詳細介紹</h2>
+            
+            <h3>一、 2DNR 的核心運作原理</h3>
+            <h4>2DNR 的基本邏輯是：</h4>
+            <p>影像的真實訊號通常是連續且平滑的，而雜訊（Noise）則是隨機跳變的孤立點。</p>
+            <p>演算法會拿一個像素方陣（例如 3×3 或 5×5 的滑動窗口）在畫面上移動：</p>
+            <ul>
+                <li>中心像素：目前準備要被降噪的目標。</li>
+                <li>鄰近像素：周圍用來提供參考的鄰居。</li>
+                <li>處理方式：分析鄰居們的數值，透過加權平均或篩選，計算出一個合理的新數值來取代中心像素，進而把突兀的雜訊「磨平」。</li>
+            </ul>
+            
+            <h3>二、 主流的 2DNR 演算法</h3>
+            <p>2DNR 的演進主要依據「如何保留邊緣細節」來區分：</p>
+            <ol>
+                <li><strong>均值 / 中值濾波 (Mean / Median Filter)</strong>
+                    <ul>
+                        <li>作法：直接取窗口內所有像素的平均值（均值），或將數值排序後取最中間的值（中值）。</li>
+                        <li>缺點：屬於非邊緣保持濾波。它分不清什麼是雜訊、什麼是物體的邊界，會把所有東西一起模糊掉，導致畫面變得很像「油畫」。</li>
+                    </ul>
+                </li>
+                <li><strong>高斯濾波 (Gaussian Filter)</strong>
+                    <ul>
+                        <li>作法：距離中心像素越近的鄰居，給予越高的權重；越遠的權重越低。</li>
+                        <li>缺點：只考慮了空間距離，依然無法辨識物體的邊緣，高頻細節（如文字、毛髮）仍會被抹模糊。</li>
+                    </ul>
+                </li>
+                <li><strong>雙邊濾波 (Bilateral Filter) — 現代 ISP 最常用的 2D 基礎</strong>
+                    <ul>
+                        <li>作法：同時考慮空間距離權重與像素亮度差權重。如果鄰近像素與中心像素的「亮度差太高」，演算法會判定這是一個「物體邊緣」，進而降低該鄰居的權重，不讓它參與模糊計算。</li>
+                        <li>效果：既能平滑大面積的均勻雜訊（如牆壁、天空），又能成功保留物體的銳利邊緣。</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h3>三、 2DNR 的優點與缺點</h3>
+            <p><span class="emoji">🔵</span><strong>優點</strong></p>
+            <ol>
+                <li>無拖影（No Ghosting）：因為只處理單張畫面，完全不會受到動態物體的影響。即使車輛高速駛過，也不會產生殘影。</li>
+                <li>記憶體頻寬極低：不需要緩存（Buffer）前後影格的影像，對硬體架構（SRAM/DDR）的頻寬與容量消耗極小。</li>
+                <li>超低延遲：畫面一進來就能即時隨流（Streaming）處理完成。</li>
+            </ol>
+            
+            <p><span class="emoji">🔴</span><strong>缺點</strong></p>
+            <ol>
+                <li>降噪能力有上限：在極低光源（Low Light）環境下，如果雜訊太大，強行加大 2DNR 強度會導致畫面嚴重模糊，流失大量細節與紋理。</li>
+                <li>無法處理時域雜訊：無法消除畫面上像雪花般隨機閃爍的動態燥點。</li>
+            </ol>
+            
+            <h2>時域降噪（Temporal）</h2>
+            <p>是一種3D降噪方法，它的主要思想是利用多幀圖像在時間上的相關性實現降噪。</p>
+            <img src="../image/Study_note_image/DNR/dnr_3.png" alt="時域降噪">
+            
+            <p>一種最簡單的實現方法是時域均值濾波，即將相鄰幾幀圖像做加權平均。由於累加後雜訊的增長速度（根號關係）小於信號的增長速度（線性關係），所以圖像的信噪比會提高。這種方法的主要問題在於只適合處理靜態圖像，如果畫面中存在運動的物體則會出現偽影（ghost effect）。</p>
+            
+            <p>那麼對基本的時域降噪進行一些改造就可以得到一種自我調整降噪演算法：運動適應降噪 Motion Adaptive Noise Filter 。</p>
+            
+            <p>比如：基於運動自我調整的方法，採用區域運動檢測的方式來調整濾波權重，運動較大區域減小權重係數，運動小的區域加大權重係數，缺點是犧牲運動區域的去噪效果來減少拖影程度。</p>
+            
+            <h2>3DNR 詳細介紹</h2>
+            
+            <h3>一、 3DNR 的核心運作原理</h3>
+            <p><strong>3DNR 的基本物理假設是：</strong></p>
+            <p>在連續拍攝的畫面中，真實景物是具有連續性與統計規律的，而雜訊（如熱雜訊、散粒雜訊）則是隨機出現且互不相關的。</p>
+            <p>如果把連續 3 到 5 張照片重疊並取平均值：</p>
+            <ul>
+                <li>真實景物：訊號不斷疊加，數值保持穩定。</li>
+                <li>隨機雜訊：正負誤差在疊加、平均的過程中互相抵消（即時域低通濾波）。</li>
+                <li>結果：噪點大幅下降，且完全不損害畫面的邊緣與細節，這是 2DNR 無法做到的。</li>
+            </ul>
+            
+            <h3>二、 核心架構：運動檢測（Motion Detection）</h3>
+            <p>如果畫面完全靜態，3DNR 可以做到近乎完美的降噪。但如果畫面中有物體在移動，直接將前後影格相加就會把移動物體的軌跡黏在一起，產生嚴重的殘影/拖影（Ghosting）。</p>
+            <p>因此，現代 3DNR 必須包含運動檢測（Motion Detection）機制，其運作公式通常為：</p>
+            <p style="text-align: center; font-style: italic; margin: 1.5rem 0;">
+                Output(t) = α · Current_Frame + (1 - α) · Reference_Frame(t-1)
+            </p>
+            
+            <p>其中 α（混合權重，0 到 1 之間）是由運動檢測器動態決定的：</p>
+            <ul>
+                <li>靜態區域（無運動）：α 趨近於 0。ISP 會重度依賴歷史影格（參考影格）進行強烈降噪。畫面此時變得極為乾淨，細節完好。</li>
+                <li>動態區域（有運動）：α 趨近於 1。ISP 發現物體在動，為了避免拖影，會減少或完全關閉時域降噪，直接採用當前影格的原始數值（並轉由 2DNR 來接管該區域的降噪）。</li>
+            </ul>
+            
+            <h3>三、 3DNR 的優點與缺點</h3>
+            <p><span class="emoji">🔵</span><strong>優點</strong></p>
+            <ol>
+                <li>極致的降噪能力：在夜間或極暗環境（Low Light），能大幅消除像雪花般隨機跳動的動態燥點（Time-domain noise）。</li>
+                <li>完美保留高頻細節：在靜態區域，它不需要像 2DNR 那樣把畫面磨平，因此能完整保留牆壁紋理、文字、衣物纖維等細節。</li>
+                <li>提升後續編碼效率：乾淨、不閃爍的畫面可以讓 H.264 / H.265 影片壓縮率大幅提升，顯著降低串流頻寬與儲存空間。</li>
+            </ol>
+            
+            <p><span class="emoji">🔴</span><strong>缺點與副作用</strong></p>
+            <ol>
+                <li>運動拖影（Ghosting）：當物體運動速度極快，或者環境太暗導致運動檢測失效時，運動物體後方會帶有一條像鬼影般的尾巴。</li>
+                <li>硬體成本極高：必須在 DDR 記憶體中暫存前一影格（或數影格）的完整影像數據，對記憶體頻寬（Bandwidth）與容量消耗極大。</li>
+            </ol>
+            
+            <h3>四、 進階技術：3DNR + ME/MC（運動估計與補償）</h3>
+            <p>為了徹底解決動態物體的降噪問題，高階的 ISP（如高階安防晶片、手機旗艦 SoC）會在 3DNR 中加入 ME/MC（Motion Estimation / Motion Compensation，運動估計與運動補償）：</p>
+            <ul>
+                <li>作法：演算法不只比對同一個座標點，還會預測運動物體「跑去哪裡了」。它會把前一影格的車子，平移對齐到當前影格的車子位置，再進行時域相加。</li>
+                <li>效果：即使物體在高速移動，3DNR 依然能同時發揮強效降噪，且完全不產生拖影。但這需要極其龐大的晶片算力。</li>
+            </ul>
+            
+            <h2>進階降噪技術</h2>
+            <p>前面說道<strong>一個演算法如果只利用同幀圖像資訊，稱為2D降噪；利用前後幀資訊稱為3D降噪。</strong></p>
+            <p>在利用相似資訊時候，採用搜索相似塊的思路，則稱為基於運動補償的降噪。BM3D就是時空域運動補償的降噪演算法。</p>
+            
+            <p>基於運功補償的方法，利用運動估計和運動補償找到當前幀在前後幀中的時域預測，可以很好的去除拖影效果但時間複雜度過高，即時性不強，因為每個點都需要在一定區域裡面搜索相似塊，運算複雜度高，很難做到即時。</p>
+            
+            <p>因此在工業界，大多採用3D降噪方法，沒有運動補償部分，基本思路是通過判斷待濾波點是否為運動點來選擇空域濾波強度和時域平滑強度。</p>
+            
+            <p>一般的調試思路是在運動幅度越大的區域加強空域濾波強度同時減少時域平滑強度，在消除雜訊的同時儘量減少拖影。</p>
+            
+            <h2>2DNR 與 3DNR 的關鍵對比</h2>
+            <p>現代 ISP 通常會將兩者結合（混合降噪）：</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>特性</th>
+                        <th>2DNR（空域降噪）</th>
+                        <th>3DNR（時域降噪）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>處理維度</td>
+                        <td>單張畫面（X軸、Y軸）</td>
+                        <td>跨影格畫面（X軸、Y軸 + 時間軸）</td>
+                    </tr>
+                    <tr>
+                        <td>最佳場景</td>
+                        <td>高速運動物體、光線充足</td>
+                        <td>靜態畫面、極度昏暗環境</td>
+                    </tr>
+                    <tr>
+                        <td>副作用</td>
+                        <td>強度過高時，畫面會變糊（油畫感）</td>
+                        <td>運動物體邊緣會產生拖影/殘影</td>
+                    </tr>
+                    <tr>
+                        <td>硬體成本</td>
+                        <td>極低，不需要大型記憶體</td>
+                        <td>高，必須緩存前幾影格的資料</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

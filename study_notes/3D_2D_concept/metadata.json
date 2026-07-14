@@ -1,0 +1,6 @@
+{
+  "name": "2DNR & 3DNR Concept Visualizer",
+  "description": "An interactive educational visualization and simulation tool comparing 2DNR (Spatial Noise Reduction) and 3DNR (Temporal Noise Reduction) algorithms, featuring real-time video simulation and deep-dive technical insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

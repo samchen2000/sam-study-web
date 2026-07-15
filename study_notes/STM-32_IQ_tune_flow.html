@@ -58,6 +58,7 @@
             padding-bottom: 0.5rem;
             margin-top: 1rem;
             margin-bottom: 1.5rem;
+            text-align: center;
         }
 
         h2 {
@@ -332,7 +333,7 @@
     <main class="main-content">
         <div class="container"><h1>STM-32 IQ Tune Flow
 </h1>
-<h3>STM32 ISP IQTune 的安裝與連線流程分為硬體準備、軟體安裝以及連線啟動三個階段。以下為詳細的操作流程步驟：
+<h3>STM32 ISP IQ Tune 的安裝與連線流程分為硬體準備、軟體安裝以及連線啟動三個階段。以下為詳細的操作流程步驟：
 </h3>
 <h2>第一階段：環境與硬體準備
 </h2>
@@ -577,7 +578,7 @@
 <ul>
 <li>套用設定：點擊 "Apply" 按鈕將配置寫入硬體。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_4.PNG" alt="點擊 "Apply" 按鈕將參數寫入硬體">
+        <img src="../image/Study_note_image/STM_32/stm_4.PNG" alt="Apply 按鈕將參數寫入硬體">
         <figcaption>點擊 "Apply" 按鈕將參數寫入硬體</figcaption>
     </figure>
 </li>
@@ -631,7 +632,7 @@
 </li>
 <li>選擇控制模式：您可以選擇使用「軟體演算法自動調整」或「手動固定強度」。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_5.PNG" alt="點擊 "Apply" 按鈕將參數寫入硬體">
+        <img src="../image/Study_note_image/STM_32/stm_5.PNG" alt=" 按鈕將參數寫入硬體">
         <figcaption>點擊 "Apply" 按鈕將參數寫入硬體</figcaption>
     </figure>
 </li>
@@ -665,7 +666,7 @@
 <ul>
 <li>套用設定：點擊 "Apply" 按鈕將參數寫入硬體。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_6.PNG" alt="點擊 "Apply" 按鈕將參數寫入硬體">
+        <img src="../image/Study_note_image/STM_32/stm_6.PNG" alt=" 按鈕將參數寫入硬體">
         <figcaption>1. 啟用bad pixel module。</figcaption>
         <figcaption>2. 啟用後，啟用或停用壞像素軟體演算法。</figcaption>
         <figcaption>3. 如果啟用壞像素演算法，可以配置閾值，並獲知演算法選擇的強度以及偵測到的壞像素數量。如果停用壞像素演算法，您可以選擇固定強度，並獲知偵測到的壞像素數量。</figcaption>
@@ -720,7 +721,7 @@
 </li>
 <li>套用設定：點擊欄位旁的 Apply 按鈕 執行套用。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_7.PNG" alt="點擊 "Apply" BLC 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_7.PNG" alt=" BLC 操作步驟">
         <figcaption>BLC 操作步驟</figcaption>
     </figure>
 </li>
@@ -732,7 +733,7 @@
 </li>
 <li>確認生效：套用後的配置會在介面上以藍色高亮顯示，確保參數已正確寫入硬體。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_8.PNG" alt="點擊 "Apply" BLC 確認生效">
+        <img src="../image/Study_note_image/STM_32/stm_8.PNG" alt=" BLC 確認生效">
         <figcaption>BLC 確認生效</figcaption>
     </figure>
 </li>
@@ -774,7 +775,7 @@
 </li>
 <li>套用設定：調整完成後，點擊 "Apply" 按鈕將參數寫入硬體。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_9.PNG" alt="點擊 "Apply" Demosaicing 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_9.PNG" alt=" Demosaicing 操作步驟">
         <figcaption>Demosaicing 操作步驟</figcaption>
     </figure>
 
@@ -815,7 +816,7 @@
 </li>
 <li>確認套用範圍：此單一開關會同時控制主要用途管道（Pipe 1）與輔助用途管道（Pipe 2）的伽瑪校正參數。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_10.PNG" alt="點擊 "Apply" gamma 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_10.PNG" alt=" gamma 操作步驟">
         <figcaption>gamma 操作步驟</figcaption>
     </figure>
 </li>
@@ -875,7 +876,7 @@
 </li>
 <li>套用設定：確認參數後，點擊 "Next" 進入下一步。
     <figure class="image-item">
-        <img src="../image/Study_note_image/STM_32/stm_11.PNG" alt="點擊 "Apply" Exposure 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_11.PNG" alt=" Exposure 操作步驟">
         <figcaption>Exposure 操作步驟</figcaption>
     </figure>
 </li>
@@ -886,13 +887,16 @@
 </p>
 <p>觀察 Live Feedback：啟用 AE 後，您可以嘗試改變鏡頭對準區域的亮度（例如移動燈箱光源），並觀察右側預覽畫面是否能迅速且平滑地恢復到正常亮度。
 </p>
-<h2>Step 7: Configure auto white balance (AWB) profiles
+<h2>
+    Step 7: 配置自動白平衡 (AWB) 設定檔 此步驟包含多個子項，需針對不同光源重複執行：
+</h2>
+<h2>Step 7-1: Configure auto white balance (AWB) profiles
 </h2>
 <p>在 STM32 ISP IQTune 的調校流程中，Configure auto white balance (AWB) profiles 是色彩校準的核心
 </p>
 <p>。一個白平衡設定檔（Profile）是由針對特定光源的 ISP 增益（ISP gains） 與 色彩校正矩陣（CCM） 組合而成。
     <figure class="image-item">    
-        <img src="../image/Study_note_image/STM_32/stm_12.PNG" alt="點擊 "Apply" AWB 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_12.PNG" alt=" AWB 操作步驟">
         <figcaption>對自動白平衡設定檔的描述中，給定光源的白平衡設定檔指的是兩組參數的組合：與顏色校正矩陣 (CCM) 相關的 ISP 增益。</figcaption>
     </figure>  
 </p>
@@ -920,7 +924,7 @@
 </h3>
 <p>您可以點擊預覽畫面上的按鈕，根據背景明暗將選框顏色更改為 Default、Light 或 Dark，以便於觀察。
     <figure class="image-item">    
-        <img src="../image/Study_note_image/STM_32/stm_13.PNG" alt="點擊 "Apply" AWB 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_13.PNG" alt=" AWB 操作步驟">
         <figcaption>AWB 操作步驟</figcaption>
     </figure>  
 </p>
@@ -934,7 +938,7 @@
 <li>使用燈箱：建議在<strong>燈箱（Light box）</strong>中進行此操作，以提供穩定、一致且受控的照明環境，確保校準的精確度。
 </li>
 </ul>
-<h2>Step 7-1: Configure the ISP gain to ensure white appears white（配置 ISP 增益以確保白色呈現正確）
+<h2>Step 7-2: Configure the ISP gain to ensure white appears white（配置 ISP 增益以確保白色呈現正確）
 </h2>
 <p>在 STM32 ISP IQTune 的調校流程中，Step 4.3.7.2: Configure the ISP gain to ensure white appears white（配置 ISP 增益以確保白色呈現正確） 的目的在於平衡 R、G、B 通道，使影像中的中性灰階色塊（如色卡上的白色塊）能正確顯示為白色。
 </p>
@@ -1170,7 +1174,7 @@
 </li>
 <li>上傳影像檔案：點擊上傳按鈕，選取剛剛擷取的 .pgm RAW 影像檔案。
     <figure class="image-item">    
-        <img src="../image/Study_note_image/STM_32/stm_14.PNG" alt="點擊 "Apply" AWB 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_14.PNG" alt=" AWB 操作步驟">
         <figcaption>AWB 操作步驟</figcaption>
     </figure>  
 </li>
@@ -1178,7 +1182,7 @@
     <p>點擊 "Start" 開始分析。
     </p>
     <figure class="image-item">    
-        <img src="../image/Study_note_image/STM_32/stm_15.PNG" alt="點擊 "Apply" AWB 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_15.PNG" alt=" AWB 操作步驟">
         <figcaption>AWB 操作步驟</figcaption>
     </figure> 
     <p>故障排除：若分析失敗，通常是因為影像曝光不足導致無法偵測色卡。此時需稍微調大感測器的曝光時間，並從步驟 1 重新開始。
@@ -1198,7 +1202,7 @@
 </li>
 <li>點擊 "Save" 後，再點擊該設定檔旁的 Play 按鈕 (Apply) 將參數寫入硬體。
     <figure class="image-item">    
-        <img src="../image/Study_note_image/STM_32/stm_16.PNG" alt="點擊 "Apply" AWB 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_16.PNG" alt=" AWB 操作步驟">
         <figcaption>AWB 操作步驟</figcaption>
     </figure>  
 </li>
@@ -1211,7 +1215,7 @@
 <li>後續步驟：完成此步驟並確認「白色看起來是白色」後，即可進行 Step 4.3.7.3: Configure the color correction matrix (CCM) 來進一步優化其餘色彩的還原準確度。
 </li>
 </ul>
-<h2>Step 7-2: 色彩校正矩陣 (CCM)
+<h2>Step 7-3: 色彩校正矩陣 (CCM)
 </h2>
 <p>在 STM32 ISP IQTune 的調校流程中，色彩校正矩陣 (CCM) 的調校 緊接在白平衡增益 (ISP Gain) 設定之後，其目的是將影像從感測器的 RGB 空間轉換為標準 sRGB 空間，以確保色彩還原的準確性。
 </p>
@@ -1243,16 +1247,24 @@
 <li>選擇分析類型：在分析面板中勾選 "Color Correction Matrix" 分析選項。
 </li>
 <li>上傳影像：點擊上傳按鈕，選取剛剛擷取的 .png RGB 影像檔案。
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_17.PNG" alt=" CCM 操作步驟(1)">
+        <figcaption>CCM 操作步驟</figcaption>
+    </figure> 
 </li>
 <li>執行 CCM 分析：點擊 "Start" 開始分析。工具會根據影像中的 ColorChecker 色塊自動計算出 3x3 的補正係數。
-</li>
-<li>獲取係數：分析完成後，介面會顯示計算出的 CCM 係數矩陣。
-</li>
-<li>點擊係數旁的 「複製」圖示 以儲存這些數值。
     <figure class="image-item">    
-        <img src="../image/Study_note_image/STM_32/stm_17.PNG" alt="點擊 "Apply" CCM 操作步驟">
+        <img src="../image/Study_note_image/STM_32/stm_18.PNG" alt=" CCM 操作步驟(2)">
         <figcaption>CCM 操作步驟</figcaption>
     </figure>  
+</li>
+<li>獲取係數：分析完成後，介面會顯示計算出的 CCM 係數矩陣。
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_19.PNG" alt=" CCM 操作步驟(3)">
+        <figcaption>CCM 操作步驟</figcaption>
+    </figure>  
+</li>
+<li>點擊係數旁的 「複製」圖示 以儲存這些數值。 
 </li>
 <li>套用參數：
 </li>
@@ -1261,6 +1273,10 @@
 <li>點擊該設定檔中的 CCM 圖示開啟配置框，並將複製的係數 「貼上」 進去。
 </li>
 <li>點擊 "Save" 後，再點擊該設定檔旁的 Play 按鈕 (Apply) 將參數寫入硬體。
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_20.PNG" alt=" CCM 操作步驟(4)">
+        <figcaption>CCM 操作步驟</figcaption>
+    </figure> 
 </li>
 </ul>
 <h3>3. 驗證結果 
@@ -1282,6 +1298,99 @@
 </ul>
 <h3><font color="red">重要提醒：由於 CCM 會隨光源色溫變化，您需要針對燈箱中準備的每一種不同光源（最多支援 5 種）重複執行上述白平衡增益與 CCM 的調校流程。</font>
 </h3>
+<h2>Step 7-4: 分析最終的ISP配置，檢查色彩準確性是否與參考顏色一致
+</h2>
+<p>在 STM32 ISP IQTune 的調校流程中，Step 4.3.7.4: Analyze the final ISP configuration to check color accuracy versus the reference colors 是驗證調校成果的關鍵步驟。此步驟的目的在於定量評估在特定光源下，套用了 ISP 增益（ISP Gain）與色彩校正矩陣（CCM）後的影像色彩準確度。
+</p>
+<h3>以下是該步驟的詳細操作方法與結果分析說明：
+</h3>
+<h3>1. 操作步驟
+</h3>
+<ul>
+<li>請在 IQTune 應用程式中依序執行以下動作：
+    <li>擷取影像：在已套用正確 ISP 增益與 CCM 的狀態下，針對當前光源拍攝一張 ColorChecker 色卡的 RGB 影像（系統會存為 .png 檔案）。</li>
+    <li>進入分析面板：切換至導覽列的 "Analysis" 面板。</li>
+    <li>選擇分析模式：勾選分析類型為 "Advanced Image"。</li>
+    <li>上傳影像：點擊上傳按鈕，選取剛剛拍攝的 .png 檔案。</li>
+    <li>執行分析：點擊 "Start" 開始進行進階影像分析。</li>
+    <li>檢視與驗證：分析完成後，介面會顯示多種圖表與數據供您驗證色彩準確度。</li>
+    <li>下載報告 (選用)：點擊下載按鈕可獲取包含圖表與數據的 .zip 壓縮檔（內含 .csv 資料）。</li>
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_21.PNG" alt=" color 確認操作步驟(1)">
+        <img src="../image/Study_note_image/STM_32/stm_22.PNG" alt=" color 確認操作步驟(2)">
+        <figcaption>color 確認操作步驟</figcaption>
+    </figure> 
+</li>
+</ul>
+<h3>2. 關鍵指標與驗收標準 (Acceptance Criteria)    
+</h3>
+<ul>
+<li>分析報告中最重要的指標如下，用來判斷調校是否成功：
+    <li>DeltaC00 (ΔC00)：這是最核心的驗收指標，專門測量**飽和度/色度（Chroma）**的差異，不計亮度影響。
+        <ol><font color="red">中性灰階色塊：ΔC00 必須 < 5。</font></ol>
+        <ol><font color="red">其餘彩色色塊：ΔC00 必須 < 10。</font></ol>
+    </li>
+    <li>R/G 與 B/G 比例：衡量色卡底部 6 個灰階色塊的中性程度，理想比例應接近 1:1。</li>
+        <ol><font color="red">合格範圍：通常落在 0.9 至 1.1 之間。</font></ol>
+    <li>曝光誤差 (Exposure error)：若曝光不正確，色卡的參考數值將不具準確性。</li>
+        <ol><font color="red">合格範圍：必須在 ± 0.250 f-stop 以內。若誤差過大，則需重新調整 Step 6 的曝光設定並重拍影像。</font></ol>
+    <li>DeltaE00 (ΔE00)：測量包含亮度、飽和度與色調在內的全方位色彩差異。此指標僅供參考，不作為主要的硬性驗收標準。</li>
+</li>
+</ul>
+<h3>3. 分析圖表說明    
+</h3>
+<ul>
+<li>分析工具會提供以下視覺化結果幫助判斷：
+    <li>圖表 A (3D 長條圖)：顯示每個色塊的 ΔC00 數值。長條越低代表該顏色還原越準確，同時會顯示平均與最大偏移值。</li>
+    <li>圖表 B (中性灰階分析)：</li>
+        <ol>上方圖：R、G、B 分量的對數像素位準對比色塊密度。三條曲線越接近代表灰階還原越中性，此圖也會標出最終測得的 Gamma 數值。</ol>
+        <ol>下方圖：顯示各密度下的 ΔC00 變化。</ol>
+    <li>圖表 C (視覺比較)：顯示「拍攝色塊」與「標準參考色」的對比。每個大色塊代表標準色，中間的小方塊代表 ISP 處理後的實際顏色。</li>
+</li>
+</ul>
+<li>完成此驗證步驟後，若數據均符合標準，代表該光源下的色彩配置已達到最佳化。
+</li>
+<h2>Step 7-5: 啟用自動白平衡演算法
+</h2>
+<p>在 STM32 ISP IQTune 的調校流程中，Step 4.3.7.5: Enable the AWB algorithm（啟用自動白平衡演算法） 是完成所有光源設定檔（Profiles）校準後的最後一步。此步驟的目的是啟動嵌入式 AWB 演算法，使其根據環境光線自動在預設的設定檔之間切換。
+</p>
+<h3>以下是詳細的操作與步驟：
+</h3>
+<h3>1. 操作步驟
+</h3>
+<ul>
+<li>根據技術指南與介面說明，請在 "White Balance" 配置面板執行以下動作：
+    <li>選擇要納入管理的設定檔：</li>
+        <li>在設定檔列表左側，勾選您想要交由 AWB 演算法自動管理的設定檔（例如您先前校準好的 D65、A 或 TL84）。</li>
+        <li>限制：演算法最多支援同時管理 5 種 不同的白平衡設定檔。</li>
+    <li>啟動 AWB 演算法：</li>
+        <li>點擊列表下方的 "Activate embedded AWB" 按鈕。</li>
+        <li>此時，按鈕狀態會轉變為啟用，代表演算法已開始運行。</li>
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_23.PNG" alt=" color 確認操作步驟(1)">
+        <figcaption>啟用自動白平衡演算法 確認操作步驟</figcaption>
+    </figure> 
+</li>
+</ul>
+<h3>2. 狀態確認與視覺回饋    
+</h3>
+<ul>
+<li>啟用後，您可以透過介面的變化確認演算法是否正常運作：
+    <li>圖示變化：原本被勾選設定檔旁的黃色打勾方框，會轉變為 「AWB 標誌」。</li>
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_24.PNG" alt="點擊 Apply">
+        <figcaption>色溫參數變化</figcaption>
+    </figure> 
+    <li>當前套用提示：當 AWB 演算法正在運行時，系統目前判定並自動選用的設定檔會以 <font color = "blue">「藍色高亮（Blue highlight）」</font> 顯示。</li>
+    <li>即時動態：若您改變現場光源（如在燈箱中切換光源），您應該能觀察到藍色高亮區域在不同設定檔之間跳動，代表演算法成功偵測到色溫變化並切換了參數。</li>
+</li>
+</ul>
+<h3>3. 調校建議    
+</h3>
+<ul>
+<li>光源區分度：為了確保 AWB 演算法能穩定且準確地判斷環境光，建議所選定的設定檔之間應具有足夠明顯的色溫差異（例如同時包含高色溫的日光與低色溫的室內黃光）。</li>
+<li>匯出配置：完成此步驟後，請務必進行 Step 9: Export the ISP configuration，將包含 AWB 演算法邏輯的配置匯出為 .yaml (Linux) 或 .h (裸機) 檔案，以便應用於最終產品。</li>
+</ul>    
 <h2>Step 8: Configure the contrast (optional)
 </h2>
 <p>在 STM32 ISP IQTune 的調校流程中，Step 8: Configure the contrast (optional) 是影像處理管道（Pipeline）的最後一個環節，主要用於增強影像的對比度。
@@ -1314,6 +1423,10 @@
 這些滑桿對應不同亮度區段的增益，調整它們可以改變對比度曲線的走向。
 </code></pre>
 <li>套用設定：調整完成後，點擊 "Apply" 按鈕將參數寫入硬體並即時觀察預覽畫面的變化。
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_25.PNG" alt="點擊 Apply">
+        <figcaption>contrast 控制調整流程</figcaption>
+    </figure> 
 </li>
 </ul>
 <h3>3. 調校小提示
@@ -1341,17 +1454,19 @@
 </li>
 <li>執行匯出：點擊 "Export Configuration" 按鈕，並根據您的專案類型選擇適合的匯出格式。
 </li>
+    <figure class="image-item">    
+        <img src="../image/Study_note_image/STM_32/stm_26.PNG" alt="點擊 Apply">
+        <figcaption>選擇適合的匯出格式</figcaption>
+    </figure> 
 </ul>
 <h3>2. 不同專案類型的匯出說明
 </h3>
 <ul>
 <li>匯出的檔案格式取決於您的目標系統：
-</li>
 <li>Linux 專案：
+    <li>需匯出格式：需匯出為 .yaml 檔案。</li>
+    <li>後續操作：將產生的 .yaml 檔案上傳至開發板的指定目錄：/usr/share/libcamera/ipa/dcmipp/。</li>
 </li>
-<li>需匯出格式：需匯出為 .yaml 檔案。
-</li>
-<li>後續操作：將產生的 .yaml 檔案上傳至開發板的指定目錄：/usr/share/libcamera/ipa/dcmipp/。
 </li>
 </ul>
 <p>生效原理：系統會在執行時根據偵測到的感測器名稱（例如 imx335）自動加載對應的 .yaml 檔案（例如 imx335.yaml），從而套用您所建立的 ISP 配置。

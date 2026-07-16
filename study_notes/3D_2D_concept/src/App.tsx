@@ -5,6 +5,22 @@ import NoiseSimulator from './components/NoiseSimulator';
 import ComparisonTable from './components/ComparisonTable';
 import { SimSettings } from './types';
 
+type MemoCardProps = {
+  icon: React.ReactNode;
+  title: string;
+  titleColorClass: string;
+  children: React.ReactNode;
+};
+
+const MemoCard: React.FC<MemoCardProps> = ({ icon, title, titleColorClass, children }) => (
+  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-xl space-y-2.5">
+    <h3 className={`font-semibold flex items-center gap-2 text-sm font-sans ${titleColorClass}`}>
+      {icon} {title}
+    </h3>
+    <div className="text-xs text-slate-300 leading-relaxed">{children}</div>
+  </div>
+);
+
 export default function App() {
   const [settings, setSettings] = useState<SimSettings>({
     noiseLevel: 45,
@@ -119,29 +135,28 @@ export default function App() {
             
             {/* Brief Visual Concept Panel right below */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-xl space-y-2.5">
-                <h3 className="font-semibold text-indigo-400 flex items-center gap-2 text-sm font-sans">
-                  <Zap className="h-4.5 w-4.5" />
-                  2DNR 快速備忘錄 (2D Spatial Denoise)
-                </h3>
-                <p className="text-xs text-slate-300 leading-relaxed">
+              <MemoCard 
+                icon={<Zap className="h-4.5 w-4.5" />}
+                title="2DNR 快速備忘錄 (2D Spatial Denoise)"
+                titleColorClass="text-indigo-400"
+              >
+                <p>
                   2DNR 在單張影像（空間域）內運作。它會尋找鄰近像素，並對其進行模糊處理。
                   <strong>它的強項是：</strong>不限幀率，即使畫面有劇烈晃動，也不會產生任何拖尾（鬼影）。
                   <strong>缺點是：</strong>用力過猛會導致畫面中精緻的文字和紋理細節消失，呈現如同美顏相機般的「塑膠感」或「塗抹感」。
                 </p>
-              </div>
-
-              <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-xl space-y-2.5">
-                <h3 className="font-semibold text-purple-400 flex items-center gap-2 text-sm font-sans">
-                  <Layers className="h-4.5 w-4.5" />
-                  3DNR 快速備忘錄 (3D Temporal Denoise)
-                </h3>
-                <p className="text-xs text-slate-300 leading-relaxed">
+              </MemoCard>
+              <MemoCard 
+                icon={<Layers className="h-4.5 w-4.5" />}
+                title="3DNR 快速備忘錄 (3D Temporal Denoise)"
+                titleColorClass="text-purple-400"
+              >
+                <p>
                   3DNR 跨越多個前後影格（時間域）運作。它把前後多張圖片重疊，對相同的坐標點進行平均。
                   <strong>它的強項是：</strong>降噪能力極強，能將夜晚微光背景洗得像白晝般純淨，且100%保留靜態細節。
                   <strong>缺點是：</strong>當畫面有東西在移動（如車輛），會出現「重影疊圖」的致命拉絲殘影。必須搭配運動適應檢測（Motion Adaptive）才能在實務中落地。
                 </p>
-              </div>
+              </MemoCard>
             </div>
           </section>
         ) : (

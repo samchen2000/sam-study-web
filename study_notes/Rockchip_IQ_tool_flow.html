@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM-32 IQ tune flow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            border-bottom: 1px dashed #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        em {
+            font-style: italic;
+        }
+
+        a {
+            color: var(--color-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #d35400;
+            text-decoration: underline;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        table th, table td {
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        table th {
+            background-color: var(--color-subtle-bg);
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        table tr:hover {
+            background-color: #fafafa;
+        }
+
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.85em;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 2rem 0;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: #ecf0f1;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .highlight {
+            background-color: yellow;
+            color: black;
+            padding: 0 4px;          /* 可選:加一點內距 */
+            border-radius: 3px;      /* 可選:圓角 */
+        }
+
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                margin-left: 1rem;
+                margin-right: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+         /* image size */
+        .img-container {
+            display: flex;         /* 啟用 Flexbox */
+            justify-content: center; /* 水平置中 */
+            align-items: center;     /* 垂直置中 (若需要) */
+            gap: 15px; /* 圖片與文字之間的間距 */
+            font-size: 1.5rem;
+        }
+
+        .img-container img {
+            width: 100%;             /* 寬度佔滿容器 */
+            max-width: 500px;        /* 限制圖片最大寬度為 500px */
+            height: auto;            /* 高度自動等比例縮放 */
+        }
+
+        td, th {
+            text-align: center; /* 水平居中 */
+            vertical-align: middle; /* 垂直居中 */
+            height: 40px; /* 设置固定高度以便观察垂直居中效果 */
+        }
+        .image-gallery {
+            display: flex; /* 讓容器內的項目水平排列 */
+            gap: 20px; /* 設定圖片之間的間距 */
+        }
+
+        .image-item {
+            margin: 0; /* 清除預設的外邊距 */
+            text-align: center; /* 讓文字水平置中 */
+        }
+
+        .image-item img {
+            max-width: 100%; /* 確保圖片不會超出容器寬度 */
+            height: auto;
+            display: block; /* 消除圖片下方微小的空白縫隙 */
+        }
+
+        .image-item figcaption {
+            margin-top: 8px; /* 圖片與註解之間的距離 */
+            color: #555; /* 註解文字顏色 */
+            font-size: 18px; /* 註解文字大小 */
+        }
+        body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+        .container { display: flex; flex-direction: column; gap: 20px; }
+        .stage { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    
+        .box { 
+            padding: 10px 15px; border: 1px solid #333; color: white; 
+            text-align: center; border-radius: 4px; min-width: 80px; font-size: 12px;
+        }
+    
+        /* 顏色定義 */
+        .raw { background-color: #89a759; }
+        .rgb { background-color: #779ecb; }
+        .yuv { background-color: #d79b9b; }
+    
+        .arrow { font-size: 20px; color: #333; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="container">
+        <h1>Rockchip IQ Tune Flow</h1>
+        <p>ISP（影像訊號處理）的調整流程主要分為環境準備與 Sensor 對接、**基礎模組標定（Calibration）以及影像維度聯合調優（Tuning）**三個大階段。</p>
+            <h2>以下是詳細的調整步驟：</h2>
+            <h3>1. 環境準備與 Sensor 對接 (Sensor Interfacing)</h3>
+            <p>在進行任何軟體調優前，必須確保硬體與驅動工作正常：</p>
+            <ul>
+                <li><strong>Sensor 配置：</strong>根據產品需求設定 Sensor 的幀率、解析度、HDR 模式等。</li>
+                <li><strong>驅動適配：</strong>將廠商提供的初始化寄存器序列適配到開發板（如 RK3588）的 MIPI 配置中。</li>
+                <li><strong>建立基礎文件：</strong>在 RKISP Tuner 工具中生成基礎的 .json 格式 IQ 文件，這份文件將記錄後續所有的標定與調試參數。</li>
+                <li><strong>曝光同步測試 (SyncTest)：</strong>確認曝光時間與增益的寄存器轉換公式正確，並驗證生效幀數是否匹配，避免畫面閃爍。</li>
+            </ul>
+            <h3>2. 基礎模組標定 (Module Calibration)</h3>
+            <p>此步驟需在實驗室燈箱環境下拍攝標準 Raw 圖進行計算。標定順序至關重要，因為後級模組通常依賴前級的標定結果：</p>
+            <ol>
+                <li><strong>黑電平標定 (BLC)</strong>在全黑環境下拍攝，確保 Sensor 輸出的暗電流被正確扣除。這是後續所有標定的基礎。</li>
+                <li><strong>鏡頭陰影標定 (LSC)：</strong>解決鏡頭光學特性導致的「暗角」或偏色（Color Shading）問題。</li>
+                <li><strong>自動白平衡標定 (AWB)：</strong>在多種標準光源（如 D65, A, TL84）下拍攝色卡，獲取靜態白平衡係數並生成白點條件框。</li>
+                <li><strong>色彩校正矩陣標定 (CCM)：</strong>利用 AWB 的 Raw 圖生成顏色校正矩陣，使色彩還原符合人眼視覺或特定目標。</li>
+                <li><strong>降噪與壞點標定 (NR/DPCC)：</strong>標定 RawNR、YUV NR、3DNR 以及靜態壞點，建立符合噪聲特性的去噪模型。</li>
+                <li><strong>畸變校正標定 (FEC/LDCH)：</strong>拍攝棋盤格圖像，生成用於矯正鏡頭畸變的映射表。</li>
+            </ol>
+            <h3>3. 影像維度聯合調優 (Joint Tuning)</h3>
+            <p>完成標定後，需在實際應用場景中對影像質量的各個維度進行細化調整。建議遵循以下維度順序：</p>
+            <ul>
+                <li>A. 亮度維度 (Brightness)</li>
+                <ul>
+                    <li>主要調試 AE (自動曝光) 模組。</li>
+                    <li><strong>步驟：</strong>設定 AE 權重表（感興趣區域）、AE Route（曝光分解路徑）、目標亮度值，以及 AE 的收斂速度和平滑性。</li>
+                </ul>    
+                <li>B. 色彩維度 (Color)</li>
+                <ul>
+                    <li>在 AE 穩定後，進行 AWB 與 CCM 的實際場景調優。</li>
+                    <li><strong>步驟：</strong>覆蓋順光、背光、陰天、夜晚及混合光源等場景，若灰色塊偏色調整 AWB，若特定顏色異常（如過飽和）則微調 CCM。</li>
+                </ul>
+                <li>C. 對比度維度 (Contrast)</li>
+                <ul>
+                    <li>影響模組包括 Gamma、Dehaze (去霧)、Enhance (增強)。</li>
+                    <li><strong>步驟：</strong>優先調整 Gamma 曲線以達到亮暗層次分明；若有更高對比需求再開啟 Dehaze 或 Enhance。</li>
+                </ul>
+                <li>D. 清晰度與噪聲維度 (Sharpness & Noise)</li>
+                <ul>
+                    <li>兩者為平衡點，需根據 ISO 聯動控制。</li>
+                    <li><strong>步驟：</strong></li>
+                    <ol>
+                        <li><strong>Demosaic：</strong>確認基本紋理細節是否能正確插值產出。</li>
+                        <li><strong>降噪聯調： </strong>依序調整 BayerNR、YNR（亮度去噪）、UVNR（彩色去噪）與 3DNR。</li>
+                        <li><strong>Sharpen (銳化)：</strong>在降噪模組將噪點壓制後，調整銳化力度以增強圖像邊緣與細節。</li>
+                    </ol>
+                </ul>
+            <h3>4. 客觀測試與保存</h3>
+            <ol>
+                <li>使用 imatest 等軟體對 24 色卡、灰階卡、解析度卡進行測試，確認各項指標（色彩偏差、灰階數、解析力）滿足需求。</li>
+                <li>最後將調整好的 <span class="highlight">.json</span> 文件替換到固件或設備的<span class="highlight">/etc/iqfiles/</span> 路徑下，重啟生效。</li>
+            </ol>
+            </ul>
+
+            <!-- Raw 階段 -->
+            <h2>ISP 圖像處理流程</h2>
+            <div>
+                <h3>Raw 域處理</h3>
+                <div class="stage">
+                    <div class="box raw">Raw Input</div>
+                    <div class="arrow">→</div>
+                    <div class="box raw">FPN & BLC0</div>
+                    <div class="arrow">→</div>
+                    <div class="box raw">Degamma</div>
+                    <div class="arrow">→</div>
+                    <div class="box raw">Dgain & WB0</div>
+                    <div class="arrow">→</div>
+                    <div class="box raw">DPCC & SPC</div>
+                    <div class="arrow">→</div>
+                    <div class="box raw">Merge</div>
+                </div>
+            </div>
+            <!-- Raw 後處理 -->
+            <div class="stage">
+                <div class="box raw">Raw 2dnr / 3dnr</div>
+                <div class="arrow">→</div>
+                <div class="box raw">CAC</div>
+                <div class="arrow">→</div>
+                <div class="box raw">LSC</div>
+                <div class="arrow">→</div>
+                <div class="box raw">DRC</div>
+                <div class="arrow">→</div>
+                <div class="box raw">GIC</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>模組</th>
+                        <th>名稱描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>FPN </td>
+                        <td>通過表型的黑幀或者黑行對CIS輸入的圖像進行矯正，去除固定模式雜訊。</td>
+                    </tr>
+                    <tr>
+                        <td>BLC</td>
+                        <td>提供CIS相關的黑電平矯正。</td>
+                    </tr>
+                    <tr>
+                        <td>Degamma</td>
+                        <td><strong>提供CIS非線性化校正</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DPCC</strong></td>
+                        <td><strong>提供對靜態壞點和動態壞點的檢測和校正功能</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SPC</strong></td>
+                        <td><strong>提供對遮蔽圖元(相位對焦)的校正</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dgain</strong></td>
+                        <td><strong>提供圖像全域的數位線性增益</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>WB Gain</strong></td>
+                        <td><strong>白平衡校正增益</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MERGE</strong></td>
+                        <td><strong> 3幀寬動態合成。</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Raw 3DNR &Raw 2DNR</strong></td>
+                        <td><strong> Raw域時域、空域結合降噪模組</strong></td>
+                    </tr>
+                    <tr>
+                        <td>CAC</td>
+                        <td>校正鏡頭引入的軸向色差(紫邊)</td>
+                    </tr>
+                    <tr>
+                        <td>LSC </td>
+                        <td>用於鏡頭的陰影矯正。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DRC</strong></td>
+                        <td><strong> 動態範圍壓縮</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>GIC</strong></td>
+                        <td><strong> 矯正Gr與Gb兩個通道的失衡，提高部分場景的圖像品質。</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- RGB 階段 -->
+            <div>
+                <h3>RGB 域處理</h3>
+                <div class="stage">
+                    <div class="box rgb">Debayer</div>
+                    <div class="arrow">→</div>
+                    <div class="box rgb">CCM</div>
+                    <div class="arrow">→</div>
+                    <div class="box rgb">Gamma</div>
+                    <div class="arrow">→</div>
+                    <div class="box rgb">Dehaze / Enhance</div>
+                    <div class="arrow">→</div>
+                    <div class="box rgb">HistEQ</div>
+                    <div class="arrow">→</div>
+                    <div class="box rgb">3Dlut</div>
+                    <div class="arrow">→</div>
+                    <div class="box rgb">LDCH</div>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>模組</th>
+                        <th>名稱描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AE Stats</td>
+                        <td><strong>該模組輸出自動曝光的統計資訊，軟體根據統計資訊調節CIS可實現自動曝光的功能。</strong></td>
+                    </tr>
+                    <tr>
+                        <td>AF</td>
+                        <td><strong>支援圖像清晰度評價資訊統計，用於完成支援自動對焦功能。</strong></td>
+                    </tr>
+                    <tr>
+                        <td>AWB</td>
+                        <td><strong>該模組輸出全域統計資訊和區域統計資訊，軟體基於統計資訊完成自動白平衡功能。</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Debayer</td>
+                        <td><strong>將Bayer格式的Raw圖像轉換到RGB圖像。</strong></td>
+                    </tr>
+                    <tr>
+                        <td>CCM</td>
+                        <td><strong>通過標準的3X3的矩陣和向量偏移量可完成顏色空間的線性矯正。</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gamma</strong></td>
+                        <td><strong>該模組根據伽馬曲線分R\G\B三個通道調整亮度。</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dehaze & Enhance</strong></td>
+                        <td><strong>提供強大的去霧能力以改善霧霾場景下的視頻對比度和清晰度。</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3D-LUT</strong></td>
+                        <td><strong>9x9x9大小的3Dlut 實現複雜的顏色調整操作，比如亮度的調整，飽和度的調整。</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>LDCH</strong></td>
+                        <td><strong>矯正鏡頭垂直方向上的畸變</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- YUV 階段 -->
+            <div>
+                <h3>YUV 域處理</h3>
+                    <div class="stage">
+                    <div class="box yuv">CSM</div>
+                    <div class="arrow">→</div>
+                    <div class="box yuv">YNR / Sharp</div>
+                    <div class="arrow">→</div>
+                    <div class="box yuv">CGC</div>
+                    <div class="arrow">→</div>
+                    <div class="box yuv">CROP & CMSK</div>
+                    <div class="arrow">→</div>
+                    <div class="box yuv">SCL / FBC</div>
+                </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>模組</th>
+                        <th>名稱描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CSM</strong></td>
+                        <td><strong>通過標準的3X3的矩陣和向量偏移量將輸入（R,G,B）轉換為（Y,U,V），提供色度降採樣輸出YUV422給後級模組</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sharp</strong></td>
+                        <td><strong> YUV域實現圖像銳度，提高圖像清晰度。</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>YNR</strong></td>
+                        <td><strong> 針對亮度的空域去噪</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UVNR</strong></td>
+                        <td><strong> 單獨的彩色噪點去除。</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CGC</strong></td>
+                        <td><strong> YUV色彩空間轉換</strong></td>
+                    </tr>
+                    <tr>
+                        <td>CMSK </td>
+                        <td>提供圖像馬賽克、遮擋功能</td>
+                    </tr>
+                    <tr>
+                        <td>FBC</td>
+                        <td>資料壓縮</td>
+                    </tr>
+                    <tr>
+                        <td>SCL</td>
+                        <td><strong>圖像縮放</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>    
+    </main>
+    
+        <footer class="footer">
+            <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+        </footer>
+        <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+
+</body>
+</html>

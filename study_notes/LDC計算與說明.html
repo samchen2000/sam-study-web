@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDC 計算與說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            border-bottom: none;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        blockquote {
+            border-left: 4px solid var(--color-accent);
+            margin: 1.5rem 0;
+            padding: 0.7rem 1rem;
+            background-color: #fff8f0;
+            color: var(--color-primary-text);
+        }
+
+        .formula {
+            text-align: center;
+            font-style: italic;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            line-height: 1.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        table th, table td {
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        table th {
+            background-color: var(--color-subtle-bg);
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        table tr:hover {
+            background-color: #fafafa;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .emoji {
+            display: inline-block;
+            font-size: 1.3rem;
+            margin-right: 0.5rem;
+        }
+
+        sub {
+            vertical-align: baseline;
+            position: relative;
+            bottom: -0.4em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>鏡頭畸變校正（LDC, Lens Distortion Correction）原理與技術說明</h1>
+            <p><strong>鏡頭畸變校正（LDC, Lens Distortion Correction）是影像訊號處理（ISP）中用於修正光學鏡頭因幾何構造所產生的「非線性畫面扭曲」的關鍵技術。</strong> 特別是在廣角鏡頭（如行車記錄器、安全監控、手機超廣角鏡頭）中，LDC 的調校直接決定了影像邊緣的物體是否會變形走樣。</p>
+
+            <hr>
+
+            <h2>一、 鏡頭畸變的分類與原理</h2>
+            <p>光學畸變（Optical Distortion）屬於幾何失真，是指影像中各點的<strong>放大倍率隨著與光軸（畫面中心）的距離增加而發生變化</strong>。這種變形不影響影像的清晰度，但會改變物體的幾何形狀。</p>
+
+            <h3>1. 徑向畸變（Radial Distortion）</h3>
+            <p>由鏡頭透鏡的固有幾何形狀（通常是球面）引起。這種類型的畸變關於畫面中心（主點）是對稱的，主要分為兩種：</p>
+            <ul>
+                <li><strong>桶形畸變（Barrel Distortion）</strong>：畫面邊緣的放大倍率小於中心。四條邊向外鼓起，常見於超廣角鏡頭（俗稱魚眼效果）。</li>
+                <li><strong>枕形畸變（Pincushion Distortion）</strong>：畫面邊緣的放大倍率大於中心。四條邊向內凹陷，常見於長焦鏡頭。</li>
+                <li><strong>鬍鬚畸變（Mustache Distortion）</strong>：混合型畸變。畫面中心呈現桶形，到了邊緣卻轉化為枕形。</li>
+            </ul>
+
+            <h3>2. 切向畸變（Tangential Distortion）</h3>
+            <p>由透鏡組合裝配時，多片鏡片之間<strong>沒有完美平行、或是光軸中心未對齊（偏心）</strong>所引起的幾何不對稱。</p>
+
+            <hr>
+
+            <h2>二、 LDC 的幾何數學公式</h2>
+            <p>在數學上，校正是透過將「畸變後的影像坐標」對應回「理想的無畸變坐標」來完成。</p>
+
+            <h3>1. 座標歸一化</h3>
+            <p>假設理想無畸變的像素坐標為 (x<sub>ideal</sub>, y<sub>ideal</sub>)，畫面中心（主點）為 (x<sub>c</sub>, y<sub>c</sub>)。首先將座標移動到以中心為原點，並進行歸一化：</p>
+            <div class="formula">x = x<sub>ideal</sub> - x<sub>c</sub>, &nbsp;&nbsp; y = y<sub>ideal</sub> - y<sub>c</sub></div>
+            <p>計算像素點到中心的幾何距離（半徑）r：</p>
+            <div class="formula">r<sup>2</sup> = x<sup>2</sup> + y<sup>2</sup></div>
+
+            <h3>2. 布朗-康拉迪模型（Brown-Conrady Model）</h3>
+            <p>這是目前工業界與 ISP 晶片最通用的幾何畸變數學模型，它同時考慮了徑向與切向畸變。經過畸變後，最終在 Sensor 上看到的真實座標 (x<sub>distorted</sub>, y<sub>distorted</sub>) 計算如下：</p>
+
+            <h4>徑向畸變公式：</h4>
+            <div class="formula">
+                x<sub>distorted_radial</sub> = x × (1 + k<sub>1</sub>r<sup>2</sup> + k<sub>2</sub>r<sup>4</sup> + k<sub>3</sub>r<sup>6</sup> + ... )<br>
+                y<sub>distorted_radial</sub> = y × (1 + k<sub>1</sub>r<sup>2</sup> + k<sub>2</sub>r<sup>4</sup> + k<sub>3</sub>r<sup>6</sup> + ... )
+            </div>
+            <ul>
+                <li>其中 k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> 為<strong>徑向畸變係數</strong>。</li>
+                <li>若 k<sub>1</sub> &gt; 0，傾向產生枕形畸變；若 k<sub>1</sub> &lt; 0，則傾向產生桶形畸變。廣角鏡頭通常需要微調到 k<sub>3</sub> 甚至 k<sub>4</sub> 才能完美擬合。</li>
+            </ul>
+
+            <h4>切向畸變公式：</h4>
+            <div class="formula">
+                x<sub>distorted_tangential</sub> = 2p<sub>1</sub>xy + p<sub>2</sub>(r<sup>2</sup> + 2x<sup>2</sup>)<br>
+                y<sub>distorted_tangential</sub> = p<sub>1</sub>(r<sup>2</sup> + 2y<sup>2</sup>) + 2p<sub>2</sub>xy
+            </div>
+            <ul>
+                <li>其中 p<sub>1</sub>, p<sub>2</sub> 為<strong>切向畸變係數</strong>。</li>
+            </ul>
+
+            <h4>完整融合公式：</h4>
+            <p>將兩者相加，即可得到從「理想世界」投射到「畸變硬體」的完整映射公式：</p>
+            <div class="formula">
+                x<sub>distorted</sub> = x × (1 + k<sub>1</sub>r<sup>2</sup> + k<sub>2</sub>r<sup>4</sup> + k<sub>3</sub>r<sup>6</sup>) + [2p<sub>1</sub>xy + p<sub>2</sub>(r<sup>2</sup> + 2x<sup>2</sup>)] + x<sub>c</sub><br>
+                y<sub>distorted</sub> = y × (1 + k<sub>1</sub>r<sup>2</sup> + k<sub>2</sub>r<sup>4</sup> + k<sub>3</sub>r<sup>6</sup>) + [p<sub>1</sub>(r<sup>2</sup> + 2y<sup>2</sup>) + 2p<sub>2</sub>xy] + y<sub>c</sub>
+            </div>
+
+            <hr>
+
+            <h2>三、 LDC 的量測與校正方法（Tuning 實務）</h2>
+            <p>在 ISP 晶片調校中，獲取這些 k<sub>1</sub>, k<sub>2</sub>, p<sub>1</sub>, p<sub>2</sub> 參數的標準流程如下：</p>
+
+            <h3>1. 標定物拍攝（Calibration Target）</h3>
+            <ul>
+                <li><strong>工具</strong>：使用標準的<strong>黑白棋盤格（Chessboard）</strong>或<strong>圓圈陣列板（Dot Matrix）</strong>。</li>
+                <li><strong>拍攝要領</strong>：將相機固定，從不同角度拍攝多張標定板照片。必須確保標定板覆蓋到畫面的四個角落，因為邊緣的畸變最為劇烈。</li>
+            </ul>
+
+            <h3>2. 張正友標定法（Zhang's Calibration Method）</h3>
+            <p>這是演算法工程中最著名的標定技術，已被整合進 OpenCV 與 MATLAB 工具箱中。</p>
+            <ol>
+                <li><strong>特徵點提取</strong>：演算法自動識別棋盤格的每一個內角點（Corner Points）。</li>
+                <li><strong>直線擬合優化</strong>：在理想的幾何學中，棋盤格的線必須是絕對的直線。演算法會以「讓校正後的角點在數學上連成完美直線」為優化目標（使用非線性的列文伯格-馬誇特演算法 Levenberg-Marquardt）。</li>
+                <li><strong>輸出參數</strong>：計算出相機的內參矩陣（焦距、中心點）以及畸變參數（k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub>, p<sub>1</sub>, p<sub>2</sub>）。</li>
+            </ol>
+
+            <h3>3. 影像重採樣與插值（Pixel Remapping & Interpolation）</h3>
+            <p>得到參數後，ISP 就會建立一張<strong>坐標映射表（LUT, Look-Up Table）</strong>。</p>
+            <p>當相機實時拍攝時，ISP 會根據公式反向查找：欲生成無畸變畫面上的第 (A, B) 個像素，應該去原始畸變畫面上的第 (A', B') 個坐標拿數據。</p>
+            <ul>
+                <li><strong>技術挑戰</strong>：反向計算出來的 (A', B') 通常是浮點數（例如第 12.4, 45.7 個像素）。</li>
+                <li><strong>處理解法</strong>：為了防止校正後的畫面出現鋸齒（Aliasing），ISP 內部硬體會使用<strong>雙線性插值（Bilinear Interpolation）</strong>或<strong>雙三次插值（Bicubic Interpolation）</strong>來動態計算出該點的 RGB 數值。</li>
+            </ul>
+
+            <hr>
+
+            <h2>四、 LDC 的技術代價與折衷（Trade-offs）</h2>
+            <p>在調整 AWB 時追求的是色彩完美，而調整 LDC 時則是一場<strong>畫質與視角的極限拉鋸戰</strong>：</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>技術代價項目</th>
+                        <th>原理說明</th>
+                        <th>調校時的折衷策略</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>邊緣畫質流失<br>(Resolution Drop)</strong></td>
+                        <td>桶形畸變校正是將畫面邊緣「往外拉伸」，這會導致邊緣像素被強行放大，<strong>解析度與銳利度會大幅下降</strong>。</td>
+                        <td>調校時不可追求 100% 完美拉直。通常會故意<strong>保留 3%~5% 的微幅畸變</strong>（人類肉眼不易察覺），以保留邊緣畫質。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>視角損失<br>(FOV Loss)</strong></td>
+                        <td>拉伸後的影像邊緣會變成不規則的形狀（如凹型），為了輸出標準的 16:9 畫面，必須將邊緣<strong>裁切（Crop）</strong>。</td>
+                        <td>這會導致鏡頭的視野角度（FOV）變小。調校時需在「視角廣度」與「線條筆直度」之間取得平衡。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>頻寬與功耗<br>(Hardware Cost)</strong></td>
+                        <td>逐個像素進行插值與 LUT 查表需要極高的記憶體頻寬與算力。</td>
+                        <td>現代動態錄影（如 4K 60fps）中，ISP 通常會採用<strong>網格化 LDC（Grid-based LDC）</strong>，即不對每個像素單獨計算公式，而是將畫面切成 16×16 的網格，僅對網格頂點進行幾何變換，網格內部則由硬體快速線性過渡。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h2>💡 核心結論</h2>
+            <p>LDC 鏡頭畸變校正是利用 <strong>布朗-康拉迪模型</strong>，透過實驗室拍攝棋盤格標定出畸變係數（k<sub>n</sub>, p<sub>n</sub>），並在 ISP 中透過 <strong>Look-Up Table 坐標重映射與雙線性插值</strong>，將彎曲的畫面實時拉直。調校的核心技術在於<strong>平衡邊緣拉伸後的畫質衰減，並在晶片頻寬允許下達到最自然流暢的直線還原</strong>。</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

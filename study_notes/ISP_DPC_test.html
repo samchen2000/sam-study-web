@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISP 壞點校正 (DPC) 互動式演算法展示</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --primary-color: #007bff;
+            --border-color: #dee2e6;
+            --r-color: rgba(255, 0, 0, 0.3);
+            --g-color: rgba(0, 255, 0, 0.3);
+            --b-color: rgba(0, 0, 255, 0.3);
+            --r-border: #e63946;
+            --g-border: #2a9d8f;
+            --b-border: #2196f3;
+            --highlight-window: rgba(255, 204, 0, 0.4);
+            --highlight-center: rgba(255, 102, 0, 0.7);
+            --highlight-neighbor: rgba(75, 0, 130, 0.5);
+            --bad-pixel-color: #ff00ff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        header {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+        .main-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .demo-section {
+            flex: 2;
+            min-width: 500px;
+        }
+        .controls-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            border: 1px solid var(--border-color);
+            margin-top: 15px;
+            user-select: none;
+        }
+        .pixel {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .pixel.r { background-color: var(--r-color); border: 1px solid var(--r-border); }
+        .pixel.gr { background-color: var(--g-color); border: 1px solid var(--g-border); }
+        .pixel.gb { background-color: var(--g-color); border: 1px solid var(--g-border); }
+        .pixel.b { background-color: var(--b-color); border: 1px solid var(--b-border); }
+        
+        .pixel.highlight-window { background-color: var(--highlight-window); }
+        .pixel.highlight-neighbor { background-color: var(--highlight-neighbor); color: white; }
+        .pixel.highlight-center { background-color: var(--highlight-center); color: white; }
+        .pixel.bad-pixel::after {
+            content: 'X';
+            position: absolute;
+            color: var(--bad-pixel-color);
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #log {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+        }
+        .explanation {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .explanation h3 {
+            color: var(--primary-color);
+        }
+        .explanation code {
+            background-color: #e9ecef;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .explanation ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .explanation li {
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ISP 壞點校正 (DPC) 互動式演算法展示</h1>
+        <p>將感光元件上有缺陷的像素 (Bad Pixel) 進行偵測與修復，以提升影像品質。</p>
+    </header>
+
+    <div class="main-content">
+        <div class="demo-section">
+            <h3>1. 模擬 Bayer 陣列</h3>
+            <p>點擊下方任一像素，將其設定為「壞點」(數值將變為 255)，然後執行校正演算法觀察變化。</p>
+            <div id="pixel-grid" class="pixel-grid"></div>
+        </div>
+        <div class="controls-section">
+            <h3>2. 控制與日誌</h3>
+            <div class="control-group">
+                <label for="threshold">動態閾值 (Threshold): <span id="threshold-value">30</span></label>
+                <input type="range" id="threshold" min="1" max="255" value="30">
+            </div>
+            <div class="control-group">
+                <button id="reset-btn">重置/產生新場景</button>
+            </div>
+            <div class="control-group">
+                <label for="log">演算法運算日誌:</label>
+                <div id="log">點擊像素設為壞點，然後點擊該像素執行校正...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="explanation">
+        <h2>動態壞點校正 (Dynamic DPC) 原理</h2>
+        <p>動態校正是在影像串流中即時偵測並修復壞點。與依賴固定座標表的靜態校正不同，它能處理因溫度、增益變化而新產生的壞點。本範例模擬了其核心演算法：</p>
+        <ul>
+            <li><strong>步驟 1: 同色鄰域選取</strong><br>
+                當您點擊一個像素執行校正時，演算法會在其周圍的 5x5 範圍內，選取 8 個與中心點顏色相同的鄰近像素 (<code>highlight-neighbor</code>)。
+            </li>
+            <li><strong>步驟 2: 計算差值</strong><br>
+                計算中心點像素值 <code>Pc</code> 與這 8 個鄰近點像素值 <code>Pi</code> 的差值：<code>Di = Pc - Pi</code>。
+            </li>
+            <li><strong>步驟 3: 符號與閾值判定</strong><br>
+                演算法會檢查：<br>
+                - 如果所有 8 個差值 <code>Di</code> **全為正**，且絕對值都**大於**設定的動態閾值 (Threshold)，則判定為「潛在亮點」。<br>
+                - 如果所有 8 個差值 <code>Di</code> **全為負**，且絕對值都**大於**設定的動態閾值，則判定為「潛在暗點」。<br>
+                - 若差值有正有負，代表此像素可能位於正常的影像邊緣或紋理中，判定為**正常點**。
+            </li>
+            <li><strong>步驟 4: 中值修復</strong><br>
+                若中心點被判定為壞點，演算法會計算 8 個同色鄰域像素的**中位數 (Median)**，並用該中位數來取代中心點的原始值，完成修復。
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.getElementById('pixel-grid');
+    const log = document.getElementById('log');
+    const thresholdSlider = document.getElementById('threshold');
+    const thresholdValueSpan = document.getElementById('threshold-value');
+    const resetBtn = document.getElementById('reset-btn');
+
+    const GRID_SIZE = 10;
+    let pixels = [];
+    let badPixelCoords = null;
+
+    function getBayerPattern(row, col) {
+        if (row % 2 === 0) {
+            return col % 2 === 0 ? 'gr' : 'r';
+        } else {
+            return col % 2 === 0 ? 'b' : 'gb';
+        }
+    }
+
+    function logMessage(message, isError = false) {
+        const p = document.createElement('p');
+        p.textContent = message;
+        if (isError) p.style.color = 'red';
+        log.appendChild(p);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function clearLog() {
+        log.innerHTML = '';
+    }
+
+    function createGrid() {
+        grid.innerHTML = '';
+        pixels = [];
+        badPixelCoords = null;
+        clearHighlights();
+
+        for (let i = 0; i < GRID_SIZE; i++) {
+            pixels[i] = [];
+            for (let j = 0; j < GRID_SIZE; j++) {
+                const pixelValue = Math.floor(Math.random() * 50) + 10; // Base noise
+                pixels[i][j] = {
+                    value: pixelValue,
+                    bayer: getBayerPattern(i, j),
+                    isBad: false
+                };
+            }
+        }
+        renderGrid();
+    }
+
+    function renderGrid() {
+        grid.innerHTML = '';
+        pixels.forEach((row, i) => {
+            row.forEach((pixelData, j) => {
+                const pixelDiv = document.createElement('div');
+                pixelDiv.classList.add('pixel', pixelData.bayer);
+                pixelDiv.textContent = pixelData.value;
+                pixelDiv.dataset.row = i;
+                pixelDiv.dataset.col = j;
+                if (pixelData.isBad) {
+                    pixelDiv.classList.add('bad-pixel');
+                }
+                pixelDiv.addEventListener('click', () => handlePixelClick(i, j));
+                grid.appendChild(pixelDiv);
+            });
+        });
+    }
+
+    function handlePixelClick(row, col) {
+        const pixelData = pixels[row][col];
+        if (!pixelData.isBad) {
+            // Set as bad pixel
+            if (badPixelCoords) {
+                pixels[badPixelCoords.row][badPixelCoords.col].isBad = false;
+                pixels[badPixelCoords.row][badPixelCoords.col].value = Math.floor(Math.random() * 50) + 10;
+            }
+            pixelData.isBad = true;
+            pixelData.value = 255;
+            badPixelCoords = { row, col };
+            clearLog();
+            logMessage(`已在座標 (${row}, ${col}) 設置一個壞點 (值=255)。`);
+            logMessage(`再次點擊該壞點以執行 DPC 校正。`);
+            renderGrid();
+        } else {
+            // Run DPC
+            runDPC(row, col);
+        }
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('.pixel').forEach(p => {
+            p.classList.remove('highlight-window', 'highlight-center', 'highlight-neighbor');
+        });
+    }
+
+    function runDPC(row, col) {
+        clearLog();
+        clearHighlights();
+        logMessage(`在座標 (${row}, ${col}) 執行 DPC...`);
+
+        const centerPixel = pixels[row][col];
+        const centerDiv = document.querySelector(`.pixel[data-row='${row}'][data-col='${col}']`);
+        centerDiv.classList.add('highlight-center');
+        
+        const neighbors = [];
+        const windowSize = 2; // for a 5x5 window
+
+        for (let i = -windowSize; i <= windowSize; i++) {
+            for (let j = -windowSize; j <= windowSize; j++) {
+                if (i === 0 && j === 0) continue;
+                const nRow = row + i;
+                const nCol = col + j;
+
+                if (nRow >= 0 && nRow < GRID_SIZE && nCol >= 0 && nCol < GRID_SIZE) {
+                    const neighborPixel = pixels[nRow][nCol];
+                    const neighborDiv = document.querySelector(`.pixel[data-row='${nRow}'][data-col='${nCol}']`);
+                    neighborDiv.classList.add('highlight-window');
+
+                    if (neighborPixel.bayer === centerPixel.bayer) {
+                        neighbors.push(neighborPixel);
+                        neighborDiv.classList.add('highlight-neighbor');
+                    }
+                }
+            }
+        }
+        
+        logMessage(`步驟 1: 選取 8 個同色鄰域像素。`);
+        if (neighbors.length < 8) {
+            logMessage(`邊緣像素，鄰域不足 8 個，無法校正。`, true);
+            return;
+        }
+
+        const threshold = parseInt(thresholdSlider.value);
+        logMessage(`步驟 2: 計算與中心點 (值=${centerPixel.value}) 的差值。`);
+        const diffs = neighbors.map(n => centerPixel.value - n.value);
+        logMessage(`差值: [${diffs.join(', ')}]`);
+
+        const allPositive = diffs.every(d => d > 0);
+        const allNegative = diffs.every(d => d < 0);
+        const allAboveThreshold = diffs.every(d => Math.abs(d) > threshold);
+
+        logMessage(`步驟 3: 進行符號與閾值 (>${threshold}) 判定。`);
+        if ((allPositive || allNegative) && allAboveThreshold) {
+            const type = allPositive ? "亮點" : "暗點";
+            logMessage(`判定成功: 該點為壞點 (${type})。`, false);
+            
+            logMessage(`步驟 4: 使用中值修復。`);
+            const neighborValues = neighbors.map(n => n.value).sort((a, b) => a - b);
+            const median = (neighborValues[3] + neighborValues[4]) / 2;
+            logMessage(`鄰域值排序後: [${neighborValues.join(', ')}]`);
+            logMessage(`中位數為: ${median}`);
+
+            centerPixel.value = Math.round(median);
+            centerPixel.isBad = false;
+            badPixelCoords = null;
+            logMessage(`校正完成! 新像素值為: ${centerPixel.value}`);
+            
+            setTimeout(() => {
+                renderGrid();
+                clearHighlights();
+            }, 1500);
+
+        } else {
+            logMessage(`判定失敗: 該點為正常邊緣或紋理，非壞點。`, true);
+            if (!allAboveThreshold) logMessage(`原因: 部分差值未超過閾值 ${threshold}。`);
+            if (!allPositive && !allNegative) logMessage(`原因: 差值有正有負。`);
+            
+            setTimeout(() => {
+                centerPixel.isBad = false;
+                badPixelCoords = null;
+                renderGrid();
+                clearHighlights();
+            }, 2000);
+        }
+    }
+
+    thresholdSlider.addEventListener('input', (e) => {
+        thresholdValueSpan.textContent = e.target.value;
+    });
+
+    resetBtn.addEventListener('click', () => {
+        createGrid();
+        clearLog();
+        logMessage("場景已重置。請點擊像素設為壞點。");
+    });
+
+    // Initial setup
+    createGrid();
+    logMessage("歡迎！請點擊任意像素將其設為壞點。");
+});
+</script>
+
+</body>
+</html>

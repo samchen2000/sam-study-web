@@ -359,8 +359,8 @@
 <h2>一、 鏡頭陰影（Lens Shading）產生的原因鏡頭陰影主要可以分為兩大類：</h2>
 <h3>亮度陰影（Luma Shading / Vignetting）光學暗角（Cos4th Law）：</h3>
 <p>這是物理上不可避免的現象。根據光學理論，到達感光元件（Sensor）表面的光線強度，與光線入射角 θ 的餘弦四次方
-<span class="math-inline">cos^4 \theta</span> 成正比。<br />
-影像中心入射角為 0，而四周入射角 <span class="math-inline">\theta</span> 較大，導致邊緣進光量大幅衰減，形成中心亮、四周暗的暗角。<br />
+<span class="math-inline">cos<sup>4</sup> θ</span> 成正比。<br />
+影像中心入射角為 0，而四周入射角 <span class="math-inline">θ</span> 較大，導致邊緣進光量大幅衰減，形成中心亮、四周暗的暗角。<br />
 機械暗角：鏡頭內部的鏡筒、光圈葉片或濾鏡邊緣阻擋了部分斜向入射的光線，使得邊緣感光元件接收到的光量減少。</p>
 <h3>2. 色彩陰影（Color Shading）CRA（Chief Ray Angle）主光線角不匹配：</h3>
 <p>感光元件微透鏡（Micro-lens）的設計有其接收光線的最大角度（CRA）。如果鏡頭出射的 CRA 與 Sensor 的 CRA 不匹配，斜向入射到邊緣的光線就會產生折射偏差，導致光線漏到隔壁的像素（Crosstalk，串擾）。波長與折射率差異：RGB 三原色的波長不同，在鏡頭邊緣折射與穿透微透鏡的效率也不同。這會導致邊緣的 RGB 衰減比例不一致，使照片不只變暗，四周還會泛綠、泛紅或泛紫（即色偏）。</p>
@@ -379,7 +379,7 @@
 <li>計算各節點增益（Gain）：
 <ul>
 <li>計算網格中各個節點的 R, Gr, Gb, B 四個通道的平均亮度。</li>
-<li>增益公式：<div class="math-display">Gain = \frac{\text{中心點亮度}}{\text{當前節點亮度}}</div></li>
+<li>增益公式：<div class="math-display">Gain = 中心點亮度<sup>/</sup>當前節點亮度</div></li>
 <li>中心點的 Gain 為 1.0，越往四周邊緣，Gain 值越大（例如 1.5, 2.0 甚至更高）。</li>
 </ul>
 </li>

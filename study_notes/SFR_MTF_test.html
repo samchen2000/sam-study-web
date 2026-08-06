@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISO 12233 斜邊法 SFR/MTF 模擬計算工具</title>
+    <!-- 引入 Tailwind CSS 進行快速排版 -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- 引入 Chart.js 用於繪製 ESF, LSF 與 SFR 曲線 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+        }
+
+        .font-heading {
+            font-family: var(--font-heading);
+        }
+
+        .font-body {
+            font-family: var(--font-body);
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .content-shell {
+            background: linear-gradient(180deg, #ffffff 0%, #fffdf8 100%);
+        }
+
+        .visual-card {
+            min-height: 420px;
+            background: linear-gradient(145deg, #ffffff, #fdf8ec);
+        }
+
+        .surface-bg {
+            background-color: var(--color-bg);
+        }
+
+        .surface-panel {
+            background-color: var(--color-subtle-bg);
+        }
+
+        .primary-text {
+            color: var(--color-primary-text);
+        }
+
+        .secondary-text {
+            color: var(--color-secondary-text);
+        }
+
+        .accent-text {
+            color: var(--color-accent);
+        }
+
+        .accent-bg {
+            background-color: var(--color-accent);
+        }
+
+        .accent-border {
+            border-color: var(--color-accent);
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="font-body">
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto surface-bg p-8 rounded-xl shadow-md my-8">
+        <!-- 標題區 -->
+        <div class="border-b pb-4 mb-6">
+            <h1 class="text-3xl font-heading font-bold primary-text">ISO 12233 斜邊法 SFR/MTF 模擬工具</h1>
+            <p class="secondary-text mt-2">本工具依據 ISO 12233 標準，模擬從「擷取斜邊」到「傅立葉轉換」輸出 SFR 曲線的完整四步驟。</p>
+        </div>
+
+        <!-- 步驟控制面板 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <button onclick="goToStep(1)" id="btn-step1" class="p-4 rounded-lg border-2 accent-border surface-panel primary-text font-semibold transition-all">
+                步驟 1: 擷取斜邊與 ROI
+            </button>
+            <button onclick="goToStep(2)" id="btn-step2" class="p-4 rounded-lg border-2 border-gray-300 surface-bg secondary-text font-semibold transition-all" disabled>
+                步驟 2: 邊緣過採樣 (ESF)
+            </button>
+            <button onclick="goToStep(3)" id="btn-step3" class="p-4 rounded-lg border-2 border-gray-300 surface-bg secondary-text font-semibold transition-all" disabled>
+                步驟 3: 微分求導 (LSF)
+            </button>
+            <button onclick="goToStep(4)" id="btn-step4" class="p-4 rounded-lg border-2 border-gray-300 surface-bg secondary-text font-semibold transition-all" disabled>
+                步驟 4: 傅立葉轉換 (SFR)
+            </button>
+        </div>
+
+        <!-- 主顯示區 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左側：步驟說明與參數控制 -->
+            <div class="lg:col-span-1 surface-panel p-6 rounded-lg border border-gray-300 flex flex-col justify-between">
+                <div>
+                    <h3 id="step-title" class="text-xl font-heading font-bold primary-text mb-3">步驟 1: 擷取傾斜邊緣影像與 ROI</h3>
+                    <p id="step-desc" class="secondary-text text-sm leading-relaxed mb-6">
+                        模擬拍攝一張傾斜 2 到 5 度的黑白高對比斜邊。紅色虛線框為我們選取的「感興趣區域（ROI）」。為了更貼近真實鏡頭，我們加入了輕微的光學模糊。
+                    </p>
+                    
+                    <!-- 模擬參數調整 (僅在步驟1顯示) -->
+                    <div id="param-lens" class="space-y-4 border-t pt-4">
+                        <h4 class="font-heading font-semibold primary-text">鏡頭光學模擬參數</h4>
+                        <div>
+                            <label class="block text-xs secondary-text mb-1">鏡頭模糊程度 (Blur Sigma):</label>
+                            <input type="range" id="param-blur" min="1" max="8" step="0.5" value="2.5" class="w-full" onchange="resetSimulation()">
+                        </div>
+                        <div>
+                            <label class="block text-xs secondary-text mb-1">數位銳化強度 (ISP Overshoot):</label>
+                            <input type="range" id="param-sharpen" min="0" max="5" step="0.5" value="0" class="w-full" onchange="resetSimulation()">
+                            <p class="text-[11px] accent-text mt-1">※ 調高銳化可模擬 ISP 導致的 MTF>100% (Overshoot) 現象。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t">
+                    <button id="btn-next" onclick="nextStep()" class="w-full accent-bg hover:bg-[#d35400] text-white font-bold py-3 px-4 rounded-lg transition-all shadow-md">
+                        執行下一步驟 →
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右側：動態繪圖與視覺化區域 -->
+            <div class="lg:col-span-2 flex flex-col items-center justify-center border border-gray-300 rounded-lg p-6" style="min-height: 25rem;">
+                
+                <!-- 視覺化 1: 斜邊與 ROI 模擬 -->
+                <div id="visual-step1" class="w-full flex flex-col items-center justify-center space-y-4">
+                    <div class="relative w-64 h-64 border border-gray-300 rounded shadow-inner overflow-hidden">
+                        <!-- 用 CSS 繪製傾斜的黑白邊界 -->
+                        <div id="slanted-edge" class="absolute inset-0 surface-bg" style="background: linear-gradient(105deg, var(--color-primary-text) 50%, var(--color-bg) 50%); filter: blur(2.5px);"></div>
+                        <!-- ROI 紅框 -->
+                        <div class="absolute inset-0 m-auto w-40 h-24 border-2 border-dashed accent-border flex items-center justify-center">
+                            <span class="accent-bg text-white text-[10px] px-1 font-mono rounded absolute top-0 left-0">ROI</span>
+                        </div>
+                    </div>
+                    <p class="text-xs secondary-text">（圖卡模擬：黑白交界處帶有微小傾角與光學模糊）</p>
+                </div>
+
+                <!-- 視覺化 2, 3, 4: 使用 Chart.js 動態渲染 -->
+                <div id="visual-charts" class="w-full h-full hidden">
+                    <canvas id="sfrChart" class="w-full max-h-95"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer bg-gray-100 text-gray-600 text-center p-6 mt-8 border-t border-gray-200">
+        <p>&copy; 2024 Sam's Study Notes. All rights reserved.</p>
+    </footer>
+
+    <button id="back-to-top-btn" onclick="topFunction()" class="accent-bg text-white p-3 rounded-full shadow-lg hover:bg-[#d35400] transition-all">
+        ↑
+    </button>
+
+    <script>
+        let currentStep = 1;
+        let chartInstance = null;
+        let dataX = [];
+        let dataESF = [];
+        let dataLSF = [];
+        let dataSFR = [];
+        let freqLabels = [];
+
+        window.addEventListener('load', function () {
+            generateData();
+            goToStep(1);
+            toggleBackToTop();
+        });
+
+        window.addEventListener('scroll', toggleBackToTop);
+
+        function toggleBackToTop() {
+            const button = document.getElementById('back-to-top-btn');
+            if (!button) return;
+            button.style.display = window.scrollY > 300 ? 'block' : 'none';
+        }
+
+        function topFunction() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetSimulation() {
+            const blur = parseFloat(document.getElementById('param-blur').value);
+            const slantedEdge = document.getElementById('slanted-edge');
+            if (slantedEdge) {
+                slantedEdge.style.filter = `blur(${blur}px)`;
+            }
+            generateData();
+            if (currentStep > 1) {
+                goToStep(1);
+            }
+        }
+
+        function generateData() {
+            const blurSigma = parseFloat(document.getElementById('param-blur').value) * 2;
+            const sharpen = parseFloat(document.getElementById('param-sharpen').value);
+
+            dataX = [];
+            dataESF = [];
+            dataLSF = [];
+            dataSFR = [];
+            freqLabels = [];
+
+            for (let i = -30; i <= 30; i++) {
+                dataX.push(i);
+                let base = 1 / (1 + Math.exp(-i / (blurSigma * 0.4)));
+
+                if (sharpen > 0) {
+                    const overshoot = Math.sin(i / (blurSigma * 0.6)) * Math.exp(-Math.abs(i) / (blurSigma * 1.2)) * (sharpen * 0.08);
+                    base += overshoot;
+                }
+
+                dataESF.push(Math.max(0, Math.min(1, base)));
+            }
+
+            for (let i = 0; i < dataESF.length - 1; i++) {
+                dataLSF.push(dataESF[i + 1] - dataESF[i]);
+            }
+            dataLSF.push(dataLSF[dataLSF.length - 1] || 0);
+
+            const numFreqs = 40;
+            for (let i = 0; i <= numFreqs; i++) {
+                const f = i / numFreqs;
+                freqLabels.push(f.toFixed(2));
+
+                const mtfOptics = Math.exp(-f * f * blurSigma * 1.5);
+                const mtfSharpen = 1 + sharpen * 0.3 * Math.sin(f * Math.PI) * Math.exp(-f * 1.5);
+                dataSFR.push(Math.max(0, mtfOptics * mtfSharpen));
+            }
+        }
+
+        function goToStep(step) {
+            currentStep = step;
+
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`btn-step${i}`);
+                if (!btn) continue;
+
+                if (i < step) {
+                    btn.disabled = false;
+                    btn.className = 'p-4 rounded-lg border-2 border-green-500 bg-green-100 text-green-700 font-semibold transition-all';
+                } else if (i === step) {
+                    btn.disabled = false;
+                    btn.className = 'p-4 rounded-lg border-2 border-[var(--color-accent)] bg-[var(--color-subtle-bg)] text-[var(--color-primary-text)] font-semibold transition-all shadow-inner';
+                } else {
+                    btn.disabled = true;
+                    btn.className = 'p-4 rounded-lg border-2 border-gray-300 bg-[var(--color-bg)] text-[var(--color-secondary-text)] font-semibold transition-all';
+                }
+            }
+
+            const title = document.getElementById('step-title');
+            const desc = document.getElementById('step-desc');
+            const visualStep1 = document.getElementById('visual-step1');
+            const visualCharts = document.getElementById('visual-charts');
+            const btnNext = document.getElementById('btn-next');
+            const paramLens = document.getElementById('param-lens');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+
+            if (!title || !desc || !visualStep1 || !visualCharts || !btnNext || !paramLens) {
+                return;
+            }
+
+            if (step === 1) {
+                title.innerText = '步驟 1: 擷取傾斜邊緣影像與 ROI';
+                desc.innerText = '模擬拍攝一張傾斜 2 到 5 度的黑白高對比斜邊。紅色虛線框為我們選取的「感興趣區域（ROI）」。為了更貼近真實鏡頭，您可以透過下方滑桿調整光學模糊與 ISP 銳化程度。';
+                visualStep1.classList.remove('hidden');
+                visualCharts.classList.add('hidden');
+                paramLens.classList.remove('hidden');
+                btnNext.innerText = '執行：過採樣生成 ESF →';
+            } else if (step === 2) {
+                title.innerText = '步驟 2: 計算邊緣擴散函數 (ESF)';
+                desc.innerText = '演算法精準計算斜邊角度後，將 ROI 內多行像素的灰階值順著邊緣方向投影、疊加。這能打破硬體像素限制，重新組合出一條高密度、連續的「黑到白過渡灰階曲線」，即為 Edge Spread Function (ESF)。';
+                visualStep1.classList.add('hidden');
+                visualCharts.classList.remove('hidden');
+                paramLens.classList.add('hidden');
+                btnNext.innerText = '執行：一階微分求 LSF →';
+                renderChart('邊緣擴散函數 (ESF 曲線)', dataX, dataESF, 'rgba(59, 130, 246, 1)', 'rgba(59, 130, 246, 0.1)', '相對像素位置', '灰階亮度值 (0.0~1.0)', false);
+            } else if (step === 3) {
+                title.innerText = '步驟 3: 計算線擴散函數 (LSF)';
+                desc.innerText = '對上一步的 ESF 曲線進行「一階數學微分（求導）」。原本階梯狀的過渡曲線會轉化為一條像鐘形的脈衝響應曲線，即為 Line Spread Function (LSF)。這條鐘形曲線越窄，代表鏡頭邊緣越銳利、模糊越少。';
+                visualStep1.classList.add('hidden');
+                visualCharts.classList.remove('hidden');
+                paramLens.classList.add('hidden');
+                btnNext.innerText = '執行：快速傅立葉轉換 FFT →';
+                renderChart('線擴散函數 (LSF 曲線 / 邊緣脈衝響應)', dataX, dataLSF, 'rgba(245, 158, 11, 1)', 'rgba(245, 158, 11, 0.1)', '相對像素位置', '亮度變化率 (微分值)', false);
+            } else if (step === 4) {
+                title.innerText = '步驟 4: 快速傅立葉轉換 (SFR/MTF 曲線)';
+                desc.innerText = '將時域/空域的 LSF 進行快速傅立葉轉換（FFT），轉換至「空間頻率域」。將 0 頻率對比度歸一化為 100% 後輸出。這條曲線就是該影像系統的空間頻率響應（SFR）。我們可以從中讀取關鍵的 MTF50 與 MTF10 指標。';
+                visualStep1.classList.add('hidden');
+                visualCharts.classList.remove('hidden');
+                paramLens.classList.add('hidden');
+                btnNext.innerText = '↩ 重回步驟 1 調整參數';
+                renderChart('空間頻率響應 (SFR / MTF 曲線)', freqLabels, dataSFR, 'rgba(16, 185, 129, 1)', 'rgba(16, 185, 129, 0.1)', '空間頻率 (Cycles/Pixel)', '相對對比度 (MTF)', true);
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < 4) {
+                goToStep(currentStep + 1);
+            } else {
+                goToStep(1);
+            }
+        }
+
+        function renderChart(label, labelsX, dataY, lineColor, bgColor, xAxisTitle, yAxisTitle, isStep4) {
+            const canvas = document.getElementById('sfrChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labelsX,
+                    datasets: [{
+                        label: label,
+                        data: dataY,
+                        borderColor: lineColor,
+                        backgroundColor: bgColor,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: isStep4 ? 2 : 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: xAxisTitle,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            display: true,
+                            min: 0,
+                            max: isStep4 ? Math.max(1.2, Math.max(...dataY)) : undefined,
+                            title: {
+                                display: true,
+                                text: yAxisTitle,
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#2C3E50'
+                            }
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

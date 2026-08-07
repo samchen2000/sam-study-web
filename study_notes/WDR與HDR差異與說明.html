@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDR 與 HDR 的差異與說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 15px 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--color-primary-text);
+        }
+
+        pre {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+        }
+
+        code {
+            background: #f2f2f2;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>📷 WDR vs HDR：ISP 影像訊號處理與計算機制</h1>
+            <p>在 ISP（Image Signal Processor）領域中，<strong>WDR（寬動態範圍）</strong> 與 <strong>HDR（高動態範圍）</strong> 的核心目的都是為了解決高反差光線環境下的明暗細節保留問題，但在技術實現的階段與計算機制上有本質上的不同。</p>
+            
+            <h2>📖 一、 名詞解釋與深度定義</h2>
+            <h3>1. HDR (High Dynamic Range, 高動態範圍)</h3>
+            <ul>
+                <li><strong>核心定義</strong>：一種<strong>「超越傳統硬體單次曝光極限」</strong>的影像獲取技術。</li>
+                <li><strong>技術本質</strong>：專注於 <strong>前端數據採集（Data Acquisition）</strong>。</li>
+                <li><strong>運作機制</strong>：在極短時間內由 Sensor 採集長曝光（捕獲暗部）與短曝光（捕獲亮部）的多幀 RAW 數據，在物理層面進行高位元（16-bit 以上）的線性融合，擴展物理感光的極限。</li>
+            </ul>
+
+            <h3>2. WDR (Wide Dynamic Range, 寬動態範圍)</h3>
+            <ul>
+                <li><strong>核心定義</strong>：一種<strong>「在有限的顯示範圍內，極大化呈現明暗細節」</strong>的影像處理能力。</li>
+                <li><strong>技術本質</strong>：專注於 <strong>後端數據呈現與壓縮（Data Rendering & Compression）</strong>。</li>
+                <li><strong>運作機制</strong>：無論輸入源是單幀 Linear 還是融合後的 HDR 數據，WDR 透過色調映射（Tone Mapping）演算法，動態調高暗部、壓低高光，將寬廣的動態範圍「擠入」顯示器能呈現的範圍（通常為 8-bit YUV, 0~255）。</li>
+            </ul>
+
+            <h2>🧭 二、 核心概念與差異對比</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>特性指標</th>
+                        <th>🛑 HDR (High Dynamic Range)</th>
+                        <th>⚙️ WDR (Wide Dynamic Range)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>主要技術階段</strong></td>
+                        <td><strong>前端 Sensor 採集 / 數據融合層面</strong></td>
+                        <td><strong>後端圖像處理 / 顯示壓縮層面</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>輸入資料源</strong></td>
+                        <td>Sensor 直接輸出的長、短曝光（多幀）原始數據</td>
+                        <td>單張影像（Linear mode 或已由 Sensor 合成的影像）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心處理目的</strong></td>
+                        <td>擴展物理採集極限，確保物理亮部不過曝、暗部有細節</td>
+                        <td>調亮暗部、壓低高光，將寬廣動態範圍「擠入」有限顯示範圍</td>
+                    </tr>
+                    <tr>
+                        <td><strong>常見應用產業</strong></td>
+                        <td>消費型攝影、智慧型手機、高階車載相機</td>
+                        <td>安全監控、行車紀錄器、電子後視鏡</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>⚠️ 三、 使用上的問題與硬體限制</h2>
+            <h3>🛑 1. HDR 的主要缺陷與限制</h3>
+            <ul>
+                <li><strong>運動偽影與鬼影（Motion Artifacts / Ghosting）</strong>
+                    <ul>
+                        <li><em>原因</em>：多幀（長/短曝光）在時間上有先後順序。</li>
+                        <li><em>後果</em>：若物體或相機在採集期間移動，融合時邊緣會錯位，產生不自然的黑影、殘影或鋸齒色彩邊緣。</li>
+                    </ul>
+                </li>
+                <li><strong>LED 閃爍問題（LED Flicker）</strong>
+                    <ul>
+                        <li><em>原因</em>：現代 LED（車燈、號誌）採用高頻 PWM 驅動。HDR 為了抓取高光，其短曝光（Short Exposure）時間極短。</li>
+                        <li><em>後果</em>：短曝光時間可能剛好落在 LED 熄滅的微秒週期，導致融合後的車燈或紅綠燈嚴重閃爍甚至完全熄滅（自動駕駛與車載 ADAS 的致命傷）。</li>
+                    </ul>
+                </li>
+                <li><strong>幀率（FPS）減半與頻寬暴增</strong>
+                    <ul>
+                        <li><em>原因</em>：要在 30fps 下輸出時序 HDR（Time-multiplexed），Sensor 必須以 60fps 速率輸出長短曝光畫面。</li>
+                        <li><em>後果</em>：功耗翻倍、傳輸頻寬（MIPI D-PHY/C-PHY）吃緊、ISP 運算負擔與記憶體讀寫（DDR Bandwidth）壓力大增。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>⚙️ 2. WDR 的主要缺陷與限制</h3>
+            <ul>
+                <li><strong>暗區噪點放大（Noise Amplification）</strong>
+                    <ul>
+                        <li><em>原因</em>：WDR（特別是 Local Tone Mapping）為了讓暗處清晰，會對低亮度區域進行強力的局部增益（Gain）放大。</li>
+                        <li><em>後果</em>：隱藏在暗處的傳感器隨機噪點（Random Noise）和散粒噪點（Shot Noise）隨之成倍放大，導致畫面暗區出現嚴重的綠色/紫色色雜訊與顆粒感。</li>
+                    </ul>
+                </li>
+                <li><strong>邊緣光暈效應（Halo Artifacts）</strong>
+                    <ul>
+                        <li><em>原因</em>：局部色調映射（LTM）利用濾波器（如雙邊或引導濾波器）分離背景亮度層時，在極亮與極暗交界處（如天空與建築物邊緣）會產生計算誤差。</li>
+                        <li><em>後果</em>：在高反差邊緣的暗側出現不自然的「發光白邊（Halo）」，亮側出現「黑邊」，畫面呈現強烈的人工合成感（俗稱塑料感）。</li>
+                    </ul>
+                </li>
+                <li><strong>色彩失真與灰暗感（Color Washout / Graying）</strong>
+                    <ul>
+                        <li><em>原因</em>：強行壓縮高光並拉高暗部時，若僅調整了亮度通道（Y），而沒有等比例修正與補償色彩通道（UV）。</li>
+                        <li><em>後果</em>：整體畫面看起來灰濛濛的，對比度雖然拉近了，但影像失去了原有的立體感、通透度與色彩飽和度。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h2>🛠️ 四、 業界前沿解決方案（Tuning & Hardware）</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>面臨問題</th>
+                        <th>硬體/演算法對策</th>
+                        <th>技術原理</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>HDR 運動鬼影</strong></td>
+                        <td><strong>Staggered HDR</strong></td>
+                        <td>縮短長短曝光行與行之間的讀出時間差（Line-interleaved）。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HDR LED 閃爍</strong></td>
+                        <td><strong>DCG (Dual Conversion Gain) / Split Pixel</strong></td>
+                        <td>單次曝光內透過大小像素或切換電容同時輸出高/低靈敏度信號，<strong>實現零時差 HDR</strong>。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WDR 暗區噪點</strong></td>
+                        <td><strong>RAW-domain TNR</strong></td>
+                        <td>在 WDR 強力放大暗部前，先在前端 RAW 域進行 3D 時域降噪（3DNR）。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WDR 邊緣光暈</strong></td>
+                        <td><strong>AI LTM / Guided Filter</strong></td>
+                        <td>引入神經網路或引導濾波器更精準地識別物理邊緣，徹底消除高反差發光白邊。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🧮 五、 ISP 中的核心計算機制</h2>
+            <h3>1. HDR 計算：多幀融合（Multi-Frame Fusion）</h3>
+            <p>HDR 的計算發生在 ISP 前端的 <strong>RAW 域</strong>。目的是將長曝光（Long Exposure, LE）和短曝光（Short Exposure, SE）兩張（或多張）影像結合成一張高位元（如 16-bit/20-bit）的超高動態範圍影像。</p>
+        <figure class="image-item">    
+            <img src="../image/Study_note_image/WDR_HDR/wdr_hdr_1.png" alt="HDR 調整狀況">
+        </figure> 
+            <h3>2. WDR 計算：色調映射與對比增強（Tone Mapping）</h3>
+            <p>WDR 的計算通常發生在 ISP 後端的 <strong>YUV 域</strong>（或色彩空間轉換後）。當高動態範圍影像（16-bit）要輸出到標準顯示器（8-bit, 0~255）時，WDR 負責計算如何分配這有限的亮度階層。</p>
+
+            <h2>🔄 六、 現代 ISP 的協同工作流（Workflow）</h2>
+            <pre><code>💡
+[ Sensor 採集長短曝光 ] 
+       │
+       ▼
+[ ISP 前端：HDR 計算 ] ───► 將多幀融合為 16-bit RAW 寬動態數據
+       │
+       ▼
+[ ISP 後端：WDR 計算 ] ───► 透過 GTM/LTM 壓縮映射至 8-bit YUV 輸出
+</code></pre>
+
+            <h2>🛠️ ISP 調試（Tuning）實戰建議</h2>
+            <ol>
+                <li><strong>HDR 調校重點</strong>：
+                    <ul>
+                        <li>優先確保 <strong>Exposure Ratio</strong> 計算正確，避免融合邊界（Blending Window）出現斷層。</li>
+                        <li>優化去鬼影（De-ghosting）閾值，防止移動物體邊緣產生偽影。</li>
+                        <li><strong>HDR 解決的是「物理極限」問題</strong>：受限於 Sensor 滿阱容量（FWC）、讀出雜訊與多幀採集的時間差。</li>
+                    </ul>
+                </li>
+                <li><strong>WDR 調校重點</strong>：
+                    <ul>
+                        <li>透過 <strong>GTM Curve</strong> 決定整體畫面的明暗基調（Gamma、亮度感）。</li>
+                        <li>調整 <strong>LTM 參數</strong>（如局部對比度權重、細節放大係數），在拉高暗部細節的同時，必須壓制隨之放大的隨機噪點（Noise）。</li>
+                        <li><strong>WDR 解決的是「視覺心理」問題</strong>：考驗 ISP 演算法如何在壓縮高位元數據的同時，欺騙人類雙眼，讓畫面兼具細節、自然度與立體感。</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

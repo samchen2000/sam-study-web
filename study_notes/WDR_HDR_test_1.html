@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HDR 多幀融合互動教學</title>
+<style>
+  :root {
+    --hdr: #00d4ff;
+    --hdr-glow: rgba(0,212,255,0.4);
+    --warn: #ff4470;
+    --bg-deep: #0a0e1a;
+    --bg-card: #131826;
+    --bg-elev: #1c2336;
+    --text: #e8ecf5;
+    --text-dim: #98a3b8;
+    --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI','PingFang TC','Microsoft JhengHei',sans-serif;
+    background: var(--bg-deep); color: var(--text);
+    line-height: 1.7; min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 50px 20px 40px; text-align: center;
+    background: radial-gradient(ellipse at center, var(--hdr-glow), transparent 60%),
+                linear-gradient(180deg, #0a0e1a 0%, #131826 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: clamp(1.8rem,4.5vw,3rem); font-weight: 800;
+    background: linear-gradient(90deg, var(--hdr), #c084fc);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; margin-bottom: 12px;
+  }
+  .hero p { color: var(--text-dim); max-width: 720px; margin: 0 auto; }
+  .formula-big {
+    display: inline-block; padding: 14px 24px; margin-top: 20px;
+    background: var(--bg-card); border: 1px solid var(--hdr);
+    border-radius: 10px; font-family: 'Courier New', monospace;
+    font-size: clamp(0.9rem, 2vw, 1.15rem); color: var(--hdr);
+    box-shadow: 0 0 24px var(--hdr-glow);
+  }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section title */
+  .section-title {
+    font-size: 1.6rem; margin: 30px 0 20px;
+    padding-bottom: 10px; border-bottom: 2px solid var(--hdr);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .icon { font-size: 1.4rem; }
+
+  /* LAB */
+  .lab {
+    background: var(--bg-card); border-radius: 16px; padding: 24px;
+    border: 1px solid var(--border); margin-bottom: 24px;
+  }
+
+  /* Source panel */
+  .source-tabs, .ghost-tabs {
+    display: flex; gap: 6px; margin-bottom: 16px;
+    background: var(--bg-elev); padding: 4px; border-radius: 10px;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px; border-radius: 6px; cursor: pointer;
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 0.9rem; transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--bg-card); color: var(--hdr);
+    box-shadow: 0 0 0 1px var(--hdr);
+  }
+
+  /* Upload UI */
+  .upload-panel {
+    background: var(--bg-elev); padding: 16px; border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .upload-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .upload-row label { flex: 1; min-width: 200px; font-size: 0.9rem; }
+  .upload-row input[type="file"] { color: var(--text-dim); font-size: 0.85rem; }
+  .upload-status { font-size: 0.85rem; color: var(--hdr); }
+
+  /* Image grid */
+  .img-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px; margin-bottom: 20px;
+  }
+  .img-box {
+    background: var(--bg-elev); border-radius: 12px; padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .img-box .label {
+    font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .tag {
+    padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;
+  }
+  .tag.le { background: #4a3b00; color: #ffd166; }
+  .tag.se { background: #003a4a; color: #6ee7ff; }
+  .tag.fused { background: #2a4a00; color: #b4ff8c; }
+  .canvas-wrap {
+    width: 100%; aspect-ratio: 4/3;
+    background: #000; border-radius: 8px; overflow: hidden;
+  }
+  .canvas-wrap canvas { width: 100%; height: 100%; display: block; }
+
+  /* Controls */
+  .controls {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px; padding: 16px; background: var(--bg-elev);
+    border-radius: 10px; margin: 14px 0;
+  }
+  .ctrl label {
+    display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px;
+  }
+  .ctrl .val {
+    color: var(--hdr); font-weight: 700; font-family: 'Courier New', monospace;
+    margin-left: 8px; padding: 2px 8px; background: var(--bg-deep); border-radius: 4px;
+  }
+  .ctrl small { display: block; margin-top: 4px; color: var(--text-dim); font-size: 0.78rem; }
+  input[type="range"] {
+    width: 100%; -webkit-appearance: none; height: 6px; border-radius: 3px;
+    background: var(--bg-deep); outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--hdr); cursor: pointer;
+    box-shadow: 0 0 10px var(--hdr-glow);
+  }
+
+  /* Info box */
+  .info {
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), transparent);
+    border-left: 3px solid var(--hdr); padding: 12px 16px;
+    border-radius: 6px; margin: 14px 0; font-size: 0.92rem;
+  }
+  .info strong { color: var(--hdr); }
+  .info.warn { border-left-color: var(--warn); background: rgba(255,68,112,0.06); }
+  .info.warn strong { color: var(--warn); }
+  .info code {
+    background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;
+    font-family: 'Courier New', monospace; color: var(--hdr);
+  }
+
+  /* Weight function */
+  .weight-viz {
+    background: var(--bg-elev); padding: 12px; border-radius: 8px;
+    margin: 14px 0;
+  }
+  .weight-viz h4 { font-size: 0.95rem; margin-bottom: 6px; color: var(--hdr); }
+  .weight-viz canvas { width: 100%; height: 200px; display: block; }
+
+  /* Stats bar */
+  .stats {
+    display: flex; gap: 12px; flex-wrap: wrap; margin: 10px 0;
+    font-size: 0.85rem;
+  }
+  .stat-chip {
+    padding: 4px 10px; background: var(--bg-elev); border-radius: 12px;
+    color: var(--text-dim);
+  }
+  .stat-chip strong { color: var(--hdr); }
+
+  /* Buttons */
+  button {
+    background: var(--bg-elev); color: var(--text); border: 1px solid var(--border);
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    font-family: inherit; font-size: 0.9rem; transition: all 0.2s;
+  }
+  button:hover { border-color: var(--hdr); background: #2a3450; }
+  button.primary { background: var(--hdr); color: #001a22; border: none; font-weight: 700; }
+  button.danger { background: var(--warn); color: white; border: none; }
+
+  footer {
+    text-align: center; padding: 30px 20px; color: var(--text-dim);
+    font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 40px;
+  }
+
+  @media (max-width:600px) { .controls { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <h1>⚡ HDR 多幀融合 互動教學</h1>
+  <p>用真實影像理解 ISP 中 RAW 域的 HDR 演算法 — 長短曝光互補、權重融合、去鬼影</p>
+  <div class="formula-big">
+    P<sub>fusion</sub> = W(P<sub>LE</sub>) × P<sub>LE</sub> &nbsp;+&nbsp; [1 − W(P<sub>LE</sub>)] × (P<sub>SE</sub> × R)
+  </div>
+</section>
+
+<div class="container">
+
+<h2 class="section-title"><span class="icon">🔬</span>HDR 多幀融合實驗室</h2>
+
+<div class="lab">
+
+  <!-- 影像來源切換 -->
+  <div class="source-tabs">
+    <button class="tab-btn active" data-mode="demo">📊 演示模式 (程式生成場景)</button>
+    <button class="tab-btn" data-mode="upload">📁 上傳真實 LE / SE 影像</button>
+  </div>
+
+  <!-- 上傳面板 -->
+  <div class="upload-panel" id="uploadPanel" style="display:none;">
+    <div class="upload-row">
+      <label>📸 長曝光影像 (LE):<input type="file" id="leFile" accept="image/*"></label>
+      <span class="upload-status" id="leStatus">未上傳</span>
+    </div>
+    <div class="upload-row">
+      <label>📸 短曝光影像 (SE):<input type="file" id="seFile" accept="image/*"></label>
+      <span class="upload-status" id="seStatus">未上傳</span>
+    </div>
+    <div class="info">
+      <strong>提示:</strong> 選擇同一場景、不同曝光的兩張照片。為了看出 HDR 效果,LE 應有可見的高光過曝區,SE 應有可見的暗部細節。
+    </div>
+  </div>
+
+  <!-- 三張影像 -->
+  <div class="img-grid">
+    <div class="img-box">
+      <div class="label">
+        長曝光 (Long Exposure)
+        <span class="tag le">暗部清楚 · 高光過曝</span>
+      </div>
+      <div class="canvas-wrap"><canvas id="cvLE"></canvas></div>
+    </div>
+    <div class="img-box">
+      <div class="label">
+        短曝光 (Short Exposure)
+        <span class="tag se">高光保留 · 暗部全黑</span>
+      </div>
+      <div class="canvas-wrap"><canvas id="cvSE"></canvas></div>
+    </div>
+    <div class="img-box">
+      <div class="label">
+        HDR 融合結果
+        <span class="tag fused">即時運算中</span>
+      </div>
+      <div class="canvas-wrap"><canvas id="cvFused"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 統計數據列 -->
+  <div class="stats">
+    <span class="stat-chip">動態範圍擴展: <strong id="statDR">16×</strong></span>
+    <span class="stat-chip">被偵測為鬼影的像素: <strong id="statGhost">0</strong></span>
+    <span class="stat-chip">目前模式: <strong id="statMode">演示</strong></span>
+  </div>
+
+  <!-- 三個滑桿 — 全部即時影響融合影像 -->
+  <div class="controls">
+    <div class="ctrl">
+      <label>① 曝光比值 R = T<sub>long</sub> / T<sub>short</sub><span class="val" id="vR">16</span></label>
+      <input type="range" id="slR" min="2" max="64" value="16" step="1">
+      <small>R 改變 SE 對齊到 LE 物理量的倍率。R 太小會讓 SE 對齊結果偏暗、留下「黑影」;R 太大會過曝爆出更多區域。</small>
+    </div>
+    <div class="ctrl">
+      <label>② 權重函數過渡點 (亮度閾值)<span class="val" id="vThr">180</span></label>
+      <input type="range" id="slThr" min="20" max="240" value="180" step="2">
+      <small>LE 像素亮度超過此值時,權重 W 開始下降、改用 SE 資料。拉低 → 更多區域用 SE;拉高 → 更多區域用 LE。</small>
+    </div>
+    <div class="ctrl">
+      <label>③ 去鬼影敏感度<span class="val" id="vGhost">30</span></label>
+      <input type="range" id="slGhost" min="0" max="100" value="30" step="1">
+      <small>兩幀相同位置像素差異 > 敏感度時,標記為「移動物體」,強制使用單一幀避免殘影。</small>
+    </div>
+  </div>
+
+  <!-- 鬼影演示切換 -->
+  <div class="ghost-tabs">
+    <button class="tab-btn active" data-ghost="none">🧍 無運動物體</button>
+    <button class="tab-btn" data-ghost="walking">🚶 行人走過</button>
+    <button class="tab-btn" data-ghost="car">🚗 車輛快速移動</button>
+  </div>
+
+  <!-- 鬼影顯示切換 -->
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin: 12px 0;">
+    <button id="btnShowGhost" onclick="toggleGhostView()">🔴 顯示偵測到的鬼影區域 (紅色遮罩)</button>
+    <button onclick="resetSliders()">↺ 滑桿重置</button>
+  </div>
+
+  <div class="info warn" id="ghostWarn" style="display:none;">
+    <strong>⚠️ 去鬼影機制正在作用!</strong>
+    <span id="ghostDetail"></span>
+  </div>
+
+  <!-- 權重函數可視化 -->
+  <div class="weight-viz">
+    <h4>📐 權重函數 W(P_LE) 即時曲線</h4>
+    <canvas id="cvWeight"></canvas>
+  </div>
+
+  <div class="info">
+    <strong>💡 操作建議:</strong>
+    <ol style="padding-left:20px;margin-top:6px;">
+      <li>先觀察左側 LE 和中間 SE — 它們各自有「看不見」的區域。</li>
+      <li>試著把 <code>過渡點閾值</code> 拖到 80 — 會看到融合影像暗部被過度破壞 (因為太多區域都改用 SE)。</li>
+      <li>試著把 <code>R</code> 拉到 64 — 會發現 SE 對齊後過亮,亮部也爆掉。</li>
+      <li>切換到「🚶 行人走過」+ 提高「去鬼影敏感度」,觀察融合影像中移動物體的處理變化。</li>
+    </ol>
+  </div>
+
+</div>
+
+<h2 class="section-title"><span class="icon">📚</span>演算法步驟詳解</h2>
+
+<div class="lab">
+  <div class="info" style="margin-top:0;">
+    <strong>① 曝光比值對齊 (Exposure Ratio Alignment)</strong><br>
+    SE 影像是用短時間曝光得到,數值比 LE 小。必須乘上 R 才能與 LE 處於同一物理量階:<br>
+    <code style="display:block;margin:8px 0;padding:8px;text-align:center;font-size:1rem;">Pixel_Aligned_SE = Pixel_SE × R</code>
+  </div>
+  <div class="info">
+    <strong>② 權重融合 (Weight Blending)</strong><br>
+    根據 LE 像素的亮度決定權重函數 W(P_LE),其中 <code>Pixel_Fusion = W × P_LE + (1−W) × (P_SE × R)</code>:
+    <ul style="padding-left:20px;margin-top:6px;">
+      <li>暗區 (LE 未過曝) → <strong>W ≈ 1</strong>:採用 LE,因為暗部細節豐富、噪訊低</li>
+      <li>亮區 (LE 接近飽和) → <strong>W ≈ 0</strong>:改用對齊後的 SE,因為 LE 此處已無資訊</li>
+    </ul>
+  </div>
+  <div class="info">
+    <strong>③ 去鬼影 (De-ghosting)</strong><br>
+    對齊後若 |P_LE − P_SE×R| 超過閾值 → 該像素屬於「移動物體」,強制使用<strong>單一幀</strong>(通常為 SE),避免兩幀混合造成的黑影或殘影。
+  </div>
+</div>
+
+<h2 class="section-title"><span class="icon">🔄</span>在 ISP Pipeline 中的位置</h2>
+
+<div class="lab" style="text-align:center;">
+  <div style="display:inline-block; padding:16px 24px; background:var(--bg-elev); border-radius:12px;">
+    📷 Sensor <span style="margin:0 12px;color:var(--text-dim);">→</span>
+    <span style="color:var(--hdr);font-weight:700;">⚡ HDR 融合 (RAW 域)</span>
+    <span style="margin:0 12px;color:var(--text-dim);">→</span>
+    🎨 WDR (YUV 域) <span style="margin:0 12px;color:var(--text-dim);">→</span>
+    📺 8-bit 顯示
+  </div>
+  <div class="info" style="margin-top:14px;text-align:left;">
+    <strong>分工重點:</strong>HDR 負責「擴展物理採集極限」,在 RAW 域把多幀合成 16-bit 高動態資料;
+    WDR 負責「擠進顯示範圍」,在 YUV 域透過 GTM/LTM 把 16-bit 壓縮到 8-bit 顯示器能呈現的範圍。
+  </div>
+</div>
+
+</div>
+
+<footer>📚 ISP 影像處理教學教材 · HDR 多幀融合互動演示</footer>
+
+<script>
+/* ============================================================
+   設定與狀態
+   ============================================================ */
+const CW = 480, CH = 360;
+
+let mode = 'demo';          // 'demo' | 'upload'
+let ghostDemo = 'none';     // 'none' | 'walking' | 'car'
+let showGhostMask = false;
+
+let leData = null;          // ImageData (LE)
+let seData = null;          // ImageData (SE)
+let displayLE = null;       // 加上鬼影遮罩後顯示的版本
+let displaySE = null;
+
+const cvLE = document.getElementById('cvLE');
+const cvSE = document.getElementById('cvSE');
+const cvFused = document.getElementById('cvFused');
+const cvWeight = document.getElementById('cvWeight');
+[cvLE, cvSE, cvFused].forEach(c => { c.width = CW; c.height = CH; });
+
+/* ============================================================
+   工具函式
+   ============================================================ */
+function copyID(src) {
+  return new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
+}
+function putTo(canvas, imgData) {
+  canvas.getContext('2d').putImageData(imgData, 0, 0);
+}
+
+/* ============================================================
+   演示模式:程式生成 HDR 場景
+   結構:
+   - 室內:左側沙發+植物剪影、中間窗戶、右側檯燈
+   - 窗外:天空 + 城市天際線
+   - LE:室內清楚但窗外過曝 (窗戶=白光)
+   - SE:窗外清楚但室內全黑
+   ============================================================ */
+function generateDemoScene() {
+  leData = renderScene('le');
+  seData = renderScene('se');
+  displayLE = copyID(leData);
+  displaySE = copyID(seData);
+  putTo(cvLE, displayLE);
+  putTo(cvSE, displaySE);
+  fuse();
+}
+
+/* 場景座標系 */
+function windowRect() {
+  return {
+    x: CW * 0.32, y: CH * 0.10,
+    w: CW * 0.36, h: CH * 0.65
+  };
+}
+
+function renderScene(kind) {
+  const cv = document.createElement('canvas');
+  cv.width = CW; cv.height = CH;
+  const ctx = cv.getContext('2d');
+
+  /* 背景:牆壁 */
+  if (kind === 'le') {
+    // 長曝光:暗色室內有溫暖光線
+    const wallGrad = ctx.createLinearGradient(0, 0, 0, CH);
+    wallGrad.addColorStop(0, '#5a4538');
+    wallGrad.addColorStop(1, '#2a1f15');
+    ctx.fillStyle = wallGrad;
+  } else {
+    // 短曝光:幾乎全黑
+    ctx.fillStyle = '#000';
+  }
+  ctx.fillRect(0, 0, CW, CH);
+
+  const wr = windowRect();
+
+  /* 地板 (前方) */
+  ctx.fillStyle = kind === 'le' ? '#1a120a' : '#000';
+  ctx.fillRect(0, CH * 0.78, CW, CH * 0.22);
+
+  /* 右側檯燈與其光暈 */
+  if (kind === 'le') {
+    const lampX = CW * 0.83, lampY = CH * 0.55;
+    // 大範圍光暈
+    const glow = ctx.createRadialGradient(lampX, lampY, 0, lampX, lampY, CW * 0.4);
+    glow.addColorStop(0, 'rgba(255,200,120,0.55)');
+    glow.addColorStop(0.4, 'rgba(255,170,80,0.18)');
+    glow.addColorStop(1, 'rgba(255,170,80,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, CW, CH);
+    // 燈罩本體
+    ctx.fillStyle = '#d4a050';
+    ctx.beginPath();
+    ctx.ellipse(lampX, lampY, 22, 14, 0, 0, Math.PI*2);
+    ctx.fill();
+    // 燈桿
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(lampX - 2, lampY, 4, CH * 0.22);
+  } else {
+    // SE:檯燈只留一個微弱光點
+    ctx.fillStyle = '#604020';
+    ctx.beginPath();
+    ctx.arc(CW * 0.83, CH * 0.55, 3, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  /* 左側植物+桌子剪影 */
+  ctx.fillStyle = kind === 'le' ? '#0e0a06' : '#000';
+  ctx.fillRect(CW * 0.04, CH * 0.55, CW * 0.20, CH * 0.30);
+  // 植物葉
+  if (kind === 'le') {
+    ctx.fillStyle = '#1a2a18';
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.arc(CW * 0.14 + (Math.random()-0.5)*30, CH * 0.50 + (Math.random()-0.5)*20, 
+             12 + Math.random()*8, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  /* 窗戶:這是視覺焦點 */
+  if (kind === 'le') {
+    // LE 窗戶 = 過曝白光 (略帶一點極淡的城市輪廓)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(wr.x, wr.y, wr.w, wr.h);
+    // 非常模糊的城市痕跡 (幾乎看不見)
+    ctx.fillStyle = 'rgba(220,220,230,0.4)';
+    for (let i = 0; i < 5; i++) {
+      const bx = wr.x + (i/5)*wr.w + Math.random()*15;
+      const bh = wr.h * (0.3 + Math.random()*0.4);
+      ctx.fillRect(bx, wr.y + wr.h - bh, wr.w/8, bh);
+    }
+  } else {
+    // SE 窗戶:清晰的天空+城市
+    const skyGrad = ctx.createLinearGradient(0, wr.y, 0, wr.y + wr.h);
+    skyGrad.addColorStop(0, '#9bc4e8');
+    skyGrad.addColorStop(0.6, '#6f95b8');
+    skyGrad.addColorStop(1, '#a69080');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(wr.x, wr.y, wr.w, wr.h);
+    
+    // 城市天際線 — 多棟建築
+    ctx.fillStyle = '#5a6878';
+    const buildings = [
+      {x: 0.05, w: 0.12, h: 0.45},
+      {x: 0.18, w: 0.10, h: 0.65},
+      {x: 0.29, w: 0.13, h: 0.55},
+      {x: 0.43, w: 0.08, h: 0.80},
+      {x: 0.52, w: 0.12, h: 0.60},
+      {x: 0.65, w: 0.10, h: 0.70},
+      {x: 0.76, w: 0.13, h: 0.50},
+      {x: 0.90, w: 0.09, h: 0.42},
+    ];
+    buildings.forEach(b => {
+      const bx = wr.x + b.x * wr.w;
+      const bw = b.w * wr.w;
+      const bh = b.h * wr.h;
+      ctx.fillRect(bx, wr.y + wr.h - bh, bw, bh);
+    });
+    // 幾扇窗戶亮處
+    ctx.fillStyle = '#d8c890';
+    for (let n = 0; n < 25; n++) {
+      const i = Math.floor(Math.random() * buildings.length);
+      const b = buildings[i];
+      const wx = wr.x + (b.x + Math.random()*b.w) * wr.w;
+      const wy = wr.y + wr.h - b.h * wr.h + Math.random() * b.h * wr.h * 0.7;
+      ctx.fillRect(wx, wy, 2, 3);
+    }
+  }
+
+  /* 窗框 */
+  ctx.strokeStyle = kind === 'le' ? '#3a2a20' : '#1a2030';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(wr.x, wr.y, wr.w, wr.h);
+  // 中央分隔
+  ctx.beginPath();
+  ctx.moveTo(wr.x + wr.w/2, wr.y);
+  ctx.lineTo(wr.x + wr.w/2, wr.y + wr.h);
+  ctx.moveTo(wr.x, wr.y + wr.h/2);
+  ctx.lineTo(wr.x + wr.w, wr.y + wr.h/2);
+  ctx.stroke();
+
+  /* 中央的人物剪影 (這也是鬼影演示的焦點) */
+  const px = CW * 0.50, py = CH * 0.78;
+  if (kind === 'le') {
+    // LE:可看見人物的暗剪影
+    ctx.fillStyle = '#0a0806';
+    // 頭
+    ctx.beginPath();
+    ctx.arc(px, py - 35, 16, 0, Math.PI*2);
+    ctx.fill();
+    // 身體
+    ctx.fillRect(px - 20, py - 22, 40, 50);
+  } else {
+    // SE:人物完全消失在黑中 (只剩窗戶)
+  }
+
+  return ctx.getImageData(0, 0, CW, CH);
+}
+
+/* ============================================================
+   鬼影演示:修改 SE 中的「移動物體」
+   動到「窗外的人物剪影」位置,模擬時間差
+   ============================================================ */
+function applyGhostToSE() {
+  const shift = ghostDemo === 'walking' ? 6 : (ghostDemo === 'car' ? 30 : 0);
+  if (shift === 0) return null;
+
+  // 拷貝 SE,在人物剪影區域偏移取樣
+  const newSE = copyID(seData);
+  const px = CW * 0.50, py = CH * 0.78;
+  const regionRadius = 20;
+
+  for (let y = py - 60; y < py + 20; y++) {
+    for (let x = px - 30; x < px + 30; x++) {
+      const dx = x - px, dy = y - py;
+      if (dx*dx + dy*dy < regionRadius*regionRadius) {
+        const sx = x + shift, sy = y;
+        if (sx >= 0 && sx < CW) {
+          const dstIdx = (y*CW + x) * 4;
+          const srcIdx = (sy*CW + sx) * 4;
+          newSE.data[dstIdx]   = seData.data[srcIdx];
+          newSE.data[dstIdx+1] = seData.data[srcIdx+1];
+          newSE.data[dstIdx+2] = seData.data[srcIdx+2];
+        }
+      }
+    }
+  }
+  return newSE;
+}
+
+/* ============================================================
+   HDR 融合核心演算法
+   ============================================================ */
+function weightFunction(leLuma, thr) {
+  /* Sigmoid:暗處 W≈1,亮處 W≈0 */
+  const x = leLuma / 255;
+  const t = thr / 255;
+  const k = 14;  // 斜率陡峭度
+  return 1 / (1 + Math.exp((x - t) * k));
+}
+
+function fuse() {
+  if (!leData || !seData) return;
+
+  const R = +document.getElementById('slR').value;
+  const thr = +document.getElementById('slThr').value;
+  const ghostSens = +document.getElementById('slGhost').value;
+
+  document.getElementById('vR').textContent = R;
+  document.getElementById('vThr').textContent = thr;
+  document.getElementById('vGhost').textContent = ghostSens;
+
+  /* 取得 SE 資料 (含鬼影模擬) */
+  const seActual = applyGhostToSE() || seData;
+
+  /* 計算 SE 對齊到 LE */
+  /* 基準:假設 R=16 時已經正確對齊,其他 R 值等比例調整放大率 */
+  const baseR = 16;
+  const seMul = R / baseR;
+
+  /* Ghost 偵測遮罩 */
+  const ghostThreshold = (ghostSens / 100) * 90;  // 0~90 像素差
+  const ghostMask = new Uint8Array(CW * CH);
+  let ghostCount = 0;
+
+  if (ghostSens > 0) {
+    for (let i = 0; i < CW * CH; i++) {
+      const idx = i * 4;
+      const dr = Math.abs(leData.data[idx]   - seActual.data[idx]);
+      const dg = Math.abs(leData.data[idx+1] - seActual.data[idx+1]);
+      const db = Math.abs(leData.data[idx+2] - seActual.data[idx+2]);
+      const diff = (dr + dg + db) / 3;
+      if (diff > ghostThreshold) {
+        ghostMask[i] = 1;
+        ghostCount++;
+      }
+    }
+  }
+
+  document.getElementById('statDR').textContent = R + '×';
+  document.getElementById('statGhost').textContent = 
+    ghostSens > 0 ? ghostCount.toLocaleString() + ' px' : '關閉';
+
+  /* 顯示鬼影警告 */
+  const warnBox = document.getElementById('ghostWarn');
+  if (ghostDemo !== 'none' && ghostSens > 0) {
+    warnBox.style.display = 'block';
+    document.getElementById('ghostDetail').innerHTML = 
+      `偵測到 <strong>${ghostCount}</strong> 個像素屬於「移動物體」(差異 &gt; ${ghostThreshold.toFixed(0)})。
+       這些區域在右側的融合影像中被強制以 <strong>單一幀 (SE)</strong> 為準,避免產生殘影。
+       試著把「去鬼影敏感度」拉到 0 — 你會看到移動物體變成半透明黑影 (這就是「鬼影」)。`;
+  } else if (ghostDemo === 'none' && ghostSens > 0) {
+    warnBox.style.display = 'block';
+    warnBox.className = 'info';
+    document.getElementById('ghostDetail').innerHTML = 
+      `去鬼影功能已啟用,但目前無演示中的運動物體。切換到「🚶 行人走過」觀察效果。`;
+  } else {
+    warnBox.style.display = 'none';
+  }
+
+  /* 在 LE/SE 上畫鬼影遮罩 (紅色半透明) */
+  displayLE = copyID(leData);
+  displaySE = copyID(seActual);
+  if (showGhostMask && ghostSens > 0) {
+    for (let i = 0; i < CW*CH; i++) {
+      if (ghostMask[i]) {
+        const idx = i * 4;
+        // LE:紅色高亮
+        displayLE.data[idx]   = 255;
+        displayLE.data[idx+1] = Math.floor(displayLE.data[idx+1] * 0.4);
+        displayLE.data[idx+2] = Math.floor(displayLE.data[idx+2] * 0.4);
+        // SE:青色高亮
+        displaySE.data[idx]   = Math.floor(displaySE.data[idx] * 0.4);
+        displaySE.data[idx+1] = Math.floor(displaySE.data[idx+1] * 0.7);
+        displaySE.data[idx+2] = 255;
+      }
+    }
+  }
+  putTo(cvLE, displayLE);
+  putTo(cvSE, displaySE);
+
+  /* 融合影像 */
+  const fused = new ImageData(new Uint8ClampedArray(CW * CH * 4), CW, CH);
+  let usedLE = 0, usedSE = 0, usedGhost = 0;
+
+  for (let i = 0; i < CW * CH; i++) {
+    const idx = i * 4;
+
+    // LE luma
+    const leLuma = 0.299*leData.data[idx] + 0.587*leData.data[idx+1] + 0.114*leData.data[idx+2];
+
+    let finalR, finalG, finalB;
+
+    if (ghostMask[i]) {
+      // 鬼影區域:強制使用 SE (對齊後)
+      finalR = seActual.data[idx]   * seMul;
+      finalG = seActual.data[idx+1] * seMul;
+      finalB = seActual.data[idx+2] * seMul;
+      usedGhost++;
+    } else {
+      // 正常融合
+      const W = weightFunction(leLuma, thr);
+      const seR = seActual.data[idx]   * seMul;
+      const seG = seActual.data[idx+1] * seMul;
+      const seB = seActual.data[idx+2] * seMul;
+      finalR = W * leData.data[idx]   + (1 - W) * seR;
+      finalG = W * leData.data[idx+1] + (1 - W) * seG;
+      finalB = W * leData.data[idx+2] + (1 - W) * seB;
+      if (W > 0.5) usedLE++; else usedSE++;
+    }
+
+    fused.data[idx]   = Math.max(0, Math.min(255, finalR));
+    fused.data[idx+1] = Math.max(0, Math.min(255, finalG));
+    fused.data[idx+2] = Math.max(0, Math.min(255, finalB));
+    fused.data[idx+3] = 255;
+  }
+  putTo(cvFused, fused);
+
+  /* 繪製權重函數曲線 */
+  drawWeightCurve(thr);
+}
+
+/* ============================================================
+   權重函數視覺化
+   ============================================================ */
+function drawWeightCurve(thr) {
+  const c = cvWeight;
+  c.width = 600; c.height = 200;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0a0e1a';
+  ctx.fillRect(0, 0, c.width, c.height);
+
+  // 格線
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 12; i++) {
+    ctx.beginPath(); ctx.moveTo(i*50, 0); ctx.lineTo(i*50, 200); ctx.stroke();
+  }
+  for (let i = 0; i <= 4; i++) {
+    ctx.beginPath(); ctx.moveTo(0, i*50); ctx.lineTo(600, i*50); ctx.stroke();
+  }
+
+  // 軸
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath(); ctx.moveTo(0, 200); ctx.lineTo(600, 200); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 200); ctx.stroke();
+
+  // 軸標籤
+  ctx.fillStyle = '#98a3b8';
+  ctx.font = '11px monospace';
+  ctx.fillText('P_LE = 0', 4, 195);
+  ctx.fillText('P_LE = 255', 540, 195);
+  ctx.fillText('W=1', -8, 14);
+  ctx.fillText('W=0', -8, 192);
+
+  // 過渡點標記
+  const tx = (thr / 255) * 600;
+  ctx.strokeStyle = '#ffd166';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, 200); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#ffd166';
+  ctx.fillText(`過渡點 = ${thr}`, tx + 4, 14);
+
+  // 權重曲線
+  ctx.strokeStyle = '#00d4ff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let i = 0; i <= 255; i++) {
+    const w = weightFunction(i, thr);
+    const x = (i / 255) * 600;
+    const y = 200 - w * 200;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // 區域標示
+  ctx.fillStyle = 'rgba(0,255,136,0.4)';
+  ctx.fillText('← 此區使用 LE (暗部細節多)', 10, 40);
+  ctx.fillStyle = 'rgba(0,212,255,0.7)';
+  ctx.fillText('此區使用 SE (高光不過曝) →', 380, 175);
+
+  // 區域背景
+  ctx.fillStyle = 'rgba(0,255,136,0.05)';
+  ctx.fillRect(0, 0, tx, 200);
+  ctx.fillStyle = 'rgba(0,212,255,0.05)';
+  ctx.fillRect(tx, 0, 600 - tx, 200);
+}
+
+/* ============================================================
+   事件處理
+   ============================================================ */
+document.querySelectorAll('[data-mode]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mode = btn.dataset.mode;
+    document.getElementById('uploadPanel').style.display = (mode === 'upload') ? 'block' : 'none';
+    document.getElementById('statMode').textContent = mode === 'demo' ? '演示' : '上傳';
+    if (mode === 'demo') generateDemoScene();
+  });
+});
+
+document.querySelectorAll('[data-ghost]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-ghost]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ghostDemo = btn.dataset.ghost;
+    fuse();
+  });
+});
+
+['slR', 'slThr', 'slGhost'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    clearTimeout(window._fuseTimer);
+    window._fuseTimer = setTimeout(fuse, 16);  // 簡單防抖
+  });
+});
+
+function toggleGhostView() {
+  showGhostMask = !showGhostMask;
+  document.getElementById('btnShowGhost').textContent = 
+    showGhostMask ? '🔴 隱藏鬼影區域遮罩' : '🔴 顯示偵測到的鬼影區域 (紅色遮罩)';
+  fuse();
+}
+
+function resetSliders() {
+  document.getElementById('slR').value = 16;
+  document.getElementById('slThr').value = 180;
+  document.getElementById('slGhost').value = 30;
+  fuse();
+}
+
+/* ============================================================
+   檔案上傳
+   ============================================================ */
+function loadImageFile(file, onLoad) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement('canvas');
+      cv.width = CW; cv.height = CH;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, CW, CH);
+      // cover 縮放
+      const scale = Math.max(CW / img.width, CH / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (CW - w) / 2, (CH - h) / 2, w, h);
+      onLoad(ctx.getImageData(0, 0, CW, CH));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('leFile').addEventListener('change', e => {
+  if (!e.target.files[0]) return;
+  loadImageFile(e.target.files[0], idata => {
+    leData = idata;
+    displayLE = copyID(leData);
+    putTo(cvLE, displayLE);
+    document.getElementById('leStatus').textContent = '✓ 已載入 (' + idata.width + '×' + idata.height + ')';
+    if (leData && seData) fuse();
+  });
+});
+
+document.getElementById('seFile').addEventListener('change', e => {
+  if (!e.target.files[0]) return;
+  loadImageFile(e.target.files[0], idata => {
+    seData = idata;
+    displaySE = copyID(seData);
+    putTo(cvSE, displaySE);
+    document.getElementById('seStatus').textContent = '✓ 已載入 (' + idata.width + '×' + idata.height + ')';
+    if (leData && seData) fuse();
+  });
+});
+
+/* 初始化 */
+window.addEventListener('load', () => {
+  generateDemoScene();
+});
+</script>
+
+</body>
+</html>

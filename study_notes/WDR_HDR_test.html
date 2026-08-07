@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WDR vs HDR 互動式教學 | ISP 影像處理</title>
+<style>
+  :root {
+    --hdr-color: #00d4ff;
+    --hdr-glow: rgba(0, 212, 255, 0.4);
+    --wdr-color: #ff8c00;
+    --wdr-glow: rgba(255, 140, 0, 0.4);
+    --bg-deep: #0a0e1a;
+    --bg-card: #131826;
+    --bg-elevated: #1c2336;
+    --text-primary: #e8ecf5;
+    --text-secondary: #98a3b8;
+    --border: rgba(255, 255, 255, 0.08);
+    --success: #00ff88;
+    --danger: #ff4470;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .navbar {
+    background-color: var(--color-primary-text);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .navbar-brand {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--color-bg);
+    text-decoration: none;
+  }
+  .nav-links a {
+    color: #ecf0f1;
+    text-decoration: none;
+    margin-left: 1.5rem;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+  }
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    padding: 80px 20px 60px;
+    text-align: center;
+    background: 
+      radial-gradient(ellipse at 20% 50%, var(--hdr-glow), transparent 50%),
+      radial-gradient(ellipse at 80% 50%, var(--wdr-glow), transparent 50%),
+      linear-gradient(180deg, #0a0e1a 0%, #131826 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--hdr-color), var(--wdr-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .hero-badges {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid;
+  }
+  .badge.hdr { color: var(--hdr-color); border-color: var(--hdr-color); background: rgba(0,212,255,0.08); }
+  .badge.wdr { color: var(--wdr-color); border-color: var(--wdr-color); background: rgba(255,140,0,0.08); }
+
+  /* ===== CONTAINER ===== */
+  .container { max-width: 1280px; margin: 0 auto; padding: 40px 20px; }
+
+  .section-title {
+    font-size: 1.8rem;
+    margin: 40px 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title.hdr { color: var(--hdr-color); border-color: var(--hdr-color); }
+  .section-title.wdr { color: var(--wdr-color); border-color: var(--wdr-color); }
+  .section-title.mix { color: #c084fc; border-color: #c084fc; }
+  .section-title .icon { font-size: 1.6rem; }
+
+  /* ===== COMPARISON TABLE ===== */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .compare-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .compare-card:hover { transform: translateY(-4px); }
+  .compare-card.hdr:hover { box-shadow: 0 12px 40px var(--hdr-glow); }
+  .compare-card.wdr:hover { box-shadow: 0 12px 40px var(--wdr-glow); }
+  .compare-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .compare-card.hdr h3 { color: var(--hdr-color); }
+  .compare-card.wdr h3 { color: var(--wdr-color); }
+  .compare-card .item {
+    padding: 10px 0;
+    border-top: 1px dashed var(--border);
+    font-size: 0.95rem;
+  }
+  .compare-card .item strong {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  /* ===== LAB CARD ===== */
+  .lab {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .lab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .lab-header h2 { font-size: 1.4rem; }
+  .lab-header .formula {
+    font-family: 'Courier New', monospace;
+    background: var(--bg-elevated);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--hdr-color);
+  }
+
+  /* ===== IMAGE GRID ===== */
+  .img-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .img-box {
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .img-box .label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .img-box .label .tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .tag.le { background: #4a3b00; color: #ffd166; }
+  .tag.se { background: #003a4a; color: #6ee7ff; }
+  .tag.fused { background: #2a4a00; color: #b4ff8c; }
+  .tag.tone { background: #4a1a00; color: #ffaa66; }
+  .canvas-wrap { 
+    width: 100%; 
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  .canvas-wrap canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+
+  /* ===== CONTROLS ===== */
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    padding: 18px;
+    background: var(--bg-elevated);
+    border-radius: 10px;
+    margin: 16px 0;
+  }
+  .control-item label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .control-item .value-tag {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: var(--bg-deep);
+    border-radius: 4px;
+  }
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-deep);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--hdr-color);
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--hdr-glow);
+  }
+  input[type="range"].wdr::-webkit-slider-thumb { background: var(--wdr-color); box-shadow: 0 0 8px var(--wdr-glow); }
+  input[type="range"].mix::-webkit-slider-thumb { background: #c084fc; box-shadow: 0 0 8px rgba(192,132,252,0.4); }
+
+  button {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  button:hover { background: #2a3450; border-color: var(--hdr-color); }
+  button.primary {
+    background: var(--hdr-color);
+    color: #001a22;
+    border: none;
+    font-weight: 700;
+  }
+  button.primary:hover { background: #33dcff; }
+  button.danger { background: var(--danger); border-color: var(--danger); color: white; }
+  button.danger:hover { background: #ff6680; }
+
+  /* ===== CURVE EDITOR ===== */
+  .curve-box {
+    background: #000;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+  }
+  .curve-box canvas { width: 100%; height: 220px; display: block; cursor: crosshair; }
+
+  /* ===== INFO BOX ===== */
+  .info-box {
+    background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(255,140,0,0.04));
+    border-left: 3px solid var(--hdr-color);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+  }
+  .info-box strong { color: var(--hdr-color); }
+  .info-box.warn { border-left-color: var(--danger); }
+  .info-box.warn strong { color: var(--danger); }
+  .info-box.tip { border-left-color: var(--wdr-color); }
+  .info-box.tip strong { color: var(--wdr-color); }
+  .info-box code {
+    background: rgba(0,0,0,0.4);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    color: var(--hdr-color);
+  }
+
+  /* ===== WORKFLOW ===== */
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 8px;
+    align-items: stretch;
+    margin: 24px 0;
+  }
+  @media (max-width: 768px) {
+    .pipeline { grid-template-columns: 1fr; }
+    .pipeline .arrow { transform: rotate(90deg); }
+  }
+  .pipe-step {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 14px;
+    text-align: center;
+    transition: all 0.4s;
+    position: relative;
+  }
+  .pipe-step.active { 
+    transform: scale(1.05); 
+    border-color: var(--success);
+    box-shadow: 0 0 20px rgba(0,255,136,0.3);
+  }
+  .pipe-step .step-num {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-deep);
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .pipe-step .step-icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .pipe-step h4 { font-size: 1rem; margin-bottom: 6px; }
+  .pipe-step p { font-size: 0.82rem; color: var(--text-secondary); }
+  .pipe-step.hdr-style { border-color: rgba(0,212,255,0.4); }
+  .pipe-step.hdr-style h4 { color: var(--hdr-color); }
+  .pipe-step.wdr-style { border-color: rgba(255,140,0,0.4); }
+  .pipe-step.wdr-style h4 { color: var(--wdr-color); }
+  .arrow { color: var(--text-secondary); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== TUNING CARDS ===== */
+  .tuning-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) { .tuning-grid { grid-template-columns: 1fr; } }
+  .tuning-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 22px;
+    border-left: 4px solid;
+  }
+  .tuning-card.hdr { border-left-color: var(--hdr-color); }
+  .tuning-card.wdr { border-left-color: var(--wdr-color); }
+  .tuning-card h3 { margin-bottom: 12px; font-size: 1.1rem; }
+  .tuning-card ul { padding-left: 20px; color: var(--text-secondary); font-size: 0.92rem; }
+  .tuning-card li { padding: 6px 0; }
+  .tuning-card li strong { color: var(--text-primary); }
+
+  /* ===== HISTOGRAM ===== */
+  .hist-wrap {
+    background: #000;
+    border-radius: 8px;
+    padding: 8px;
+  }
+  .hist-wrap canvas { width: 100%; height: 120px; display: block; }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    background: var(--bg-elevated);
+    padding: 4px;
+    border-radius: 10px;
+  }
+  .tab {
+    flex: 1;
+    padding: 8px 12px;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+  }
+  .tab.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 0 0 1px var(--border); }
+  .tab.active.hdr { color: var(--hdr-color); }
+  .tab.active.wdr { color: var(--wdr-color); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+</style>
+</head>
+<body class="font-body">
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <h1>WDR vs HDR 互動式教學</h1>
+  <p>深入理解 ISP 中兩種動態範圍處理技術的本質差異。透過即時模擬，看見多幀融合與色調映射如何在計算流程中各司其職。</p>
+  <div class="hero-badges">
+    <span class="badge hdr">⚡ HDR 多幀融合 (RAW 域)</span>
+    <span class="badge wdr">🎨 WDR 色調映射 (YUV 域)</span>
+    <span class="badge" style="color:#c084fc;border-color:#c084fc;background:rgba(192,132,252,0.08);">🔬 ISP Pipeline</span>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- ========== SECTION 1: 核心概念對比 ========== -->
+  <h2 class="section-title mix"><span class="icon">📊</span>核心概念對比</h2>
+  <div class="compare-grid">
+    <div class="compare-card hdr">
+      <h3>⚡ HDR 高動態範圍</h3>
+      <div class="item">
+        <strong>主要技術階段</strong>
+        前端 Sensor 採集 / 數據融合
+      </div>
+      <div class="item">
+        <strong>輸入資料源</strong>
+        長、短曝光多幀原始 RAW 數據
+      </div>
+      <div class="item">
+        <strong>核心處理目的</strong>
+        擴展物理採集極限，確保亮部不過曝、暗部有細節
+      </div>
+      <div class="item">
+        <strong>運算單位</strong>
+        Sensor 像素 (RAW, 16~20 bit)
+      </div>
+      <div class="item">
+        <strong>典型應用</strong>
+        智慧型手機、單眼相機、高階車載
+      </div>
+    </div>
+
+    <div class="compare-card wdr">
+      <h3>🎨 WDR 寬動態範圍</h3>
+      <div class="item">
+        <strong>主要技術階段</strong>
+        後端圖像處理 / 顯示壓縮
+      </div>
+      <div class="item">
+        <strong>輸入資料源</strong>
+        單張影像 (Linear mode 或已融合)
+      </div>
+      <div class="item">
+        <strong>核心處理目的</strong>
+        將寬廣動態範圍「擠入」有限顯示範圍
+      </div>
+      <div class="item">
+        <strong>運算單位</strong>
+        顯示像素 (YUV, 8 bit)
+      </div>
+      <div class="item">
+        <strong>典型應用</strong>
+        安全監控、行車紀錄器、電子後視鏡
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 2: HDR LAB ========== -->
+  <h2 class="section-title hdr"><span class="icon">🔬</span>HDR 多幀融合實驗室</h2>
+  <div class="lab">
+    <div class="lab-header">
+      <h2>多幀融合演算法 (Multi-Frame Fusion)</h2>
+      <span class="formula">P<sub>fused</sub> = W · P<sub>LE</sub> + (1−W) · (P<sub>SE</sub> × R)</span>
+    </div>
+    <div class="info-box">
+      <strong>💡 觀察重點：</strong>左下是長曝光 (LE) - <span style="color:#ffd166">暗部細節清楚但高光爆掉</span>；中下是短曝光 (SE) - <span style="color:#6ee7ff">高光保留但陰影全黑</span>。
+      調整<strong>曝光比值 R</strong>與<strong>融合權重函數</strong>，看右下的融合影像如何取兩者之長。
+    </div>
+
+    <div class="img-grid">
+      <div class="img-box">
+        <div class="label">長曝光 (Long Exposure) <span class="tag le">高光過曝</span></div>
+        <div class="canvas-wrap"><canvas id="cvScene"></canvas></div>
+      </div>
+      <div class="img-box">
+        <div class="label">短曝光 (Short Exposure) <span class="tag se">暗部過暗</span></div>
+        <div class="canvas-wrap"><canvas id="cvSE"></canvas></div>
+      </div>
+      <div class="img-box">
+        <div class="label">HDR 融合結果 <span class="tag fused">高動態 16-bit</span></div>
+        <div class="canvas-wrap"><canvas id="cvFused"></canvas></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active hdr" onclick="setGhostMode('none')">無運動</div>
+      <div class="tab hdr" onclick="setGhostMode('walking')">🚶 行人走動</div>
+      <div class="tab hdr" onclick="setGhostMode('car')">🚗 車輛移動</div>
+    </div>
+
+    <div class="controls">
+      <div class="control-item">
+        <label>曝光比值 R = T<sub>long</sub> / T<sub>short</sub><span class="value-tag" id="vR">16</span></label>
+        <input type="range" id="slR" min="2" max="64" value="16" step="1">
+      </div>
+      <div class="control-item">
+        <label>權重函數過渡點 (亮暗切換閾值)<span class="value-tag" id="vThr">180</span></label>
+        <input type="range" id="slThr" min="40" max="240" value="180" step="2">
+      </div>
+      <div class="control-item">
+        <label>去鬼影敏感度<span class="value-tag" id="vGhost">30</span></label>
+        <input type="range" id="slGhost" min="0" max="100" value="30" step="1">
+      </div>
+    </div>
+
+    <div class="info-box warn" id="ghostWarn" style="display:none;">
+      <strong>⚠️ 偵測到運動物體！</strong>該區域被強制以<strong>單一幀</strong>(短曝光)為準，這就是「去鬼影 (De-ghosting)」機制，避免產生殘影偽影。
+    </div>
+  </div>
+
+  <!-- ========== SECTION 3: WDR LAB ========== -->
+  <h2 class="section-title wdr"><span class="icon">🎨</span>WDR 色調映射實驗室</h2>
+  <div class="lab">
+    <div class="lab-header">
+      <h2>全域色調映射 (Global Tone Mapping)</h2>
+      <span class="formula" style="color:var(--wdr-color);">P<sub>out</sub> = f(P<sub>in</sub>) &nbsp;|&nbsp; LTM: Base + α·Detail</span>
+    </div>
+    <div class="info-box tip">
+      <strong>🎯 教學目標：</strong>把剛才得到的 16-bit HDR 影像，壓縮到 8-bit 顯示器能呈現的範圍。
+      拖曳曲線上的控制點，觀察如何用 S 型曲線「壓高光、拉暗部」。
+    </div>
+
+    <div class="img-grid">
+      <div class="img-box">
+        <div class="label">HDR 輸入 (16-bit 高動態) <span class="tag fused">來源</span></div>
+        <div class="canvas-wrap"><canvas id="cvWDRin"></canvas></div>
+      </div>
+      <div class="img-box">
+        <div class="label">WDR GTM 輸出 (8-bit) <span class="tag tone">色調映射</span></div>
+        <div class="canvas-wrap"><canvas id="cvWDRout"></canvas></div>
+      </div>
+      <div class="img-box">
+        <div class="label">直方圖 (8-bit 0-255) <span class="tag tone">分布檢視</span></div>
+        <div class="hist-wrap"><canvas id="cvHist"></canvas></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active wdr" onclick="setToneType('linear')">線性 (Linear)</div>
+      <div class="tab wdr" onclick="setToneType('scurve')">S 型曲線</div>
+      <div class="tab wdr" onclick="setToneType('log')">對數 (Log)</div>
+      <div class="tab wdr" onclick="setToneType('gamma')">Gamma 2.2</div>
+    </div>
+
+    <div class="curve-box">
+      <canvas id="cvCurve"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="control-item">
+        <label>高光壓縮強度<span class="value-tag" id="vHigh">50</span></label>
+        <input type="range" class="wdr" id="slHigh" min="0" max="100" value="50" step="1">
+      </div>
+      <div class="control-item">
+        <label>暗部提亮強度<span class="value-tag" id="vLow">50</span></label>
+        <input type="range" class="wdr" id="slLow" min="0" max="100" value="50" step="1">
+      </div>
+      <div class="control-item">
+        <label>LTM 細節增強 α<span class="value-tag" id="vAlpha">1.0</span></label>
+        <input type="range" class="wdr" id="slAlpha" min="50" max="200" value="100" step="5">
+      </div>
+    </div>
+
+    <div class="info-box warn" style="display:block;">
+      <strong>⚠️ 暗部細節放大的副作用：</strong>當 α &gt; 1.2 時，畫面陰影處的<strong>隨機噪點</strong>會被同步放大。實務上必須權衡「細節清晰度」與「噪訊抑制」。
+    </div>
+  </div>
+
+  <!-- ========== SECTION 4: Workflow Pipeline ========== -->
+  <h2 class="section-title mix"><span class="icon">🔄</span>現代 ISP 協同工作流</h2>
+  <div class="lab">
+    <div class="info-box">
+      <strong>點擊下方的步驟</strong>來動畫觀察資料如何在 ISP pipeline 中流動。注意 <span style="color:var(--hdr-color)">HDR</span> 在前端、<span style="color:var(--wdr-color)">WDR</span> 在後端的<strong>分工</strong>。
+    </div>
+    <div class="pipeline">
+      <div class="pipe-step" onclick="playStep(1)">
+        <span class="step-num">STEP 1</span>
+        <div class="step-icon">📷</div>
+        <h4>Sensor 採集</h4>
+        <p>同時輸出長曝光 + 短曝光 原始 RAW 數據</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="pipe-step hdr-style" onclick="playStep(2)">
+        <span class="step-num">STEP 2 · HDR</span>
+        <div class="step-icon">⚡</div>
+        <h4>多幀融合</h4>
+        <p>RAW 域運算，得到 16-bit 寬動態影像</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="pipe-step wdr-style" onclick="playStep(3)">
+        <span class="step-num">STEP 3 · WDR</span>
+        <div class="step-icon">🎨</div>
+        <h4>色調映射</h4>
+        <p>YUV 域運算，壓縮到 8-bit 顯示範圍</p>
+      </div>
+    </div>
+    <div id="pipelineInfo" class="info-box" style="margin-top:20px;">
+      點擊任一步驟以查看詳細計算過程...
+    </div>
+  </div>
+
+  <!-- ========== SECTION 5: Tuning ========== -->
+  <h2 class="section-title mix"><span class="icon">🛠️</span>ISP 調試實戰建議</h2>
+  <div class="tuning-grid">
+    <div class="tuning-card hdr">
+      <h3>⚡ HDR 調校重點 (RAW 域)</h3>
+      <ul>
+        <li><strong>Exposure Ratio 對齊</strong>：確保 R 值精確，否則融合邊界 (Blending Window) 會出現斷層、色塊。</li>
+        <li><strong>權重函數設計</strong>：太陡峭會損失高光過渡，太平滑則亮暗交界不清。</li>
+        <li><strong>De-ghosting 閾值</strong>：依場景動態調整；靜態場景可關閉以保留更多細節。</li>
+        <li><strong>Sensor 線性度</strong>：Sensor 非線性響應會破壞融合公式的可預測性，需 ISP 前端做 LSC/D Gain 補正。</li>
+      </ul>
+    </div>
+    <div class="tuning-card wdr">
+      <h3>🎨 WDR 調校重點 (YUV 域)</h3>
+      <ul>
+        <li><strong>GTM Curve 形狀</strong>：決定整體畫面的「明暗基調」、「膚色亮度感」、「看起來是否自然」。</li>
+        <li><strong>暗部斜率</strong>：斜率越陡 → 暗部細節越多，但同時也放大暗部雜訊。</li>
+        <li><strong>LTM 邊緣保護</strong>：透過引導濾波器 (Guided Filter) 避免細節層在物體邊緣產生光暈 (Halo)。</li>
+        <li><strong>噪訊抑制 (NR) 整合</strong>：LTM 之後必須串接 3DNR，否則被放大的雜訊會被凍結在影像中。</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+  <footer class="footer bg-gray-100 text-gray-600 text-center p-6 mt-8 border-t border-gray-200">
+    <p>&copy; 2026 Sam's Study Notes. All rights reserved.</p>
+  </footer>
+  <button id="back-to-top-btn" onclick="topFunction()" class="accent-bg text-white p-3 rounded-full shadow-lg hover:bg-[#d35400] transition-all">
+    ↑
+  </button>
+
+<script>
+/* ====================================================================
+   場景資料：定義一個 HDR 場景
+   ================================================================ */
+const SCENE_W = 320, SCENE_H = 240;
+let camera = { panX: 0 };  // 用於模擬場景移動 (ghost test)
+
+/* 場景像素函數：給定原始 HDR 值 (0..1+) */
+function sampleSceneHDR(u, v) {
+  // u,v ∈ [0,1]
+  const x = u * SCENE_W, y = v * SCENE_H;
+
+  // 天空 (上 1/2)
+  let val = 0;
+  const isSky = y < SCENE_H * 0.55;
+
+  if (isSky) {
+    // 天空漸層：從接近太陽處亮，向外漸暗
+    const sunX = SCENE_W * 0.7, sunY = SCENE_H * 0.3;
+    const d = Math.hypot(x - sunX, y - sunY);
+    val = 1.8 / (1 + d * 0.008);  // 太陽區域極亮
+  } else {
+    // 地面與建築物
+    val = 0.05;  // 環境光很低 (陰影中)
+
+    // 建築物 (左)
+    if (x > 30 && x < 110 && y > SCENE_H * 0.55 && y < SCENE_H * 0.85) val = 0.18;
+    // 建築物窗戶亮處
+    if (x > 50 && x < 60 && y > SCENE_H * 0.6 && y < SCENE_H * 0.65) val = 0.9;
+    if (x > 80 && x < 90 && y > SCENE_H * 0.7 && y < SCENE_H * 0.75) val = 0.85;
+
+    // 樹木輪廓
+    if (x > 130 && x < 145 && y > SCENE_H * 0.55 && y < SCENE_H * 0.78) val = 0.08;
+    if (x > 145 && x < 160 && y > SCENE_H * 0.6 && y < SCENE_H * 0.82) val = 0.08;
+
+    // 行人 (右側) - 暗部細節觀察重點
+    if (x > 200 && x < 215 && y > SCENE_H * 0.7 && y < SCENE_H * 0.92) val = 0.12;
+
+    // 路面 (前景)
+    if (y > SCENE_H * 0.82) val = 0.04;
+  }
+
+  // 加入微噪訊讓畫面真實
+  val += (Math.random() - 0.5) * 0.005;
+
+  return Math.max(0, val);
+}
+
+/* 應用曝光倍率，並做 clipping 模擬 sensor 的飽和現象 */
+function applyExposure(value, ev) {
+  const out = value * Math.pow(2, ev);
+  return Math.max(0, Math.min(1, out));  // Sensor 物理飽和
+}
+
+function drawSceneLE() {
+  /* 長曝光：對暗部有利，高光易爆掉 */
+  const canvas = document.getElementById('cvScene');
+  canvas.width = SCENE_W; canvas.height = SCENE_H;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(SCENE_W, SCENE_H);
+  const evLE = 2;  // +2 EV 長曝光 (亮部易爆)
+
+  for (let y = 0; y < SCENE_H; y++) {
+    for (let x = 0; x < SCENE_W; x++) {
+      const v = sampleSceneHDR((x + camera.panX) / SCENE_W, y / SCENE_H);
+      const val = applyExposure(v, evLE);
+      const c = Math.floor(val * 255);
+      const idx = (y * SCENE_W + x) * 4;
+      img.data[idx] = c; img.data[idx+1] = c; img.data[idx+2] = c; img.data[idx+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function drawSceneSE() {
+  /* 短曝光：高光保留，暗部全黑 */
+  const canvas = document.getElementById('cvSE');
+  canvas.width = SCENE_W; canvas.height = SCENE_H;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(SCENE_W, SCENE_H);
+  const evSE = -2;  // -2 EV 短曝光
+
+  for (let y = 0; y < SCENE_H; y++) {
+    for (let x = 0; x < SCENE_W; x++) {
+      const v = sampleSceneHDR((x + camera.panX) / SCENE_W, y / SCENE_H);
+      const val = applyExposure(v, evSE);
+      // 為了看得到畫面，乘上一個 display gain（但這就是 sensor 真實記錄到的）
+      const displayGain = 16;  // 視覺化補償
+      const out = Math.min(1, val * displayGain);
+      const c = Math.floor(out * 255);
+      const idx = (y * SCENE_W + x) * 4;
+      img.data[idx] = c; img.data[idx+1] = c; img.data[idx+2] = c; img.data[idx+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+/* ====================================================================
+   HDR 融合演算
+   ================================================================ */
+let ghostMode = 'none';
+
+function setGhostMode(mode) {
+  ghostMode = mode;
+  document.querySelectorAll('.tabs .tab').forEach((t,i)=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  fuseHDR();
+}
+
+function weightFunction(leVal8bit, threshold) {
+  /* W(LE): 暗部權重高，亮部權重低 */
+  const x = leVal8bit / 255;
+  const t = threshold / 255;
+  // sigmoid: 1 - sigmoid((x-t)*k)
+  return 1 / (1 + Math.exp((x - t) * 12));
+}
+
+function fuseHDR() {
+  const R = +document.getElementById('slR').value;
+  const thr = +document.getElementById('slThr').value;
+  const ghostSens = +document.getElementById('slGhost').value;
+
+  document.getElementById('vR').textContent = R;
+  document.getElementById('vThr').textContent = thr;
+  document.getElementById('vGhost').textContent = ghostSens;
+
+  const canvas = document.getElementById('cvFused');
+  canvas.width = SCENE_W; canvas.height = SCENE_H;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(SCENE_W, SCENE_H);
+  const evLE = 2, evSE = -2;
+
+  // 收集 SE 與 LE 兩張圖，先做 ghost 偵測
+  const leVals = new Float32Array(SCENE_W * SCENE_H);
+  const seVals = new Float32Array(SCENE_W * SCENE_H);
+  const ghostMask = new Uint8Array(SCENE_W * SCENE_H);
+
+  for (let y = 0; y < SCENE_H; y++) {
+    for (let x = 0; x < SCENE_W; x++) {
+      const v = sampleSceneHDR((x + camera.panX) / SCENE_W, y / SCENE_H);
+      const leRaw = sampleSceneHDR((x + camera.panX) / SCENE_W, y / SCENE_H);  // 同時間
+      const seRaw = sampleSceneHDR((x + camera.panX) / SCENE_W, y / SCENE_H);  // 短曝光同時間
+
+      leVals[y*SCENE_W+x] = applyExposure(leRaw, evLE);
+      seVals[y*SCENE_W+x] = applyExposure(seRaw, evSE);
+    }
+  }
+
+  // Ghost 偵測: 對相同像素，看在兩種曝光下的 linear 值差異
+  // 模擬：當 mode = walking/car 時，讓 SE 中的物體往右移動，產生位移差
+  if (ghostMode !== 'none') {
+    const shiftPx = ghostMode === 'walking' ? 6 : 25;
+    // 重做 SE (物件在 SE 幀有位移)
+    const offsetX = (ghostMode === 'walking' ? -1 : 1) * shiftPx;
+    for (let y = 0; y < SCENE_H; y++) {
+      for (let x = 0; x < SCENE_W; x++) {
+        const v = sampleSceneHDR((x + offsetX + camera.panX) / SCENE_W, y / SCENE_H);
+        seVals[y*SCENE_W+x] = applyExposure(v, evSE);
+      }
+    }
+
+    // 計算差異
+    const thr = ghostSens / 100 * 0.25;
+    for (let i = 0; i < leVals.length; i++) {
+      const diff = Math.abs(leVals[i] - seVals[i] * R);  // 對齊後的差
+      if (diff > thr) ghostMask[i] = 1;
+    }
+    // 顯示警告
+    const warnBox = document.getElementById('ghostWarn');
+    if (ghostMode !== 'none') {
+      warnBox.style.display = 'block';
+      const ghostCount = Array.from(ghostMask).reduce((s,v)=>s+v,0);
+      warnBox.innerHTML = `<strong>⚠️ 偵測到 ${ghostCount} 個運動像素！</strong>差異 > 閾值 (${(thr*255).toFixed(0)})，該區域被強制以<strong>單一幀 (短曝光)</strong>為準 — 這就是「去鬼影 (De-ghosting)」機制，避免產生殘影偽影。`;
+    } else {
+      warnBox.style.display = 'none';
+    }
+  }
+
+  // 融合
+  let histData = new Array(256).fill(0);
+  for (let y = 0; y < SCENE_H; y++) {
+    for (let x = 0; x < SCENE_W; x++) {
+      const i = y * SCENE_W + x;
+      const leClipped = leVals[i];  // already clipped 0..1
+      const seAligned = seVals[i] * R;  // 對齊到 LE 階
+      const le8 = Math.floor(leClipped * 255);
+      let W = weightFunction(le8, thr);
+
+      let fused;
+      if (ghostMask[i]) {
+        // Ghost 區域：強制使用 SE
+        fused = Math.min(1, seAligned / R);  // 回到 SE 原始 scale
+        W = 0;
+      } else {
+        fused = W * leClipped + (1 - W) * Math.min(1, seAligned);
+      }
+
+      const c = Math.floor(fused * 255);
+      histData[c]++;
+      const idx = i * 4;
+      img.data[idx] = c; img.data[idx+1] = c; img.data[idx+2] = c; img.data[idx+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  // 同步更新 WDR 輸入 (下一段使用)
+  window._hdrOutput = { w: SCENE_W, h: SCENE_H, data: img.data, hist: histData };
+  applyToneMapping();
+}
+
+/* ====================================================================
+   WDR 色調映射
+   ================================================================ */
+let toneType = 'scurve';
+let curvePoints = [  // 控制點 [in, out] ∈ [0,1]
+  [0, 0], [0.4, 0.35], [0.6, 0.65], [1, 1]
+];
+
+function setToneType(t) {
+  toneType = t;
+  document.querySelectorAll('.lab .tabs')[1].querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  event.target.classList.add('active');
+  applyToneMapping();
+}
+
+function buildCurveLUT() {
+  /* 256 長度的 LUT */
+  const lut = new Uint8Array(256);
+  const high = +document.getElementById('slHigh').value;
+  const low = +document.getElementById('slLow').value;
+  document.getElementById('vHigh').textContent = high;
+  document.getElementById('vLow').textContent = low;
+  document.getElementById('vAlpha').textContent = (+document.getElementById('slAlpha').value / 100).toFixed(1);
+
+  for (let i = 0; i < 256; i++) {
+    const x = i / 255;
+    let y;
+    if (toneType === 'linear') {
+      y = x;
+    } else if (toneType === 'gamma') {
+      y = Math.pow(x, 1/2.2);
+    } else if (toneType === 'log') {
+      // log(1 + 9x) / log(10)
+      y = Math.log(1 + 9*x) / Math.log(10);
+    } else { // scurve
+      // 用控制點插值，但根據 high/low 滑桿變形
+      const idx = Math.min(curvePoints.length-1, Math.floor(x * (curvePoints.length-1)));
+      const t = x * (curvePoints.length-1) - idx;
+      const p1 = curvePoints[idx];
+      const p2 = curvePoints[Math.min(idx+1, curvePoints.length-1)];
+      let base = p1[1] * (1-t) + p2[1] * t;
+
+      // 加上 high (高光壓縮) 與 low (暗部提亮) 的效果
+      // high: 高光部分斜率變平
+      // low:  暗部部分斜率變陡
+      y = base;
+      const highFactor = high / 100;  // 0..1
+      const lowFactor = low / 100;
+      // 把高光區 (x>0.6) 向下壓
+      const highRegion = Math.max(0, (x - 0.6) / 0.4);
+      y -= highRegion * highFactor * 0.3;
+      // 把暗部區 (x<0.4) 向上提
+      const lowRegion = Math.max(0, (0.4 - x) / 0.4);
+      y += lowRegion * lowFactor * 0.3;
+    }
+    lut[i] = Math.max(0, Math.min(255, Math.floor(y * 255)));
+  }
+  return lut;
+}
+
+function drawCurveCanvas() {
+  const c = document.getElementById('cvCurve');
+  c.width = 600; c.height = 220;
+  const ctx = c.getContext('2d');
+
+  // 背景格
+  ctx.fillStyle = '#0a0e1a';
+  ctx.fillRect(0,0,600,220);
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const x = i * 60;
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,220); ctx.stroke();
+  }
+  for (let i = 0; i <= 4; i++) {
+    const y = i * 55;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(600,y); ctx.stroke();
+  }
+
+  // 軸標籤
+  ctx.fillStyle = '#98a3b8';
+  ctx.font = '11px monospace';
+  ctx.fillText('輸入 (0~255)', 510, 210);
+  ctx.fillText('輸出', 8, 18);
+
+  const lut = buildCurveLUT();
+  // 繪製曲線
+  ctx.strokeStyle = '#ff8c00';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let i = 0; i < 256; i++) {
+    const x = (i / 255) * 580 + 10;
+    const y = 210 - (lut[i] / 255) * 200;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // 對角線參考 (linear)
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(10,210); ctx.lineTo(590,10); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 控制點
+  curvePoints.forEach(p => {
+    const x = p[0] * 580 + 10;
+    const y = 210 - p[1] * 200;
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill();
+  });
+}
+
+function drawHistogram(hist, canvasId) {
+  const c = document.getElementById(canvasId);
+  c.width = SCENE_W * 2; c.height = 120;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0,0,c.width,c.height);
+  const max = Math.max(...hist);
+  ctx.strokeStyle = '#ff8c00';
+  ctx.fillStyle = 'rgba(255,140,0,0.4)';
+  ctx.beginPath();
+  for (let i = 0; i < 256; i++) {
+    const x = (i / 255) * c.width;
+    const h = (hist[i] / max) * 100;
+    if (i === 0) ctx.moveTo(x, 110 - h);
+    else ctx.lineTo(x, 110 - h);
+    // 填色
+    ctx.fillRect(x, 110 - h, c.width/256 + 0.5, h);
+  }
+  ctx.stroke();
+  // 軸
+  ctx.fillStyle = '#98a3b8';
+  ctx.font = '10px monospace';
+  ctx.fillText('0', 4, 118);
+  ctx.fillText('255', c.width - 18, 118);
+}
+
+function applyToneMapping() {
+  if (!window._hdrOutput) return;
+  const hdr = window._hdrOutput;
+  const lut = buildCurveLUT();
+  const alpha = +document.getElementById('slAlpha').value / 100;
+
+  // 顯示 HDR 輸入 (16-bit 模擬：直接用 255 級範圍)
+  const cvIn = document.getElementById('cvWDRin');
+  cvIn.width = hdr.w; cvIn.height = hdr.h;
+  cvIn.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(hdr.data), hdr.w, hdr.h), 0, 0);
+
+  // 對 HDR 輸出套用 LUT → 8-bit display
+  const cvOut = document.getElementById('cvWDRout');
+  cvOut.width = hdr.w; cvOut.height = hdr.h;
+  const ctxO = cvOut.getContext('2d');
+  const imgO = ctxO.createImageData(hdr.w, hdr.h);
+
+  // LTM 模擬：簡單的 unsharp mask (高頻細節增強)
+  // 先做一個 box blur 取 base，再把 img - base 當 detail，乘 alpha 加回去
+  const data = hdr.data;
+  const w = hdr.w, h = hdr.h;
+  const getGray = (x,y) => data[(y*w + x)*4];  // R 即可
+  const boxBlur = (x, y, r) => {
+    let s = 0, n = 0;
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        const nx = x+dx, ny = y+dy;
+        if (nx>=0 && nx<w && ny>=0 && ny<h) { s += getGray(nx,ny); n++; }
+      }
+    }
+    return s / n;
+  };
+
+  const newHist = new Array(256).fill(0);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y*w + x)*4;
+      const origGray = data[i];
+      const lutIdx = origGray;
+      const tonedGray = lut[lutIdx];
+
+      // LTM
+      const base = boxBlur(x, y, 3);
+      const detail = origGray - base;
+      let enhanced = tonedGray + detail * alpha;
+
+      // 細節放大也會放大暗部噪訊 (視覺提示：當 alpha > 1.2 時加一點雜訊)
+      if (alpha > 1.2 && origGray < 60) {
+        enhanced += (Math.random() - 0.5) * (alpha - 1.2) * 25;
+      }
+
+      enhanced = Math.max(0, Math.min(255, enhanced));
+      newHist[Math.floor(enhanced)]++;
+      imgO.data[i] = enhanced;
+      imgO.data[i+1] = enhanced;
+      imgO.data[i+2] = enhanced;
+      imgO.data[i+3] = 255;
+    }
+  }
+  ctxO.putImageData(imgO, 0, 0);
+  drawHistogram(newHist, 'cvHist');
+  drawCurveCanvas();
+}
+
+/* ====================================================================
+   互動：曲線控制點
+   ================================================================ */
+const cvCurve = document.getElementById('cvCurve');
+let draggingPt = -1;
+
+cvCurve.addEventListener('mousedown', e => {
+  const rect = cvCurve.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) / rect.width;
+  const sy = (e.clientY - rect.top) / rect.height;
+  // 注意 y 是反的
+  const fx = (sx * 600 - 10) / 580;
+  const fy = 1 - (sy * 220 - 10) / 200;
+  // 找最近的
+  let bestI = -1, bestD = 0.06;
+  curvePoints.forEach((p,i)=>{
+    const d = Math.hypot(p[0]-fx, p[1]-fy);
+    if (d < bestD) { bestD = d; bestI = i; }
+  });
+  draggingPt = bestI;
+  if (draggingPt === -1 && curvePoints.length < 6) {
+    curvePoints.push([fx, fy]);
+    curvePoints.sort((a,b)=>a[0]-b[0]);
+  } else {
+    curvePoints[draggingPt] = [Math.max(0, Math.min(1, fx)), Math.max(0, Math.min(1, fy))];
+  }
+  applyToneMapping();
+});
+
+document.addEventListener('mousemove', e => {
+  if (draggingPt === -1) return;
+  const rect = cvCurve.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) / rect.width;
+  const sy = (e.clientY - rect.top) / rect.height;
+  const fx = Math.max(0, Math.min(1, (sx * 600 - 10) / 580));
+  const fy = Math.max(0, Math.min(1, 1 - (sy * 220 - 10) / 200));
+  curvePoints[draggingPt] = [fx, fy];
+  applyToneMapping();
+});
+
+document.addEventListener('mouseup', () => draggingPt = -1);
+
+/* ====================================================================
+   啟動 & 串接所有控制項
+   ================================================================ */
+['slR', 'slThr', 'slGhost'].forEach(id => {
+  document.getElementById(id).addEventListener('input', fuseHDR);
+});
+['slHigh', 'slLow', 'slAlpha'].forEach(id => {
+  document.getElementById(id).addEventListener('input', applyToneMapping);
+});
+
+// Workflow step interaction
+const stepInfo = {
+  1: '<strong>📷 Sensor 採集階段</strong><br>Sensor 在一次 frame 內輸出兩種曝光：<strong>長曝光 (T_long)</strong> 與<strong>短曝光 (T_short)</strong>。曝光時間比值 R = T_long / T_short 決定了 HDR 的極限動態範圍。',
+  2: '<strong>⚡ HDR 融合階段 (RAW 域)</strong><br>公式：P<sub>fused</sub> = W · P<sub>LE</sub> + (1−W) · (P<sub>SE</sub> × R)。暗區用 LE，亮區用對齊後的 SE。並進行 De-ghosting。',
+  3: '<strong>🎨 WDR 映射階段 (YUV 域)</strong><br>16-bit 的 HDR 影像無法直接送顯示器。WDR 透過 GTM (全域 S 曲線) + LTM (局部基底/細節分離) 將其壓縮到 8-bit。'
+};
+
+function playStep(n) {
+  document.querySelectorAll('.pipe-step').forEach((s,i)=>s.classList.toggle('active', i===(n*2-2) || (n===2 && i===2) || (n===3 && i===4)));
+  document.getElementById('pipelineInfo').innerHTML = stepInfo[n];
+}
+
+// 初始化：WDR 要看到 HDR 輸入，所以先跑一次 fuse
+window.addEventListener('load', () => {
+  drawSceneLE();
+  drawSceneSE();
+  fuseHDR();
+  playStep(2);
+});
+</script>
+
+</body>
+</html>

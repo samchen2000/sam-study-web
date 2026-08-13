@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demosaic 轉換與說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 15px 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        figure {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        figcaption {
+            font-size: 0.9rem;
+            color: var(--color-secondary-text);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--color-primary-text);
+        }
+
+        pre {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        code {
+            background: #f2f2f2;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .math-formula {
+            background-color: var(--color-subtle-bg);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--color-accent);
+            margin: 1rem 0 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: var(--color-primary-text);
+            border-radius: 0 4px 4px 0;
+            overflow-x: auto;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .image-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .image-pair figure {
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .image-pair {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>🎨 Demosaic（去馬賽克）轉換與深度解析</h1>
+            <p>去馬賽克 (Demosaic) 是<strong>圖像信號處理（ISP）管線中不可或缺的步驟</strong>，其核心任務是將感測器輸出的單色「馬賽克」數據轉換為全彩的 RGB 影像。以下詳細說明其原理、演算法與實際應用挑戰。</p>
+
+            <h2>📖 一、 為什麼需要去馬賽克？（使用原因）</h2>
+            <ul>
+                <li>
+                    <strong>硬體限制</strong>：大多數數位相機的感測器物理上只能偵測光線的強度，無法直接辨別顏色。
+                    <div class="image-pair">
+                        <figure>
+                            <img src="../image/Study_note_image/Demosaic/Demosaic_2.PNG" alt="光線的強度示意圖">
+                            <figcaption>光線的強度</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="../image/Study_note_image/Demosaic/Bayer_pattern_on_sensor.svg" alt="相機感測器示意圖">
+                            <figcaption>相機的感測</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <li>
+                    <strong>色彩濾鏡陣列 (CFA)</strong>：為了捕捉彩色影像，感測器表面覆蓋了一層色彩濾鏡（最常見的是 Bayer 模式）
+                    <figure>
+                        <img src="../image/Study_note_image/Demosaic/Bayer_pattern_on_sensor_profile.svg" alt="Bayer 色彩濾鏡陣列剖面圖">
+                        <figcaption>色彩濾鏡（CFA）剖面示意</figcaption>
+                    </figure>
+                    。這導致每個像素實際上只能檢測紅、綠、藍三原色中的「<strong>其中一種</strong>」。
+                </li>
+                <li>
+                    <strong>資訊缺失</strong>：在原始的 RAW 圖中，每個像素都缺失了 2/3 的顏色資訊（例如：綠色像素點缺少紅色與藍色的數值），影像呈現一種「馬賽克」狀態。
+                    <figure>
+                        <img src="../image/Study_note_image/Demosaic/Demosaic_3.PNG" alt="馬賽克原始資料">
+                        <figcaption>原始馬賽克資料</figcaption>
+                    </figure>
+                </li>
+                <li>
+                    <strong>還原視覺需求</strong>：為了還原成人類肉眼所見的全彩畫面，必須透過演算法補齊每個像素缺失的兩種顏色值。
+                </li>
+            </ul>
+
+            <h2>🧮 二、 去馬賽克的運作原理</h2>
+            <p>去馬賽克的本質是「<strong>猜測</strong>」與「<strong>插值</strong>」。它透過分析周圍像素的顏色與亮度變化，計算出當前像素點所缺失的色彩數值。其核心在於<strong>插值演算法（Interpolation）</strong>：</p>
+            <ol>
+                <li><strong>鄰近參考</strong>：演算法會參考目標像素周圍的相鄰像素顏色資訊。</li>
+                <li><strong>計算缺失值</strong>：例如，當處理一個只感應到「綠光」的像素時，ISP 會讀取其上下左右的「紅光」與「藍光」像素數值，透過加權平均或其他複雜演算法，計算出該位置應有的紅色與藍色分量。</li>
+                <li><strong>生成 RGB 影像</strong>：完成處理後，每個像素點都同時具備了 R、G、B 三種數值，影像從此由單色陣列變為真正的彩色影像。</li>
+            </ol>
+
+            <pre><code>[ 馬賽克感光資料 ] ──► [ 周圍像素分析 ] ──► [ 插值演算法計算 ] ──► [ 輸出 R+G+B 全彩像素 ]</code></pre>
+
+            <h3>1️⃣ 雙線性插值法 (Bilinear Interpolation)</h3>
+            <p><strong>原理</strong>：最基礎的作法。直接取該像素四周鄰近相同顏色像素的平均值，作為該點缺失的顏色數值。</p>
+            <p><strong>缺點</strong>：忽略了影像中的邊緣與線條，容易導致畫面邊緣模糊，並產生明顯的<strong>偽色（Color Artifacts）</strong>。</p>
+            <ul>
+                <li><strong>計算邏輯</strong>：若要計算一個「藍色像素（B）」位置缺失的「綠色（G）」數值，演算法會抓取其上下左右四個綠色像素的平均值。</li>
+                <li><strong>優缺點</strong>：計算速度極快，但會忽略影像中的邊緣特徵，導致細節處產生<strong>模糊（Blurring）</strong>與<strong>偽色（Color Artifacts）</strong>。</li>
+            </ul>
+
+            <p><em>以下我們以還原一個綠色像素位置的紅藍色，以及一個紅色像素位置的綠藍色為例：</em></p>
+
+            <h4>📌 填補綠色格子（G23）的紅（R）與藍（B）值</h4>
+            <figure>
+                <img src="../image/Study_note_image/Demosaic/Demosaic_10.PNG" alt="綠色格子 G23 的紅色值計算">
+                <figcaption>綠色格子（G₂₃）的紅（R）值計算</figcaption>
+            </figure>
+            <div class="math-formula">G₂₃ᵣ = (R₂₂ + R₂₄) / 2</div>
+
+            <figure>
+                <img src="../image/Study_note_image/Demosaic/Demosaic_9.PNG" alt="綠色格子 G23 的藍色值計算">
+                <figcaption>綠色格子（G₂₃）的藍（B）值計算</figcaption>
+            </figure>
+            <div class="math-formula">G₂₃ᵦ = (B₁₃ + B₃₃) / 2</div>
+
+            <pre><code>這時就可以得到 G23 這個 pixel 的 {R, G, B} 數值。</code></pre>
+
+            <h4>📌 填補紅色格子（R22）的綠（G）與藍（B）值</h4>
+            <figure>
+                <img src="../image/Study_note_image/Demosaic/Demosaic_7.PNG" alt="紅色格子 R22 的綠色值計算">
+                <figcaption>紅色格子（R₂₂）的綠（G）值計算</figcaption>
+            </figure>
+            <div class="math-formula">R₂₂𝓰 = (G₁₂ + G₃₂ + G₂₁ + G₂₃) / 4</div>
+
+            <figure>
+                <img src="../image/Study_note_image/Demosaic/Demosaic_8.PNG" alt="紅色格子 R22 的藍色值計算">
+                <figcaption>紅色格子（R₂₂）的藍（B）值計算</figcaption>
+            </figure>
+            <div class="math-formula">R₂₂ᵦ = (B₁₁ + B₁₃ + B₃₁ + B₃₃) / 4</div>
+
+            <pre><code>這時就可以得到 R22 這個 pixel 的 {R, G, B} 數值。</code></pre>
+
+            <hr style="margin: 2.5rem 0; border: 0; border-top: 1px dashed #e0e0e0;">
+
+            <h3>2️⃣ 邊緣導向插值法 (Edge-Directed Interpolation)</h3>
+            <p><strong>原理</strong>：演算法會先偵測影像的邊緣方向（水平、垂直或對角線）。</p>
+            <p>基礎的平均法在遇到物體邊緣時，會因為強行平均而產生<strong>偽彩色（Chrominance Artifacts）</strong>或<strong>拉鍊效應（Zipper Effect）</strong>。</p>
+            <ul>
+                <li><strong>作法</strong>：如果發現某處是垂直線條，它就會優先沿著垂直方向的像素進行插值計算，避免跨越邊緣混合顏色。這能大幅保留影像的銳利度。</li>
+                <li><strong>計算邏輯</strong>：
+                    <ol>
+                        <li><strong>梯度偵測</strong>：計算垂直方向差值 ΔV = |G_up − G_down| 與水平方向差值 ΔH = |G_left − G_right|。</li>
+                        <li><strong>方向判斷</strong>：
+                            <ul>
+                                <li>若 ΔV &lt; ΔH，代表垂直方向像素較接近（存在垂直邊緣），則沿垂直方向平均。</li>
+                                <li>若 ΔH &lt; ΔV，代表水平方向像素較接近，則沿水平方向平均。</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </li>
+                <li><strong>優點</strong>：能有效保留線條的銳利度，減少跨越邊緣的顏色混疊。</li>
+            </ul>
+
+            <h3>3️⃣ 亮度與色差相關性演算法 (Chrominance-Luminance Correlation)</h3>
+            <p><strong>原理</strong>：利用「人類視覺對綠色（亮度）最敏感」以及「自然影像中局部區域的色差通常很接近」的特性。</p>
+            <ul>
+                <li><strong>作法</strong>：優先將綠色（G）通道完整插值出來（因為拜耳陣列中綠色佔了 50%）。計算紅綠色差（R-G）與藍綠色差（B-G）。利用這些色差梯度去補齊紅（R）與藍（B）的數值。這是目前主流相機與修圖軟體（如 Lightroom）最常使用的進階原理變形。</li>
+                <li><strong>計算邏輯</strong>：
+                    <ol>
+                        <li><strong>G 通道優先</strong>：由於綠色在拜耳陣列中佔 50%，先用邊緣導向法完整插值出所有像素的 G 值（作為亮度參考）。</li>
+                        <li><strong>計算色差（Difference Domain）</strong>：在已知 R 或 B 像素的位置，計算與 G 的差值，例如 D_{R−G} = R − G。</li>
+                        <li><strong>差值插值</strong>：利用鄰近的「色差值」進行插值，補齊所有點的 D_{R−G} 與 D_{B−G}。</li>
+                        <li><strong>還原 R/B</strong>：最後透過 R = G + D_{R−G} 還原出最終像素值。</li>
+                    </ol>
+                </li>
+                <li><strong>優點</strong>：這能確保 R、G、B 通道的噪聲相互關聯，維持局部色調的一致性，是專業修圖軟體（如 Lightroom）與現代 ISP 的核心原理。</li>
+            </ul>
+
+            <h2>⚠️ 三、 對影像品質的影響與挑戰</h2>
+            <p>去馬賽克是決定影像品質的關鍵環節，各家廠商通常將其詳細算法視為商業機密。其處理過程會帶來以下影響：</p>
+            <ul>
+                <li><strong>噪點關聯性</strong>：在插值過程中，原本獨立像素的噪點會擴散到相鄰像素，導致不同顏色通道間的噪點產生關聯。</li>
+                <li><strong>偽影與銳利度</strong>：不精確的去馬賽克算法可能會在物體邊緣產生<strong>彩色偽影（Aliasing）</strong>或導致細節模糊。</li>
+                <li><strong>管線位置</strong>：在高品質的 ISP 流程中，去馬賽克通常位於黑電平校正 (BLC)、鏡頭陰影校正 (LSC) 與自動白平衡 (AWB) 之後，但在色彩校正矩陣 (CCM) 之前執行。</li>
+            </ul>
+
+            <p>由於顏色是「算」出來的而非真實捕捉，如果演算法不夠完美，在面對高密度細密條紋（如西裝外套、遠處建築百葉窗）時，容易產生兩大相機常見紋路問題：</p>
+            <ul>
+                <li><strong>摩爾紋 (Moiré Pattern)</strong>：畫面出現不正常的波浪狀彩色條紋。</li>
+                <li><strong>偽色 (False Color)</strong>：在黑白相間的細線邊緣，憑空出現紅紅綠綠的錯誤線條。</li>
+            </ul>
+
+            <p>因此，現今的 <strong>AI 去馬賽克技術</strong>（如 Adobe 的「增強細節」功能）會導入機器學習，藉由判讀數百萬張照片的經驗，更精準地還原影像細節並消除這些雜訊。</p>
+
+            <h2>🧭 四、 演算法比較總表</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>演算法</th>
+                        <th>核心原理</th>
+                        <th>優點</th>
+                        <th>缺點</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>雙線性插值法</strong></td>
+                        <td>四周同色像素平均</td>
+                        <td>計算速度極快、實作簡單</td>
+                        <td>邊緣模糊、偽色嚴重</td>
+                    </tr>
+                    <tr>
+                        <td><strong>邊緣導向插值法</strong></td>
+                        <td>先偵測邊緣方向再插值</td>
+                        <td>保留銳利度、減少混疊</td>
+                        <td>計算較複雜、方向判斷可能失誤</td>
+                    </tr>
+                    <tr>
+                        <td><strong>亮度與色差相關性</strong></td>
+                        <td>在色差域（Difference Domain）插值</td>
+                        <td>色調一致、噪聲關聯性低、畫面自然</td>
+                        <td>計算量最大、需先進 ISP 支援</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🧾 五、 總結</h2>
+            <ul>
+                <li><strong>去馬賽克的作用是將感測器捕捉到的「不完整顏色片段」拼湊成「完整彩色畫面」</strong>。如果沒有這個步驟，我們看到的影像將只是帶有網格圖案的灰階數據，而非真實世界的色彩。</li>
+                <li>演算法從最基礎的<strong>雙線性插值</strong>，進化到<strong>邊緣導向</strong>，再到目前主流的<strong>色差相關性</strong>方法，每一步都讓影像更加接近人眼所見。</li>
+                <li>未來隨著 AI 技術的導入，去馬賽克的極限將被不斷突破，實現更高品質的數位攝影體驗。</li>
+            </ul>
+
+            <hr style="margin: 3rem 0; border: 0; border-top: 2px solid #e0e0e0;">
+
+            <h1>💻 RAW 檔在電腦中進行 Demosaic 軟體解碼的步驟</h1>
+            <p>在電腦中，RAW 檔的 Demosaic（去馬賽克）並非獨立進行，而是內嵌在整個 <strong>RAW 檔解碼與顯像流程（RAW Development Pipeline）</strong> 中。</p>
+            <p>當你將 RAW 檔匯入 Lightroom、Capture One 或開源的 RawTherapee 時，軟體會在背景依序執行以下 <strong>5 個核心解碼步驟</strong>。Demosaic 位於正中間，承上啟下：</p>
+
+            <pre><code>💡
+[ 1. 讀取與資料解壓 ] ──► [ 2. 前置校正與白平衡 ] ──► [ 3. 去馬賽克插值 ] ──► [ 4. 色彩空間轉換 ] ──► [ 5. 階調對應與輸出 ]</code></pre>
+
+            <h3>1️⃣ 讀取與資料解壓 (Parsing &amp; Unpacking)</h3>
+            <ul>
+                <li><strong>讀取元數據 (Metadata)</strong>：軟體先讀取 RAW 檔內的 EXIF 資訊，包含相機型號、ISO、白平衡設定，以及感光元件的 CFA 陣列排列方式（如：左上角第一個像素是紅還是綠）。</li>
+                <li><strong>線性資料解壓</strong>：將感光元件記錄的原始數位數值（通常為 12-bit 或 14-bit 的二進位線性資料）解壓出來，還原成一張由單色像素組成的「馬賽克矩陣」。</li>
+            </ul>
+
+            <h3>2️⃣ 前置校正與白平衡 (Pre-processing &amp; White Balance)</h3>
+            <p>在真正補齊顏色（Demosaic）之前，必須先對原始數值進行物理校正：</p>
+            <ul>
+                <li><strong>黑電平校正 (Black Level Subtraction)</strong>：扣除感光元件在完全沒有光時產生的微量暗電流雜訊。</li>
+                <li><strong>壞點修復 (Bad Pixel Correction)</strong>：偵測並屏蔽感光元件上的實體死點，用周圍像素替代。</li>
+                <li><strong>應用白平衡 (Apply White Balance)</strong>：依據拍攝時的設定，對紅（R）、藍（B）通道的數值乘以特定增益係數（Gain），確保原本是白色的地方在矩陣數值上達到平衡。</li>
+            </ul>
+
+            <h3>3️⃣ 去馬賽克插值 (Demosaic Processing)</h3>
+            <p>這是最消耗電腦算力的核心步驟。此時每個像素點依然只有單一顏色（R 或 G 或 B），軟體會執行進階演算法：</p>
+            <ul>
+                <li><strong>色彩梯度分析</strong>：分析像素周圍的明暗變化，辨識出物體的邊緣（水平、垂直或斜向）。</li>
+                <li><strong>全彩插值計算</strong>：利用如 <strong>AHD (Adaptive Homogeneity-Directed)</strong> 或 <strong>AMaZE</strong> 等高階演算法，順著邊緣方向計算出每個像素缺失的另外兩種顏色。</li>
+                <li><strong>完成全彩</strong>：此步驟結束後，影像正式從單色馬賽克矩陣，轉變為每個像素都擁有 R、G、B 三個數值的標準彩色影像。</li>
+            </ul>
+
+            <h3>4️⃣ 色彩空間轉換 (Color Space Transformation)</h3>
+            <p>剛去馬賽克完成的 R、G、B 數值，是基於「相機感光元件物理特性」的色彩（稱為 <strong>Camera RGB</strong>）。此時色彩並不標準，且與人類肉眼所見不同：</p>
+            <ul>
+                <li><strong>相機矩陣轉換</strong>：軟體會套用該相機型號的色彩描述檔（ICC Profile / Adobe Camera Raw Profile），將 Camera RGB 轉換為標準的內部工作色彩空間（如 ProPhoto RGB 或 Adobe RGB）。</li>
+            </ul>
+
+            <h3>5️⃣ 階調對應與輸出顯像 (Tone Mapping &amp; Rendering)</h3>
+            <p>感光元件記錄的是線性的光強度，直接看會非常昏暗。</p>
+            <ul>
+                <li><strong>伽馬校正 (Gamma Correction)</strong>：將線性資料轉換為符合人類肉眼視覺特性的非線性曲線。</li>
+                <li><strong>亮暗調整與降噪</strong>：套用使用者在軟體上調整的對比度、陰影、高光、以及去馬賽克後產生的摩爾紋修飾。</li>
+                <li><strong>輸出</strong>：最後將這份處理好的彩色資料，渲染在螢幕上讓你預覽，或匯出為 JPEG/TIFF 檔。</li>
+            </ul>
+
+            <h2>🗺️ 六、 RAW 解碼流程總覽</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>步驟</th>
+                        <th>階段名稱</th>
+                        <th>核心任務</th>
+                        <th>處理位置</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>讀取與資料解壓</td>
+                        <td>解壓 RAW、讀取 EXIF 與 CFA 排列</td>
+                        <td>檔案 I/O</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>前置校正與白平衡</td>
+                        <td>黑電平、壞點、白平衡增益</td>
+                        <td>RAW 域（線性）</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>去馬賽克插值</strong></td>
+                        <td>馬賽克矩陣 → 全彩 RGB 影像</td>
+                        <td>RAW 域 → RGB 域</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>色彩空間轉換</td>
+                        <td>Camera RGB → 工作色彩空間</td>
+                        <td>RGB 域</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>階調對應與輸出</td>
+                        <td>Gamma 校正、降噪、輸出 JPEG/TIFF</td>
+                        <td>YUV 域 / 輸出檔</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

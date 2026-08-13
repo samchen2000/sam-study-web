@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 去馬賽克演算法互動教學 | Demosaicing Comparison</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px 40px;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+header h1 { font-size: 2.2em; margin-bottom: 8px; font-weight: 700; }
+header .subtitle { opacity: 0.95; font-size: 1.05em; }
+header .formula {
+    margin-top: 15px;
+    padding: 12px 18px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+    overflow-x: auto;
+}
+
+.controls {
+    background: #1f2937;
+    padding: 20px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    border-bottom: 1px solid #374151;
+}
+
+.control-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.control-group > label {
+    font-weight: 600;
+    color: #9ca3af;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+}
+
+button {
+    padding: 8px 16px;
+    border: 1px solid #4b5563;
+    background: #374151;
+    color: #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+}
+button:hover { background: #4b5563; border-color: #6b7280; transform: translateY(-1px); }
+button.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+select {
+    padding: 8px 12px;
+    background: #374151;
+    color: #e5e7eb;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+input[type="range"] { width: 140px; accent-color: #667eea; }
+input[type="file"] { display: none; }
+
+.value-display {
+    background: #111827;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #60a5fa;
+    min-width: 50px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.comparison {
+    background: #111827;
+    padding: 30px 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.panel {
+    background: #1f2937;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #374151;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+.panel:hover {
+    border-color: #667eea;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.25);
+}
+.panel.bad { border-color: #ef4444; }
+.panel.medium { border-color: #f59e0b; }
+.panel.good { border-color: #10b981; }
+
+.panel-header {
+    padding: 14px 18px;
+    background: #1a2332;
+    border-bottom: 1px solid #374151;
+}
+.panel-header h3 {
+    font-size: 0.98em;
+    color: #e5e7eb;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: 700;
+}
+.badge-1 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.badge-2 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.badge-3 { background: linear-gradient(135deg, #10b981, #059669); }
+.badge-info { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+.panel-canvas {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #000;
+    image-rendering: pixelated;
+    overflow: hidden;
+}
+.panel-canvas canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    image-rendering: pixelated;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+.panel-footer {
+    padding: 10px 18px;
+    background: #1a2332;
+    border-top: 1px solid #374151;
+    font-size: 0.82em;
+    color: #9ca3af;
+}
+.quality-bar {
+    display: inline-block;
+    width: 60px;
+    height: 6px;
+    background: #374151;
+    border-radius: 3px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+.quality-fill { height: 100%; transition: width 0.3s; }
+.q-low { background: #ef4444; }
+.q-mid { background: #f59e0b; }
+.q-high { background: #10b981; }
+
+.algorithms-section {
+    background: #1f2937;
+    padding: 40px;
+    border-top: 1px solid #374151;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 35px;
+    font-size: 2em;
+    color: #e5e7eb;
+    font-weight: 700;
+}
+.section-title .highlight {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.algorithms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.algo-card {
+    background: linear-gradient(135deg, #1a2332 0%, #1f2937 100%);
+    border-radius: 12px;
+    padding: 25px;
+    border-left: 5px solid #667eea;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+.algo-card:hover { transform: translateY(-4px); }
+.algo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.algo-card.algo-1 { border-left-color: #ef4444; }
+.algo-card.algo-1::before { background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%); }
+.algo-card.algo-2 { border-left-color: #f59e0b; }
+.algo-card.algo-2::before { background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%); }
+.algo-card.algo-3 { border-left-color: #10b981; }
+.algo-card.algo-3::before { background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%); }
+
+.algo-card h3 {
+    color: #60a5fa;
+    margin-bottom: 12px;
+    font-size: 1.25em;
+    font-weight: 700;
+}
+.algo-card.algo-1 h3 { color: #f87171; }
+.algo-card.algo-2 h3 { color: #fbbf24; }
+.algo-card.algo-3 h3 { color: #34d399; }
+
+.algo-card .description {
+    color: #cbd5e1;
+    font-size: 0.95em;
+    margin-bottom: 15px;
+    line-height: 1.7;
+}
+.algo-card strong { color: #fbbf24; font-weight: 700; }
+
+.feature-title {
+    font-weight: 700;
+    color: #60a5fa;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.features { list-style: none; margin-top: 6px; }
+.feature-item {
+    padding: 5px 0 5px 24px;
+    position: relative;
+    font-size: 0.9em;
+    color: #d1d5db;
+    line-height: 1.5;
+}
+.feature-item::before {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    font-weight: bold;
+    font-size: 1.05em;
+}
+.feature-item.pros::before { content: '✓'; color: #10b981; }
+.feature-item.cons::before { content: '✗'; color: #ef4444; }
+
+.complexity-meter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    font-size: 0.85em;
+}
+.meter-dots { display: flex; gap: 3px; }
+.meter-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4b5563;
+}
+.meter-dot.active { background: #fbbf24; }
+
+.tips-section {
+    background: #1a2332;
+    padding: 35px 40px;
+    border-top: 1px solid #374151;
+}
+.tip-card {
+    background: #111827;
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 4px solid #f59e0b;
+}
+.tip-card.danger { border-left-color: #ef4444; }
+.tip-card.success { border-left-color: #10b981; }
+.tip-card .tip-title {
+    color: #f59e0b;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 1.05em;
+}
+.tip-card.danger .tip-title { color: #f87171; }
+.tip-card.success .tip-title { color: #34d399; }
+.tip-card .tip-content {
+    color: #d1d5db;
+    font-size: 0.95em;
+    line-height: 1.7;
+}
+.tip-card code {
+    background: #1f2937;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #60a5fa;
+    font-size: 0.9em;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #9ca3af;
+    font-size: 0.9em;
+    background: #1a2332;
+    border-radius: 0 0 16px 16px;
+    border-top: 1px solid #374151;
+}
+
+@media (max-width: 768px) {
+    header, .controls, .comparison, .algorithms-section, .tips-section { padding-left: 20px; padding-right: 20px; }
+    header h1 { font-size: 1.6em; }
+    .comparison { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🎨 去馬賽克演算法互動比較教學</h1>
+        <p class="subtitle">深入理解雙線性插值、邊緣導向插值、色差相關性三種演算法的處理差異</p>
+        <div class="formula">
+            [馬賽克感光資料] → [周圍像素分析] → [插值演算法計算] → [輸出 R+G+B 全彩像素]
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>📷 測試圖</label>
+            <button class="img-btn active" data-img="0">幾何圖案</button>
+            <button class="img-btn" data-img="1">彩色條紋</button>
+            <button class="img-btn" data-img="2">彩色斜線</button>
+            <button class="img-btn" data-img="3">同心圓</button>
+            <button class="img-btn" id="uploadBtn">📁 上傳</button>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        <div class="control-group">
+            <label>📐 解析度</label>
+            <select id="sizeSelect">
+                <option value="64">64×64</option>
+                <option value="96">96×96</option>
+                <option value="128" selected>128×128</option>
+                <option value="192">192×192</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>🔍 放大</label>
+            <input type="range" id="zoomSlider" min="1" max="4" value="1" step="1">
+            <span class="value-display" id="zoomValue">1x</span>
+        </div>
+        <div class="control-group">
+            <label>🎨 視圖</label>
+            <button id="diffBtn">顯示差異</button>
+        </div>
+    </div>
+
+    <div class="comparison">
+        <div class="panel">
+            <div class="panel-header">
+                <h3><span class="badge badge-info">原圖</span>原始影像 (Ground Truth)</h3>
+            </div>
+            <div class="panel-canvas"><canvas id="canvasOriginal"></canvas></div>
+            <div class="panel-footer">📌 模擬相機感測器接收到的真實彩色場景</div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">
+                <h3><span class="badge badge-info">輸入</span>Bayer 馬賽克 (感測器原始資料)</h3>
+            </div>
+            <div class="panel-canvas"><canvas id="canvasBayer"></canvas></div>
+            <div class="panel-footer">📌 每個像素僅含 R、G、B 中的一種顏色 (Bayer RGGB 排列)</div>
+        </div>
+        <div class="panel bad" id="panel-1">
+            <div class="panel-header">
+                <h3><span class="badge badge-1">1</span>雙線性插值法 (Bilinear)</h3>
+            </div>
+            <div class="panel-canvas"><canvas id="canvasBilinear"></canvas></div>
+            <div class="panel-footer">
+                品質:
+                <div class="quality-bar"><div class="quality-fill q-low" style="width: 50%"></div></div>
+                <span style="margin-left: 6px;">⭐⭐</span>
+            </div>
+        </div>
+        <div class="panel medium" id="panel-2">
+            <div class="panel-header">
+                <h3><span class="badge badge-2">2</span>邊緣導向插值法 (Edge-Directed)</h3>
+            </div>
+            <div class="panel-canvas"><canvas id="canvasEdge"></canvas></div>
+            <div class="panel-footer">
+                品質:
+                <div class="quality-bar"><div class="quality-fill q-mid" style="width: 75%"></div></div>
+                <span style="margin-left: 6px;">⭐⭐⭐</span>
+            </div>
+        </div>
+        <div class="panel good" id="panel-3">
+            <div class="panel-header">
+                <h3><span class="badge badge-3">3</span>色差相關性演算法 (Color Difference)</h3>
+            </div>
+            <div class="panel-canvas"><canvas id="canvasColorDiff"></canvas></div>
+            <div class="panel-footer">
+                品質:
+                <div class="quality-bar"><div class="quality-fill q-high" style="width: 92%"></div></div>
+                <span style="margin-left: 6px;">⭐⭐⭐⭐⭐</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="algorithms-section">
+        <h2 class="section-title">三種演算法<span class="highlight">差異性比較</span></h2>
+        <div class="algorithms">
+            <div class="algo-card algo-1">
+                <h3>1️⃣ 雙線性插值法 (Bilinear)</h3>
+                <p class="description">
+                    <strong>原理：</strong>最基礎的作法。直接取該像素四周鄰近<strong>相同顏色</strong>像素的平均值,作為該點缺失的顏色數值。
+                </p>
+                <div class="feature-title">🟢 優點</div>
+                <ul class="features">
+                    <li class="feature-item pros">演算法最簡單,運算速度最快</li>
+                    <li class="feature-item pros">記憶體需求低,容易硬體實作</li>
+                    <li class="feature-item pros">實作成本低,適合入門學習</li>
+                </ul>
+                <div class="feature-title">🔴 缺點</div>
+                <ul class="features">
+                    <li class="feature-item cons">忽略影像中的邊緣與線條方向</li>
+                    <li class="feature-item cons">畫面邊緣容易模糊 (低通濾波效應)</li>
+                    <li class="feature-item cons">產生明顯的<strong>偽色 (Color Artifacts)</strong></li>
+                    <li class="feature-item cons">高頻細節處易出現<strong>摩爾紋 (Moiré)</strong></li>
+                    <li class="feature-item cons">細線邊緣會產生「拉鏈效應 (Zipper)」</li>
+                </ul>
+                <div class="complexity-meter">
+                    <span>運算複雜度:</span>
+                    <div class="meter-dots">
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot"></div>
+                        <div class="meter-dot"></div>
+                        <div class="meter-dot"></div>
+                        <div class="meter-dot"></div>
+                    </div>
+                    <span style="margin-left: auto; color: #34d399;">O(N) 最快</span>
+                </div>
+            </div>
+
+            <div class="algo-card algo-2">
+                <h3>2️⃣ 邊緣導向插值法 (Edge-Directed)</h3>
+                <p class="description">
+                    <strong>原理：</strong>演算法會先<strong>偵測影像的邊緣方向</strong>(水平、垂直或斜向),再依據邊緣方向進行插值,避免跨越邊緣混合顏色。
+                </p>
+                <div class="feature-title">🟢 優點</div>
+                <ul class="features">
+                    <li class="feature-item pros">大幅保留影像的<strong>銳利度</strong></li>
+                    <li class="feature-item pros">邊緣區域品質明顯優於雙線性</li>
+                    <li class="feature-item pros">有效減少跨越邊緣的偽色</li>
+                    <li class="feature-item pros">品質與效能的良好平衡</li>
+                </ul>
+                <div class="feature-title">🔴 缺點</div>
+                <ul class="features">
+                    <li class="feature-item cons">對於複雜紋理仍可能誤判</li>
+                    <li class="feature-item cons">斜向邊緣偵測仍具挑戰</li>
+                    <li class="feature-item cons">演算法比雙線性複雜</li>
+                    <li class="feature-item cons">在極細密條紋下仍會有殘留瑕疵</li>
+                </ul>
+                <div class="complexity-meter">
+                    <span>運算複雜度:</span>
+                    <div class="meter-dots">
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot"></div>
+                        <div class="meter-dot"></div>
+                    </div>
+                    <span style="margin-left: auto; color: #fbbf24;">O(N) 中等</span>
+                </div>
+            </div>
+
+            <div class="algo-card algo-3">
+                <h3>3️⃣ 色差相關性演算法 (Color Difference)</h3>
+                <p class="description">
+                    <strong>原理：</strong>利用「人類視覺對<strong>綠色 (亮度)</strong>最敏感」與「色差局部接近恆定」特性。先插值 G 通道,再以 R-G、B-G 色差補齊 R/B 通道。
+                </p>
+                <div class="feature-title">🟢 優點</div>
+                <ul class="features">
+                    <li class="feature-item pros">色彩還原最自然、最準確</li>
+                    <li class="feature-item pros">大幅減少<strong>偽色</strong>與<strong>摩爾紋</strong></li>
+                    <li class="feature-item pros">符合人類視覺感知特性</li>
+                    <li class="feature-item pros">主流相機 ISP 與修圖軟體採用 (Lightroom、Capture One)</li>
+                    <li class="feature-item pros">基於 Bayer 陣列特性設計 (綠佔 50%)</li>
+                </ul>
+                <div class="feature-title">🔴 缺點</div>
+                <ul class="features">
+                    <li class="feature-item cons">演算法最為複雜</li>
+                    <li class="feature-item cons">運算量最大,需要更多記憶體</li>
+                    <li class="feature-item cons">在極端高頻區域仍可能出錯</li>
+                </ul>
+                <div class="complexity-meter">
+                    <span>運算複雜度:</span>
+                    <div class="meter-dots">
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot active"></div>
+                        <div class="meter-dot active"></div>
+                    </div>
+                    <span style="margin-left: auto; color: #f87171;">O(N) 較慢</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tips-section">
+        <div class="tip-card">
+            <div class="tip-title">💡 如何觀察三種演算法的差異</div>
+            <div class="tip-content">
+                <strong>切換不同的測試圖案</strong>,仔細觀察每張處理結果:<br>
+                • <strong>「幾何圖案」</strong>: 觀察色塊邊緣的銳利度與拉鏈效應<br>
+                • <strong>「彩色條紋」</strong>: 清楚看到摩爾紋 (Moiré) 與偽色的產生<br>
+                • <strong>「彩色斜線」</strong>: 觀察斜邊方向偵測的差異<br>
+                • <strong>「同心圓」</strong>: 觀察曲線邊緣的處理品質<br>
+                • 嘗試<strong>放大 2-4 倍</strong>查看細節瑕疵<br>
+                • 點擊 <strong>「顯示差異」</strong>可看到被高亮強調的偽影區域
+            </div>
+        </div>
+        <div class="tip-card danger">
+            <div class="tip-title">⚠️ 不精確去馬賽克造成的常見問題</div>
+            <div class="tip-content">
+                <strong>🔴 摩爾紋 (Moiré Pattern):</strong> 細密條紋場景下,演算法在邊緣出現不正常的彩色波紋條紋<br>
+                <strong>🔴 偽色 (False Color):</strong> 黑白相間細線邊緣,憑空出現紅紅綠綠的錯誤線條<br>
+                <strong>🔴 拉鏊效應 (Zipper Effect):</strong> 沿著物體邊緣出現像拉鏈般的明暗交替<br>
+                <strong>🔴 邊緣模糊 (Edge Blur):</strong> 雙線性插值在邊緣處過度平滑,失去銳利度
+            </div>
+        </div>
+        <div class="tip-card success">
+            <div class="tip-title">✅ 為何色差相關性演算法效果最好?</div>
+            <div class="tip-content">
+                它基於兩個重要觀察:(1) <strong>人類視覺對綠色(亮度)最敏感</strong>,所以優先精確插值 G 通道;(2) <strong>自然影像中色差 (R-G、B-G) 在小範圍內幾乎恆定</strong>,因此透過插值色差而非直接插值顏色,可以大幅減少錯誤。這也是為何現代相機 RAW 解碼 (Lightroom、Capture One、相機 ISP) 普遍採用此原理的原因。
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        🎨 去馬賽克演算法互動教學 &nbsp;|&nbsp; Demosaicing Algorithm Comparison Demo<br>
+        內含即時運行的三種主流去馬賽克演算法
+    </footer>
+</div>
+
+<script>
+// ========================================================
+// === Bayer Pattern 基礎工具函式 ===
+// ========================================================
+const clamp = (v, max) => Math.max(0, Math.min(max - 1, v));
+
+function pixelType(x, y) {
+    const rr = y % 2 === 0;  // red row
+    const rc = x % 2 === 0;  // red col
+    if (rr && rc) return 'R';
+    if (!rr && !rc) return 'B';
+    return 'G';
+}
+
+function getR(bayer, x, y) { return bayer.data[(clamp(y, bayer.height) * bayer.width + clamp(x, bayer.width)) * 3]; }
+function getG(bayer, x, y) { return bayer.data[(clamp(y, bayer.height) * bayer.width + clamp(x, bayer.width)) * 3 + 1]; }
+function getB(bayer, x, y) { return bayer.data[(clamp(y, bayer.height) * bayer.width + clamp(x, bayer.width)) * 3 + 2]; }
+
+function padBayer(bayer, pad) {
+    const { width, height, data } = bayer;
+    const newW = width + 2 * pad, newH = height + 2 * pad;
+    const newData = new Float32Array(newW * newH * 3);
+    for (let y = 0; y < newH; y++) {
+        for (let x = 0; x < newW; x++) {
+            const sx = clamp(x - pad, width), sy = clamp(y - pad, height);
+            const di = (y * newW + x) * 3, si = (sy * width + sx) * 3;
+            newData[di] = data[si]; newData[di + 1] = data[si + 1]; newData[di + 2] = data[si + 2];
+        }
+    }
+    return { width: newW, height: newH, data: newData };
+}
+
+function cropBayer(bayer, pad) {
+    const { width, height, data } = bayer;
+    const newW = width - 2 * pad, newH = height - 2 * pad;
+    const newData = new Float32Array(newW * newH * 3);
+    for (let y = 0; y < newH; y++) {
+        for (let x = 0; x < newW; x++) {
+            const si = ((y + pad) * width + (x + pad)) * 3, di = (y * newW + x) * 3;
+            newData[di] = data[si]; newData[di + 1] = data[si + 1]; newData[di + 2] = data[si + 2];
+        }
+    }
+    return { width: newW, height: newH, data: newData };
+}
+
+// ========================================================
+// === 測試圖案產生器 ===
+// ========================================================
+function createTestPattern(type, size) {
+    const data = new Uint8ClampedArray(size * size * 4);
+    for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+            const i = (y * size + x) * 4;
+            let r = 200, g = 200, b = 200;
+
+            if (type === 0) {
+                // 幾何圖案: 4 種顏色方塊 + 中心圓
+                const third = size / 3;
+                if (x < third && y < third) { r = 220; g = 30; b = 30; }      // 紅左上
+                else if (x > size - third && y < third) { r = 30; g = 200; b = 30; }   // 綠右上
+                else if (x < third && y > size - third) { r = 230; g = 220; b = 30; }  // 黃左下
+                else if (x > size - third && y > size - third) { r = 30; g = 30; b = 220; } // 藍右下
+                else {
+                    const cx = size / 2, cy = size / 2;
+                    const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                    if (dist < size / 5) { r = 255; g = 150; b = 50; }   // 橘中心
+                }
+            } else if (type === 1) {
+                // 彩色條紋: 高頻率紅/綠/藍交替垂直線
+                const period = 4;
+                const phase = (x % (period * 3));
+                if (phase < period) { r = 220; g = 30; b = 30; }       // 紅
+                else if (phase < period * 2) { r = 30; g = 30; b = 30; }  // 黑
+                else { r = 240; g = 240; b = 240; }                     // 白
+            } else if (type === 2) {
+                // 彩色斜線: 對角線色彩漸層
+                const t = ((x + y) % (size * 2)) / (size * 2);
+                if (t < 0.25) { r = 220; g = 30; b = 30; }
+                else if (t < 0.5) { r = 240; g = 200; b = 30; }
+                else if (t < 0.75) { r = 30; g = 200; b = 30; }
+                else { r = 30; g = 30; b = 220; }
+            } else if (type === 3) {
+                // 同心圓
+                const cx = size / 2, cy = size / 2;
+                const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                const ring = Math.floor(dist / (size / 10)) % 4;
+                if (ring === 0) { r = 240; g = 240; b = 240; }
+                else if (ring === 1) { r = 220; g = 30; b = 30; }
+                else if (ring === 2) { r = 30; g = 30; b = 30; }
+                else { r = 30; g = 30; b = 220; }
+            }
+
+            data[i] = r; data[i + 1] = g; data[i + 2] = b; data[i + 3] = 255;
+        }
+    }
+    return data;
+}
+
+// ========================================================
+// === RGB 影像 → Bayer 馬賽克 ===
+// ========================================================
+function rgbToBayer(imageData) {
+    const { width, height, data } = imageData;
+    const bayer = new Float32Array(width * height * 3);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const si = (y * width + x) * 4, di = (y * width + x) * 3;
+            const t = pixelType(x, y);
+            if (t === 'R')      { bayer[di] = data[si]; }
+            else if (t === 'G') { bayer[di + 1] = data[si + 1]; }
+            else                { bayer[di + 2] = data[si + 2]; }
+        }
+    }
+    return { width, height, data: bayer };
+}
+
+// 將 Bayer 轉成彩色顯示版本(只保留該位置的顏色,其他通道為 0)
+function bayerToColored(bayer) {
+    const { width, height, data } = bayer;
+    const out = new Float32Array(width * height * 3);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = (y * width + x) * 3;
+            const t = pixelType(x, y);
+            if (t === 'R')      { out[i] = data[i]; }
+            else if (t === 'G') { out[i + 1] = data[i + 1]; }
+            else                { out[i + 2] = data[i + 2]; }
+        }
+    }
+    return { width, height, data: out };
+}
+
+// ========================================================
+// === 演算法 1: 雙線性插值法 (Bilinear Interpolation) ===
+// ========================================================
+// 原理: 直接取該像素四周鄰近「相同顏色」像素的平均值
+// 缺點: 忽略影像中的邊緣與線條,容易導致畫面邊緣模糊,並產生偽色
+function bilinearDemosaic(bayer) {
+    const { width, height } = bayer;
+    const out = new Float32Array(width * height * 3);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const di = (y * width + x) * 3;
+            const t = pixelType(x, y);
+
+            if (t === 'R') {
+                out[di] = getR(bayer, x, y);
+                // G: 4 個水平+垂直鄰居(正交方向)的平均
+                out[di + 1] = (getG(bayer, x-1, y) + getG(bayer, x+1, y) +
+                               getG(bayer, x, y-1) + getG(bayer, x, y+1)) / 4;
+                // B: 4 個對角鄰居的平均
+                out[di + 2] = (getB(bayer, x-1, y-1) + getB(bayer, x+1, y-1) +
+                               getB(bayer, x-1, y+1) + getB(bayer, x+1, y+1)) / 4;
+            } else if (t === 'B') {
+                out[di] = (getR(bayer, x-1, y-1) + getR(bayer, x+1, y-1) +
+                           getR(bayer, x-1, y+1) + getR(bayer, x+1, y+1)) / 4;
+                out[di + 1] = (getG(bayer, x-1, y) + getG(bayer, x+1, y) +
+                               getG(bayer, x, y-1) + getG(bayer, x, y+1)) / 4;
+                out[di + 2] = getB(bayer, x, y);
+            } else {  // G 像素
+                out[di + 1] = getG(bayer, x, y);
+                if (y % 2 === 0) {
+                    // G 在紅色行: R 水平、B 垂直
+                    out[di]     = (getR(bayer, x-1, y) + getR(bayer, x+1, y)) / 2;
+                    out[di + 2] = (getB(bayer, x, y-1) + getB(bayer, x, y+1)) / 2;
+                } else {
+                    // G 在藍色列: R 垂直、B 水平
+                    out[di]     = (getR(bayer, x, y-1) + getR(bayer, x, y+1)) / 2;
+                    out[di + 2] = (getB(bayer, x-1, y) + getB(bayer, x+1, y)) / 2;
+                }
+            }
+        }
+    }
+    return { width, height, data: out };
+}
+
+// ========================================================
+// === 演算法 2: 邊緣導向插值法 (Edge-Directed / Hamilton-Adams) ===
+// ========================================================
+// 原理: 先偵測邊緣方向(計算水平/垂直 G 梯度),選擇梯度小的方向插值
+//       避免跨越邊緣混合顏色,大幅保留銳利度
+function edgeDirectedDemosaic(bayer) {
+    const { width, height } = bayer;
+    const out = new Float32Array(width * height * 3);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const di = (y * width + x) * 3;
+            const t = pixelType(x, y);
+
+            if (t === 'G') {
+                out[di + 1] = getG(bayer, x, y);
+                if (y % 2 === 0) {
+                    // G 在紅色行: 用色差 R-G、B-G 補齊
+                    const r1 = getR(bayer, x-1, y), r2 = getR(bayer, x+1, y);
+                    const g1 = getG(bayer, x-1, y), g2 = getG(bayer, x+1, y);
+                    out[di] = out[di + 1] + ((r1 - g1) + (r2 - g2)) / 2;
+                    const b1 = getB(bayer, x, y-1), b2 = getB(bayer, x, y+1);
+                    const gb1 = getG(bayer, x, y-1), gb2 = getG(bayer, x, y+1);
+                    out[di + 2] = out[di + 1] + ((b1 - gb1) + (b2 - gb2)) / 2;
+                } else {
+                    // G 在藍色列
+                    const r1 = getR(bayer, x, y-1), r2 = getR(bayer, x, y+1);
+                    const g1 = getG(bayer, x, y-1), g2 = getG(bayer, x, y+1);
+                    out[di] = out[di + 1] + ((r1 - g1) + (r2 - g2)) / 2;
+                    const b1 = getB(bayer, x-1, y), b2 = getB(bayer, x+1, y);
+                    const gb1 = getG(bayer, x-1, y), gb2 = getG(bayer, x+1, y);
+                    out[di + 2] = out[di + 1] + ((b1 - gb1) + (b2 - gb2)) / 2;
+                }
+            } else if (t === 'R') {
+                out[di] = getR(bayer, x, y);
+                // 邊緣偵測: 比較水平 vs 垂直 G 梯度
+                const gL = getG(bayer, x-1, y), gR = getG(bayer, x+1, y);
+                const gT = getG(bayer, x, y-1), gB = getG(bayer, x, y+1);
+                const dh = Math.abs(gL - gR), dv = Math.abs(gT - gB);
+                if (dh < dv) {
+                    // 邊緣為垂直 → 水平插值
+                    out[di + 1] = (gL + gR) / 2 + (out[di] - (getR(bayer, x-2, y) + getR(bayer, x+2, y)) / 2) / 2;
+                } else {
+                    // 邊緣為水平 → 垂直插值
+                    out[di + 1] = (gT + gB) / 2 + (out[di] - (getR(bayer, x, y-2) + getR(bayer, x, y+2)) / 2) / 2;
+                }
+                // B 在 R 位置: 對角鄰居平均
+                out[di + 2] = (getB(bayer, x-1, y-1) + getB(bayer, x+1, y-1) +
+                               getB(bayer, x-1, y+1) + getB(bayer, x+1, y+1)) / 4;
+            } else { // B
+                out[di + 2] = getB(bayer, x, y);
+                const gL = getG(bayer, x-1, y), gR = getG(bayer, x+1, y);
+                const gT = getG(bayer, x, y-1), gB = getG(bayer, x, y+1);
+                const dh = Math.abs(gL - gR), dv = Math.abs(gT - gB);
+                if (dh < dv) {
+                    out[di + 1] = (gL + gR) / 2 + (out[di + 2] - (getB(bayer, x-2, y) + getB(bayer, x+2, y)) / 2) / 2;
+                } else {
+                    out[di + 1] = (gT + gB) / 2 + (out[di + 2] - (getB(bayer, x, y-2) + getB(bayer, x, y+2)) / 2) / 2;
+                }
+                out[di] = (getR(bayer, x-1, y-1) + getR(bayer, x+1, y-1) +
+                           getR(bayer, x-1, y+1) + getR(bayer, x+1, y+1)) / 4;
+            }
+        }
+    }
+    return { width, height, data: out };
+}
+
+// ========================================================
+// === 演算法 3: 色差相關性演算法 (Color Difference / Malvar-He-Cutler) ===
+// ========================================================
+// 原理:
+//   Step 1: 利用邊緣偵測 + 色差校正,精確插值 G 通道
+//   Step 2: 計算 R-G、B-G 色差 (在 R/B 已知位置)
+//   Step 3: 利用「色差局部接近恆定」的特性,將色差雙線性插值到所有位置
+//   Step 4: 重建 R = (R-G) + G、B = (B-G) + G
+function colorDiffDemosaic(bayer) {
+    const { width, height } = bayer;
+
+    // Step 1: G 通道插值(綠色通道)
+    const G = new Float32Array(width * height);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = y * width + x;
+            const t = pixelType(x, y);
+            if (t === 'G') {
+                G[i] = getG(bayer, x, y);
+            } else {
+                const gL = getG(bayer, x-1, y), gR = getG(bayer, x+1, y);
+                const gT = getG(bayer, x, y-1), gB = getG(bayer, x, y+1);
+                const dh = Math.abs(gL - gR), dv = Math.abs(gT - gB);
+                // 邊緣偵測
+                let gVal = (dh < dv) ? (gL + gR) / 2 : (gT + gB) / 2;
+                // 加入 1/2 色差校正
+                if (t === 'R') {
+                    const ref = (dh < dv) ? (getR(bayer, x-2, y) + getR(bayer, x+2, y)) / 2
+                                           : (getR(bayer, x, y-2) + getR(bayer, x, y+2)) / 2;
+                    gVal += (getR(bayer, x, y) - ref) / 2;
+                } else {
+                    const ref = (dh < dv) ? (getB(bayer, x-2, y) + getB(bayer, x+2, y)) / 2
+                                           : (getB(bayer, x, y-2) + getB(bayer, x, y+2)) / 2;
+                    gVal += (getB(bayer, x, y) - ref) / 2;
+                }
+                G[i] = gVal;
+            }
+        }
+    }
+
+    // Step 2: 在已知位置計算 R-G 與 B-G 色差
+    const RG = new Float32Array(width * height);
+    const BG = new Float32Array(width * height);
+    const hasRG = new Uint8Array(width * height);
+    const hasBG = new Uint8Array(width * height);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = y * width + x;
+            const t = pixelType(x, y);
+            if (t === 'R') {
+                RG[i] = getR(bayer, x, y) - G[i];
+                hasRG[i] = 1;
+            } else if (t === 'B') {
+                BG[i] = getB(bayer, x, y) - G[i];
+                hasBG[i] = 1;
+            }
+        }
+    }
+
+    // Step 3: 將色差雙線性插值到所有位置
+    const out = new Float32Array(width * height * 3);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = y * width + x, di = i * 3;
+            out[di + 1] = G[i];
+            const t = pixelType(x, y);
+
+            if (t === 'R') {
+                out[di] = getR(bayer, x, y);
+                // 找最近的 B 像素,平均 B-G 色差
+                let sum = 0, cnt = 0;
+                const bs = [[x-1, y-1], [x+1, y-1], [x-1, y+1], [x+1, y+1]];
+                for (const [bx, by] of bs) {
+                    if (hasBG[by * width + bx]) { sum += BG[by * width + bx]; cnt++; }
+                }
+                out[di + 2] = (cnt > 0) ? G[i] + sum / cnt : G[i];
+            } else if (t === 'B') {
+                out[di + 2] = getB(bayer, x, y);
+                let sum = 0, cnt = 0;
+                const rs = [[x-1, y-1], [x+1, y-1], [x-1, y+1], [x+1, y+1]];
+                for (const [rx, ry] of rs) {
+                    if (hasRG[ry * width + rx]) { sum += RG[ry * width + rx]; cnt++; }
+                }
+                out[di] = (cnt > 0) ? G[i] + sum / cnt : G[i];
+            } else {
+                // G 像素: 從周圍 R 與 B 像素插值色差
+                let sumR = 0, cntR = 0;
+                for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+                    const px = x + dx, py = y + dy;
+                    if (hasRG[py * width + px]) { sumR += RG[py * width + px]; cntR++; }
+                }
+                if (cntR > 0) out[di] = G[i] + sumR / cntR; else out[di] = G[i];
+
+                let sumB = 0, cntB = 0;
+                for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+                    const px = x + dx, py = y + dy;
+                    if (hasBG[py * width + px]) { sumB += BG[py * width + px]; cntB++; }
+                }
+                if (cntB > 0) out[di + 2] = G[i] + sumB / cntB; else out[di + 2] = G[i];
+            }
+        }
+    }
+    return { width, height, data: out };
+}
+
+// ========================================================
+// === 計算原圖與結果的差異 (用於「顯示差異」功能) ===
+// ========================================================
+function computeDiff(result, original) {
+    const { width, height } = result;
+    const diff = new Float32Array(width * height * 3);
+    let totalError = 0;
+    for (let i = 0; i < width * height; i++) {
+        const di = i * 3;
+        const dr = Math.abs(result.data[di]     - original[di]);
+        const dg = Math.abs(result.data[di + 1] - original[di + 1]);
+        const db = Math.abs(result.data[di + 2] - original[di + 2]);
+        // 放大 3 倍讓差異更明顯
+        diff[di]     = Math.min(255, dr * 3);
+        diff[di + 1] = Math.min(255, dg * 3);
+        diff[di + 2] = Math.min(255, db * 3);
+        totalError += (dr + dg + db) / 3;
+    }
+    return { data: diff, mse: totalError / (width * height) };
+}
+
+// ========================================================
+// === Canvas 渲染工具 ===
+// ========================================================
+function renderFloatToCanvas(canvas, data, w, h, displayW, displayH) {
+    canvas.width = displayW;
+    canvas.height = displayH;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(displayW, displayH);
+    const sx = w / displayW, sy = h / displayH;
+    for (let y = 0; y < displayH; y++) {
+        for (let x = 0; x < displayW; x++) {
+            const srcX = Math.min(Math.floor(x * sx), w - 1);
+            const srcY = Math.min(Math.floor(y * sy), h - 1);
+            const si = (srcY * w + srcX) * 3, di = (y * displayW + x) * 4;
+            imageData.data[di]     = Math.max(0, Math.min(255, data[si]));
+            imageData.data[di + 1] = Math.max(0, Math.min(255, data[si + 1]));
+            imageData.data[di + 2] = Math.max(0, Math.min(255, data[si + 2]));
+            imageData.data[di + 3] = 255;
+        }
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
+
+function renderRGBAToCanvas(canvas, data, displayW, displayH) {
+    canvas.width = displayW;
+    canvas.height = displayH;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(displayW, displayH);
+    const size = currentSize;
+    const sx = size / displayW, sy = size / displayH;
+    for (let y = 0; y < displayH; y++) {
+        for (let x = 0; x < displayW; x++) {
+            const srcX = Math.min(Math.floor(x * sx), size - 1);
+            const srcY = Math.min(Math.floor(y * sy), size - 1);
+            const si = (srcY * size + srcX) * 4, di = (y * displayW + x) * 4;
+            imageData.data[di] = data[si];
+            imageData.data[di + 1] = data[si + 1];
+            imageData.data[di + 2] = data[si + 2];
+            imageData.data[di + 3] = 255;
+        }
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
+
+// ========================================================
+// === 主要應用邏輯 ===
+// ========================================================
+const canvases = {
+    original: document.getElementById('canvasOriginal'),
+    bayer: document.getElementById('canvasBayer'),
+    bilinear: document.getElementById('canvasBilinear'),
+    edge: document.getElementById('canvasEdge'),
+    colorDiff: document.getElementById('canvasColorDiff')
+};
+
+const panels = {
+    bilinear: document.getElementById('panel-1'),
+    edge: document.getElementById('panel-2'),
+    colorDiff: document.getElementById('panel-3')
+};
+
+let currentImage = null;
+let currentBayer = null;
+let currentResults = {};
+let currentOriginal = null;  // 儲存原始影像供差異計算
+let currentSize = 128;
+let currentZoom = 1;
+let imageType = 0;
+let showDiff = false;
+
+function updateDisplay() {
+    if (!currentImage) return;
+    const w = canvases.original.parentElement.clientWidth;
+    const displayW = Math.floor(w * currentZoom);
+    const displayH = displayW;
+
+    // 1. 原始影像
+    renderRGBAToCanvas(canvases.original, currentImage, displayW, displayH);
+
+    // 2. Bayer 馬賽克
+    const bayerColored = bayerToColored(currentBayer);
+    renderFloatToCanvas(canvases.bayer, bayerColored.data, currentBayer.width, currentBayer.height, displayW, displayH);
+
+    if (showDiff) {
+        // 顯示差異模式
+        const origData = new Float32Array(currentSize * currentSize * 3);
+        for (let i = 0; i < currentSize * currentSize; i++) {
+            origData[i * 3]     = currentImage[i * 4];
+            origData[i * 3 + 1] = currentImage[i * 4 + 1];
+            origData[i * 3 + 2] = currentImage[i * 4 + 2];
+        }
+        const d1 = computeDiff(currentResults.bilinear, origData);
+        const d2 = computeDiff(currentResults.edge, origData);
+        const d3 = computeDiff(currentResults.colorDiff, origData);
+        renderFloatToCanvas(canvases.bilinear, d1.data, currentSize, currentSize, displayW, displayH);
+        renderFloatToCanvas(canvases.edge, d2.data, currentSize, currentSize, displayW, displayH);
+        renderFloatToCanvas(canvases.colorDiff, d3.data, currentSize, currentSize, displayW, displayH);
+    } else {
+        // 正常顯示模式
+        renderFloatToCanvas(canvases.bilinear, currentResults.bilinear.data,
+            currentResults.bilinear.width, currentResults.bilinear.height, displayW, displayH);
+        renderFloatToCanvas(canvases.edge, currentResults.edge.data,
+            currentResults.edge.width, currentResults.edge.height, displayW, displayH);
+        renderFloatToCanvas(canvases.colorDiff, currentResults.colorDiff.data,
+            currentResults.colorDiff.width, currentResults.colorDiff.height, displayW, displayH);
+    }
+}
+
+function processImage(type) {
+    imageType = type;
+    currentImage = createTestPattern(type, currentSize);
+    currentBayer = rgbToBayer({ width: currentSize, height: currentSize, data: currentImage });
+
+    // Padding 避免邊界問題
+    const padded = padBayer(currentBayer, 4);
+
+    // 執行三種演算法
+    const bilinearResult = bilinearDemosaic(padded);
+    const edgeResult = edgeDirectedDemosaic(padded);
+    const colorDiffResult = colorDiffDemosaic(padded);
+
+    // Crop 回原始大小
+    currentResults = {
+        bilinear: cropBayer(bilinearResult, 4),
+        edge: cropBayer(edgeResult, 4),
+        colorDiff: cropBayer(colorDiffResult, 4)
+    };
+
+    updateDisplay();
+}
+
+// === 事件處理 ===
+document.querySelectorAll('.img-btn').forEach(btn => {
+    if (btn.id === 'uploadBtn') return;
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.img-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        processImage(parseInt(btn.dataset.img));
+    });
+});
+
+document.getElementById('uploadBtn').addEventListener('click', () => {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+            const size = currentSize;
+            const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            // 等比例縮放填滿,保持中央
+            const scale = Math.min(img.width, img.height);
+            const sx = (img.width - scale) / 2, sy = (img.height - scale) / 2;
+            ctx.drawImage(img, sx, sy, scale, scale, 0, 0, size, size);
+            const imageData = ctx.getImageData(0, 0, size, size);
+            currentImage = imageData.data;
+            currentBayer = rgbToBayer({ width: size, height: size, data: imageData.data });
+
+            const padded = padBayer(currentBayer, 4);
+            const bilinearResult = bilinearDemosaic(padded);
+            const edgeResult = edgeDirectedDemosaic(padded);
+            const colorDiffResult = colorDiffDemosaic(padded);
+            currentResults = {
+                bilinear: cropBayer(bilinearResult, 4),
+                edge: cropBayer(edgeResult, 4),
+                colorDiff: cropBayer(colorDiffResult, 4)
+            };
+
+            document.querySelectorAll('.img-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('uploadBtn').classList.add('active');
+            updateDisplay();
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('sizeSelect').addEventListener('change', (e) => {
+    currentSize = parseInt(e.target.value);
+    processImage(imageType);
+});
+
+document.getElementById('zoomSlider').addEventListener('input', (e) => {
+    currentZoom = parseInt(e.target.value);
+    document.getElementById('zoomValue').textContent = currentZoom + 'x';
+    updateDisplay();
+});
+
+document.getElementById('diffBtn').addEventListener('click', () => {
+    showDiff = !showDiff;
+    document.getElementById('diffBtn').textContent = showDiff ? '正常視圖' : '顯示差異';
+    if (showDiff) {
+        document.getElementById('diffBtn').classList.add('active');
+    } else {
+        document.getElementById('diffBtn').classList.remove('active');
+    }
+    updateDisplay();
+});
+
+window.addEventListener('resize', updateDisplay);
+
+// === 初始化:載入第一個測試圖 ===
+processImage(0);
+</script>
+</body>
+</html>
+<!-- 🎨 網頁功能說明
+📋 主要功能
+5 個視覺化面板 - 一次看到原始影像、Bayer 馬賽克,以及 3 種演算法的處理結果
+4 種內建測試圖案 - 幾何圖案、彩色條紋、彩色斜線、同心圓,展示不同場景下的演算法表現
+可上傳自訂圖片 - 體驗真實照片的去馬賽克效果
+解析度調整 (64×64 ~ 192×192) - 較低解析度讓偽色/摩爾紋更明顯
+放大檢視 (1x ~ 4x) - 仔細觀察每個演算法的細節差異
+「顯示差異」模式 ✨ - 高亮放大差異區域,清楚看到演算法失敗的地方
+🔬 三種演算法的真實實作
+演算法 1: 雙線性插值 - 純粹取同色鄰居平均,邊緣會模糊
+演算法 2: 邊緣導向 (Hamilton-Adams) - 透過 G 通道梯度偵測邊緣方向
+演算法 3: 色差相關性 (Malvar-He-Cutler 簡化版) - 利用 G 通道 + R-G/B-G 色差
+-->

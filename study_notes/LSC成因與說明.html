@@ -357,6 +357,9 @@
 <h2>LSC（鏡頭陰影校正）</h2>
 <p>影像調整中 LSC (Lens Shading Correction) 的原因與校正指南在影像訊號處理（ISP）中，鏡頭陰影校正（LSC, Lens Shading Correction）是提升影像品質非常關鍵的一步。如果沒有經過 LSC 校正，拍出來的照片就會出現「中心亮、四周暗」（暗角）或是「中心與四周顏色不一致」（色偏）的問題。</p>
 <h2>一、 鏡頭陰影（Lens Shading）產生的原因鏡頭陰影主要可以分為兩大類：</h2>
+    <div class="img-container">
+        <img src="../image/Study_note_image/LSC/lsc_2.jfif" alt="鏡頭陰影" class="center-img">
+    </div>
 <h3>亮度陰影（Luma Shading / Vignetting）光學暗角（Cos4th Law）：</h3>
 <p>這是物理上不可避免的現象。根據光學理論，到達感光元件（Sensor）表面的光線強度，與光線入射角 θ 的餘弦四次方
 <span class="math-inline">cos<sup>4</sup> θ</span> 成正比。<br />
@@ -366,6 +369,9 @@
 <p>感光元件微透鏡（Micro-lens）的設計有其接收光線的最大角度（CRA）。如果鏡頭出射的 CRA 與 Sensor 的 CRA 不匹配，斜向入射到邊緣的光線就會產生折射偏差，導致光線漏到隔壁的像素（Crosstalk，串擾）。波長與折射率差異：RGB 三原色的波長不同，在鏡頭邊緣折射與穿透微透鏡的效率也不同。這會導致邊緣的 RGB 衰減比例不一致，使照片不只變暗，四周還會泛綠、泛紅或泛紫（即色偏）。</p>
 <h2>二、 鏡頭陰影的校正方式（LSC 演算法與調整步驟）</h2>
 <p>LSC 的核心原理是：透過演算法對影像的四周進行「補償加權（Gain）」，將邊緣的亮度與顏色拉高，使其與中心區域一致。</p>
+    <div class="img-container">
+        <img src="../image/Study_note_image/LSC/lsc_4.jfif" alt="鏡頭陰影校正" class="center-img">
+    </div>
 <h3>1. 校正環境與測試圖卡（Setup）在進行硬體校正（Calibration）前，必須準備標準環境：</h3>
 <ul>
 <li>燈箱：使用均勻度極高（通常要求 &gt;95% 或 98%）的均勻光源燈箱（如 D65, A 光源, TL84）。</li>
@@ -387,7 +393,13 @@
 <h3>3. 補償曲線與數學模型得到網格的 Gain 值後，ISP晶片內部通常會用以下兩種方式來套用校正：</h3>
 <ul>
 <li>Mesh LSC（網格校正）：直接將各節點的 Gain 數值做成一個查詢表（LUT）。當影像通過時，利用雙線性插值（Bilinear Interpolation）計算出網格中每個像素點的精確 Gain 值並乘上去。這是目前手機與高階相機最主流、效果最好的做法，因為它可以校正非對稱性的陰影。</li>
+    <div class="img-container">
+        <img src="../image/Study_note_image/LSC/lsc_5.jfif" alt="Mesh LSC（網格校正）" class="center-img">
+    </div>
 <li>Polynomial LSC（多項式校正）：使用數學函數（如四階或六階的圓對稱多項式 f(r) = 1 + ar² + br⁴ + cr⁶， r 為距中心的距離）來擬合曲線。這種方式佔用記憶體極小，但無法完美校正非對稱的陰影（例如鏡頭組裝偏心導致的陰影偏移）。</li>
+    <div class="img-container">
+        <img src="../image/Study_note_image/LSC/lsc_6.jfif" alt="Polynomial LSC（多項式校正）" class="center-img">
+    </div>
 </ul>
 <h2>三、 LSC 調整時的工程調校權衡（Trade-offs）在實際調校（Tuning）LSC 時，並不是「校正到 100% 完全均勻」就是最好的，通常需要妥協與折衷：</h2>
 <h3>1. 噪點與畫質劣化（Noise Amplification）邊緣的 Gain 值如果補償過大（例如邊緣暗角太嚴重，強行乘以 2.0 或 3.0 倍），邊緣的雜訊（Noise）也會被同步放大 2 到 3 倍。這會導致照片中心很乾淨，但四周邊緣顆粒感極重、畫質崩潰。業界做法：通常不會 100% 完美校正，邊緣通常會刻意保留 10% ~ 20% 的自然暗角（Shading Target 設在 80% ~ 85%），在視覺上較自然，且能抑止邊緣噪點。</h3>

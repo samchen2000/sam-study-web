@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCM (色彩校正矩陣) 計算與說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD; /* 雪花白 */
+            --color-primary-text: #2C3E50; /* 深灰藍 */
+            --color-secondary-text: #6A737D; /* 中性灰 */
+            --color-accent: #E67E22; /* 溫暖橘 */
+            --color-subtle-bg: #FFFBE6; /* 淡米黃 */
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            border-bottom-width: 2px;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            border-bottom: none;
+            color: var(--color-primary-text);
+        }
+
+        h4 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        code {
+            background-color: #f0f0f0;
+            color: var(--color-accent);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        ol, ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        ul li {
+            list-style-type: disc;
+        }
+
+        .formula-block {
+            background-color: var(--color-subtle-bg);
+            border-left: 4px solid var(--color-accent);
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            color: var(--color-primary-text);
+            overflow-x: auto;
+        }
+
+        .formula-block .equation {
+            margin: 0.8rem 0;
+            line-height: 2;
+        }
+
+        .matrix-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .matrix {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 0.5rem;
+        }
+
+        .matrix-paren {
+            font-size: 5em;
+            font-weight: lighter;
+            color: var(--color-secondary-text);
+        }
+
+        .matrix table {
+            display: inline-block;
+            border-collapse: collapse;
+            vertical-align: middle;
+            text-align: center;
+        }
+        
+        .matrix td {
+            padding: 0.3rem 0.6rem;
+        }
+
+        sub {
+            font-size: 0.8em;
+        }
+        
+        .equation {
+            margin: 1rem 0;
+        }
+
+        /* Image Styles */
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .image-caption {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--color-secondary-text);
+            font-style: italic;
+            text-align: center;
+        }
+
+        .image-medium {
+            max-width: 70%;
+        }
+
+        /* Note Box Styles */
+        .note-box {
+            background-color: #FFF8E7;
+            border-left: 4px solid #F39C12;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .note-box-title {
+            font-weight: bold;
+            color: var(--color-primary-text);
+            margin-bottom: 0.5rem;
+            font-family: var(--font-heading);
+        }
+
+        /* Section Divider */
+        .section-divider {
+            border: 0;
+            border-top: 1px dashed #ccc;
+            margin: 3rem 0;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        /* Back to Top Button Styles */
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        /* Subsection Spacing */
+        .sub-section {
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="container">
+        <h1>CCM (Color Correction Matrix, 色彩校正矩陣)</h1>
+        <p>
+            在相機 ISP (Image Signal Processor) 流程中是非常關鍵的一步，它決定了影像最終呈現出來的色彩風格是否準確、討喜。
+        </p>
+        <p>
+            簡單來說，感光元件（Sensor）"看到"的顏色，和人眼"看到"的顏色是不一樣的。CCM 的作用就是充當一個「翻譯官」，把 Sensor 抓到的原始 RGB 數值，轉換成符合人類視覺標準（例如 sRGB 色域）的 RGB 數值。
+        </p>
+
+        <h2>1. CCM 的核心概念與公式</h2>
+        <p>
+            CCM 本質上是一個 3x3 的線性代數矩陣。它透過矩陣乘法，將輸入影像的每一個像素的 R、G、B 三個通道的值重新混合，計算出新的 R、G、B 值。
+        </p>
+        
+        <h3>數學公式</h3>
+        <p>
+            假設輸入像素的顏色向量是 
+            <span class="matrix">
+                <table>
+                    <tr><td>R<sub>in</sub></td></tr>
+                    <tr><td>G<sub>in</sub></td></tr>
+                    <tr><td>B<sub>in</sub></td></tr>
+                </table>
+            </span>，
+            輸出像素的顏色向量是 
+            <span class="matrix">
+                <table>
+                    <tr><td>R<sub>out</sub></td></tr>
+                    <tr><td>G<sub>out</sub></td></tr>
+                    <tr><td>B<sub>out</sub></td></tr>
+                </table>
+            </span>，
+            而 CCM 矩陣為 <code>M</code>：
+        </p>
+
+        <div class="formula-block">
+            <div class="matrix-container">
+                <span>M =</span>
+                <div class="matrix">
+                    <span class="matrix-paren">[</span>
+                    <table>
+                        <tr><td>C<sub>rr</sub></td><td>C<sub>rg</sub></td><td>C<sub>rb</sub></td></tr>
+                        <tr><td>C<sub>gr</sub></td><td>C<sub>gg</sub></td><td>C<sub>gb</sub></td></tr>
+                        <tr><td>C<sub>br</sub></td><td>C<sub>bg</sub></td><td>C<sub>bb</sub></td></tr>
+                    </table>
+                    <span class="matrix-paren">]</span>
+                </div>
+            </div>
+        </div>
+
+        <p>那麼校正過程就是：</p>
+
+        <div class="formula-block">
+            <div class="matrix-container">
+                <div class="matrix">
+                    <span class="matrix-paren">[</span>
+                    <table>
+                        <tr><td>R<sub>out</sub></td></tr>
+                        <tr><td>G<sub>out</sub></td></tr>
+                        <tr><td>B<sub>out</sub></td></tr>
+                    </table>
+                    <span class="matrix-paren">]</span>
+                </div>
+                <span>=</span>
+                <div class="matrix">
+                    <span class="matrix-paren">[</span>
+                    <table>
+                        <tr><td>C<sub>rr</sub></td><td>C<sub>rg</sub></td><td>C<sub>rb</sub></td></tr>
+                        <tr><td>C<sub>gr</sub></td><td>C<sub>gg</sub></td><td>C<sub>gb</sub></td></tr>
+                        <tr><td>C<sub>br</sub></td><td>C<sub>bg</sub></td><td>C<sub>bb</sub></td></tr>
+                    </table>
+                    <span class="matrix-paren">]</span>
+                </div>
+                <span>×</span>
+                <div class="matrix">
+                    <span class="matrix-paren">[</span>
+                    <table>
+                        <tr><td>R<sub>in</sub></td></tr>
+                        <tr><td>G<sub>in</sub></td></tr>
+                        <tr><td>B<sub>in</sub></td></tr>
+                    </table>
+                    <span class="matrix-paren">]</span>
+                </div>
+            </div>
+        </div>
+
+        <p>展開來看，新的紅色通道 <code>R<sub>out</sub></code> 是由原本的 R, G, B 按比例混合而成的：</p>
+        
+        <div class="formula-block">
+            <div class="equation">R<sub>out</sub> = C<sub>rr</sub> ⋅ R<sub>in</sub> + C<sub>rg</sub> ⋅ G<sub>in</sub> + C<sub>rb</sub> ⋅ B<sub>in</sub></div>
+            <div class="equation">G<sub>out</sub> = C<sub>gr</sub> ⋅ R<sub>in</sub> + C<sub>gg</sub> ⋅ G<sub>in</sub> + C<sub>gb</sub> ⋅ B<sub>in</sub></div>
+            <div class="equation">B<sub>out</sub> = C<sub>br</sub> ⋅ R<sub>in</sub> + C<sub>bg</sub> ⋅ G<sub>in</sub> + C<sub>bb</sub> ⋅ B<sub>in</sub></div>
+        </div>
+
+        <h2>2. CCM 影像調整流程</h2>
+        
+        <h3>2.1 準備工作</h3>
+        <ul>
+            <li><strong>拍攝設備：</strong>架設好相機或鏡頭模組，確保在標準光源（如 D65、A 光源）下進行。</li>
+            <li><strong>測試卡：</strong>使用標準色彩測試卡（例如 Imatest 常搭配的 Colorchecker 色卡）。</li>
+            <li><strong>前置處理：</strong>確保已完成黑準（BLC）與白平衡（AWB）校正，白平衡正確後才能調校 CCM。</li>
+        </ul>
+
+        <h3>2.2 調整步驟</h3>
+        <ol>
+            <li><strong>擷取 Raw 影像：</strong>在標準燈箱下拍攝色卡，取得未加工的原始 RAW 圖像數據。</li>
+            <li><strong>設定初始矩陣：</strong>將 CCM 參數重設為單位矩陣（對角線為 1，其餘為 0），先確保不干擾原始畫面。</li>
+            <li><strong>擷取色塊數值：</strong>分析色卡上各個色塊的實際拍攝 RGB 值，並對比標準色卡的標準色值。</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="../image/Study_note_image/CCM_1/24color_Lab.png" alt="24colorchart_Lab" class="image-medium">
+            <p class="image-caption">圖 1：24 色標準色卡 (Colorchecker)</p>
+        </div>
+
+        <ol start="4">
+            <li><strong>計算校正矩陣：</strong>利用最小平方法（Least Squares Method）等演算法，計算出能將實際顏色轉換到目標值的 3 × 3 矩陣係數。</li>
+            <li><strong>約束條件檢查：</strong>套用矩陣時需確保每行係數和為 1（即 R+G+B = 1），以維持白色區域不跑色、不破壞白平衡。</li>
+            <li><strong>微調飽和度：</strong>根據主觀視覺或色差指標（如 ΔE），微調矩陣中的飽和度強弱，完成最終燒錄與驗證。</li>
+        </ol>
+
+        <h3>2.3 調整技巧</h3>
+        <p>以下是實務上調整 CCM 矩陣時常見的色彩偏移與對應的調整方向：</p>
+
+        <div class="image-container">
+            <img src="../image/Study_note_image/CCM_1/CCM_1_1.PNG" alt="調整矩陣">
+            <p class="image-caption">圖 2：CCM 矩陣調整示意圖</p>
+        </div>
+
+        <ul>
+            <li><strong>紅偏橘：</strong>減小 <code>rg</code>，或增大 <code>rb</code></li>
+            <li><strong>紅偏粉：</strong>增大 <code>rg</code>，或減小 <code>rb</code></li>
+            <li><strong>綠更嫩：</strong>減小 <code>gb</code>，同時減小 <code>gr</code></li>
+            <li><strong>膚色偏黃：</strong>增大 <code>gb</code></li>
+            <li><strong>膚色希望偏紅：</strong>減小 <code>br</code>，或增大 <code>bg</code></li>
+            <li><strong>黃偏紅：</strong>增大 <code>br</code>，或減小 <code>bg</code></li>
+            <li><strong>紅色變深：</strong>減小 <code>rg</code>，同時減小 <code>rb</code></li>
+            <li><strong>黃偏綠 / 藍偏紫：</strong>減小 <code>br</code>，或增大 <code>bg</code></li>
+            <li><strong>黃偏紅 / 藍偏青：</strong>增大 <code>br</code>，或減小 <code>bg</code></li>
+        </ul>
+
+        <div class="image-container">
+            <img src="../image/Study_note_image/isp_tuneing_process/ccm_5.png" alt="調整方向">
+            <p class="image-caption">圖 3：CCM 色彩調整方向總覽</p>
+        </div>
+
+        <h2>3. 關鍵特性 (Sam 的小筆記)</h2>
+        <ol>
+            <li><strong>對角線元素 (Diagonal Elements)：</strong> <code>C<sub>rr</sub></code>, <code>C<sub>gg</sub></code>, <code>C<sub>bb</sub></code> 通常接近 1.0，代表保留原始通道的主要成分。</li>
+            <li><strong>非對角線元素 (Off-diagonal Elements)：</strong> 用來引入其他通道的顏色進行修正。例如 <code>C<sub>rg</sub></code> 是負值時，表示為了讓紅色更純淨，需要減去一些綠色的成分。</li>
+            <li><strong>白平衡保持 (White Balance Preservation)：</strong> 理想情況下，CCM 每一列（Row）的總和應該等於 1（例如 <code>C<sub>rr</sub> + C<sub>rg</sub> + C<sub>rb</sub> = 1</code>）。這樣能確保純白色經過轉換後依然是純白色，不會偏色。</li>
+            <li><strong>線性域操作：</strong> 標準的 CCM 運算應該在「線性 RGB 空間」進行。也就是說，輸入影像如果已經經過 Gamma 校正（如常見的 JPG），理論上要先「反 Gamma (De-Gamma)」，做完 CCM 後再乘回 Gamma。</li>
+        </ol>
+
+        <hr class="section-divider">
+
+        <h2>4. Delta E (ΔE) 與 Delta C (ΔC) 的計算</h2>
+        <p>
+            在色彩校正矩陣（CCM）的計算與評估中，Delta E (ΔE) 與 Delta C (ΔC) 是衡量色彩準確度的核心指標。這些指標通常在 CIELAB 色彩空間中計算，透過量化「拍攝值」與「標準參考值」之間的距離來評估校正效果。
+        </p>
+
+        <h3>4.1 Delta E (ΔE) 的計算方式</h3>
+        <p>
+            Delta E 代表的是兩個色彩在三維色彩空間中的總體感知差異，包含了亮度（<code>L*</code>）與色度（<code>a*</code>, <code>b*</code>）的特徵。
+        </p>
+
+        <h4>CIE 1976 (ΔE*<sub>ab</sub>)：最基礎的計算方式</h4>
+        <p>採用歐幾里得距離（Euclidean distance）公式：</p>
+        <div class="formula-block">
+            <div class="equation">ΔE*<sub>ab</sub> = √[(L*<sub>2</sub> − L*<sub>1</sub>)² + (a*<sub>2</sub> − a*<sub>1</sub>)² + (b*<sub>2</sub> − b*<sub>1</sub>)²]</div>
+        </div>
+        <p>
+            其中 <code>L*</code> 為感知亮度，<code>a*</code> 為紅/綠軸，<code>b*</code> 為黃/藍軸。
+        </p>
+
+        <h4>優化公式</h4>
+        <p>由於人類視覺對不同色調的敏感度不同，簡單的歐氏距離無法完全反應感知差異，因此後續發展出更複雜的加權公式：</p>
+        <ul>
+            <li><strong>CIE 1994 (ΔE 94)：</strong>引入加權因子，提高了在強烈色彩下的感知相關性。</li>
+            <li><strong>CIEDE2000 (ΔE 00)：</strong>目前的黃金標準，針對人眼對色相感應的非線性（如藍色區域與皮膚色調）進行了修正。</li>
+        </ul>
+
+        <h3>4.2 Delta C (ΔC) 的計算方式</h3>
+        <p>Delta C 僅衡量色度差異，忽略了亮度（<code>L*</code>）的影響。</p>
+        <p><strong>基礎計算公式：</strong>即在 <code>a*b*</code> 平面上的幾何距離：</p>
+        <div class="formula-block">
+            <div class="equation">ΔC* = √[(a*<sub>2</sub> − a*<sub>1</sub>)² + (b*<sub>2</sub> − b*<sub>1</sub>)²]</div>
+        </div>
+
+        <p><strong>飽和度校正（Saturation Correction）：</strong>在 CCM 調校中，有時會計算「飽和度校正後」的 ΔC。這會先將測量到的飽和度標準化為與參考值相同，以排除相機人為提升飽和度（使畫面變豔麗）所帶來的誤差，進而觀察純粹的色彩準確性。</p>
+
+        <h3>4.3 CCM 調校中常用的標準與指標</h3>
+        <p>CCM 的優化目標通常是使測試圖卡（如 24 色卡）中各色塊的平均平方色彩誤差最小化。</p>
+
+        <div class="note-box">
+            <div class="note-box-title">建議優化指標</div>
+            <p>專業軟體（如 Imatest）強烈建議使用 <code>ΔE<sub>2000</sub></code> 或 <code>ΔE<sub>94</sub></code> 作為優化指標，因為它們比基礎的 <code>ΔE<sub>ab</sub></code> 更接近人眼的實際視覺感受。</p>
+        </div>
+
+        <h4>誤差數值標準：</h4>
+        <ul>
+            <li><strong>ΔE = 0：</strong>完全無差異（理想狀態，現實中極難達成）。</li>
+            <li><strong>ΔE &lt; 1：</strong>肉眼幾乎無法察覺差異。</li>
+            <li><strong>ΔE ≤ 2：</strong>專業顯示器與高精度要求的色彩重現標準。</li>
+            <li><strong>ΔE = 3 ~ 6：</strong>商業印刷與一般影像重現可接受的範圍。</li>
+        </ul>
+
+        <p><strong>典型相機表現：</strong>標準三色（RGB）感測器經過 CCM 校正後，最小平均 <code>ΔE<sub>2000</sub></code> 通常落在 3 左右。</p>
+
+        <h3>4.4 應用限制</h3>
+        <p>
+            需注意的是，CCM 本質上是一種線性變換，而人眼與感測器的光譜靈敏度並不完全一致，因此無法達到完美的零誤差。在優化過程中，通常會設定「行總和為 1」的約束條件，以確保校正色彩的同時不會破壞既有的白平衡（即確保 R=G=B 的輸入在校正後依然 R' = G' = B'）。
+        </p>
+
+        <hr class="section-divider">
+
+        <h2>5. ISP 中 CCM 的動態調節邏輯</h2>
+        <p>
+            在圖像信號處理（ISP）管線中，色彩校正矩陣（CCM）的動態調節邏輯是為了應對現實世界中多變的光照環境、色溫及場景內容，確保相機能在各種條件下還原出準確且符合主觀美感的色彩。
+        </p>
+        <p>以下是 CCM 動態調節的核心邏輯與機制：</p>
+
+        <h3>5.1 核心邏輯：自動白平衡（AWB）連動機制</h3>
+        <p>CCM 的調節通常與 AWB 模組緊密連動，這是動態調節中最基礎且最重要的部分。</p>
+        <ul>
+            <li><strong>多色溫標定（Multi-CCT Calibration）：</strong>在調校階段，工程師會針對數個標準光源（例如：D65 晴天、TL84 螢光燈、A 光源白熾燈）分別計算出對應的固定 CCM 矩陣。</li>
+            <li><strong>權重內插（Interpolation）：</strong>當相機運行時，AWB 會計算出當前環境的相關色溫（CCT）。若當前色溫處於兩個標定光源之間，ISP 會根據權重對這兩組 CCM 矩陣進行線性內插計算，動態生成最適合當前光學環境的矩陣。</li>
+        </ul>
+
+        <h3>5.2 環境亮度與增益調節（Luma/Gain Adaptive）</h3>
+        <p>為了平衡色彩表現與影像噪點，CCM 會根據光照強度動態調整：</p>
+        <ul>
+            <li><strong>低照度抑制：</strong>在光線不足（Low Light）的環境下，為了避免 CCM 放大感測器的原始噪點，ISP 可能會動態降低 CCM 的飽和度係數（縮小矩陣非對角線的值），以犧牲部分色彩鮮豔度來換取更純淨的畫面。</li>
+            <li><strong>高動態範圍（HDR）適配：</strong>在 HDR 模式下，不同曝光權重的區域可能需要不同的色彩補償處理。</li>
+        </ul>
+
+        <h3>5.3 色溫分區與場景保護策略</h3>
+        <p>單一的線性內插有時無法處理複雜的混合光源，因此現代 ISP 引入了更細緻的分區邏輯：</p>
+        <ul>
+            <li><strong>色溫分區（CCT Zoning）：</strong>針對特定色溫區間設定專屬矩陣，避免在暖色燈光下出現人臉過於偏黃或偏紅的問題。</li>
+            <li><strong>膚色保護（Skin Tone Protection）：</strong>ISP 會識別影像中的膚色區域，動態微調該區域的色彩向量，確保在改善整體環境色偏時，人臉膚色依然保持自然穩定。</li>
+        </ul>
+
+        <h3>5.4 AI 場景識別與記憶色彩優化</h3>
+        <p>現代智慧型手機 ISP（如高通 QCOM、聯發科 MTK）會結合 AI 演算法進行動態適配：</p>
+        <ul>
+            <li><strong>場景適配：</strong>當 AI 識別出「綠地」、「藍天」或「夕陽」等場景時，會動態加強矩陣中特定通道的比例，使記憶色彩更加討喜。</li>
+            <li><strong>混合光源處理：</strong>在室內外混合光源下，AI 能協助判斷主光源權重，選取更精準的 CCM 補償策略。</li>
+        </ul>
+
+        <h3>5.5 硬體平台實現路徑</h3>
+        <p>在實際工程應用中，不同平台有不同的實現路徑：</p>
+        <p>
+            <strong>QCOM / MTK / HiSilicon：</strong>這些主流平台皆支持多組 CCM 參數的動態加載與過渡，並提供圖形化工具讓工程師設定色溫觸發點與平滑過渡曲線，避免畫面在切換光源時出現明顯的「跳色」現象。
+        </p>
+
+        <div class="note-box">
+            <p>總結來說，CCM 的動態調節邏輯是從<strong>「基於色溫的線性內插」出發，進一步融合「亮度感應」與「AI 場景識別」</strong>的多維度優化過程。</p>
+        </div>
+
+        <hr class="section-divider">
+
+        <h2>6. CCM 標定的多色溫矩陣如何內插</h2>
+        <p>
+            在 ISP（圖像信號處理）管線中，CCM（色彩校正矩陣）的動態調節主要透過與 AWB（自動白平衡）模組聯動，利用「多色溫標定」搭配「線性內插」來實現。
+        </p>
+        <p>以下是多色溫矩陣內插的具體實現邏輯：</p>
+
+        <h3>6.1 標定階段：建立基礎矩陣庫</h3>
+        <p>在實驗室環境下，工程師會使用標準色卡（如 24 色卡）在多種標準光源下進行拍攝與計算。</p>
+        <p>常見的標定組合包括：</p>
+        <ul>
+            <li><strong>三組標定：</strong>D50（日光）、TL84（螢光燈）、A 光源（鎢絲燈）。</li>
+            <li><strong>五組標定：</strong>10K（高色溫日光）、D65、D50、TL84、A 光源。</li>
+        </ul>
+        <p>針對每一種光源，都會計算出一組最佳化的 3x3 矩陣參數。</p>
+
+        <h3>6.2 運行階段：AWB 聯動與色溫偵測</h3>
+        <p>
+            當相機實際運行時，系統無法得知精確的光源類型，因此會透過 AWB 模組計算出當前環境的相關色溫（CCT, Correlated Color Temperature）。
+        </p>
+
+        <h3>6.3 內插邏輯（Interpolation）</h3>
+        <p>
+            當偵測到的色溫介於兩組標定光源之間時，ISP 會根據權重對這兩組 CCM 矩陣的每一個係數進行線性內插，動態生成一組新的矩陣。
+        </p>
+        <p><strong>數學原理：</strong> 假設偵測到的色溫為 T，它落在標定色溫 <code>T<sub>low</sub></code> 與 <code>T<sub>high</sub></code> 之間。</p>
+
+        <div class="formula-block">
+            <div class="equation">計算權重：w = (T − T<sub>low</sub>) / (T<sub>high</sub> − T<sub>low</sub>)</div>
+            <div class="equation">最終矩陣：M<sub>final</sub> = (1 − w) × M<sub>low</sub> + w × M<sub>high</sub></div>
+        </div>
+
+        <p>矩陣中的 9 個係數（<code>C<sub>00</sub></code> 到 <code>C<sub>22</sub></code>）均會依照此權重重新組合。</p>
+
+        <h3>6.4 內插時的約束條件</h3>
+        <p>為了確保內插後的色彩過渡平滑且不產生異常，通常會遵守以下邏輯：</p>
+        <ul>
+            <li><strong>保持白平衡：</strong>確保內插後的矩陣每一行之總和依然為 1（即 <code>C<sub>i0</sub> + C<sub>i1</sub> + C<sub>i2</sub> = 1</code>），這樣即使在內插過程中，白色區域依然能保持 R=G=B 的特性，不會發生偏色。</li>
+            <li><strong>色溫分區策略：</strong>現代 ISP（如高通 QCOM、聯發科 MTK）會設定多個色溫區間點，並提供平滑過渡曲線，防止在光源切換時畫面色彩出現明顯跳變。</li>
+        </ul>
+
+        <h3>6.5 其他影響因素的綜合調整</h3>
+        <p>
+            除了單純的色溫內插，部分 ISP 還會根據<strong>曝光增益（Gain）</strong>或 AI 場景識別結果來微調內插權重。例如在低照度（高增益）下，可能會動態縮小矩陣非對角線係數的權重，以抑制因色彩校正而放大的噪點。
+        </p>
+
+        </div>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

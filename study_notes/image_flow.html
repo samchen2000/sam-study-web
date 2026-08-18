@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image 影像轉換與說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --color-bg: #FDFDFD; /* 雪花白 */
+            --color-primary-text: #2C3E50; /* 深灰藍 */
+            --color-secondary-text: #6A737D; /* 中性灰 */
+            --color-accent: #E67E22; /* 溫暖橘 */
+            --color-subtle-bg: #FFFBE6; /* 淡米黃 */
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Back to Top Button Styles */
+        #back-to-top-btn {
+            display: none; /* Hidden by default */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400; /* Darker orange */
+        }
+
+        /* image size */
+        .img-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .img-container img {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .img-caption {
+            font-size: 0.95rem;
+            color: var(--color-secondary-text);
+            text-align: center;
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
+        /* Code/Pipeline block style */
+        .code-block {
+            background-color: #2C3E50;
+            color: #ecf0f1;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #e0e0e0;
+            padding: 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .comparison-table th {
+            background-color: var(--color-subtle-bg);
+            color: var(--color-primary-text);
+            font-family: var(--font-heading);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>Image 影像轉換與說明</h1>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/image_flow/image_flow_1.jfif" alt="影像處理工作流程">
+                <div class="img-caption">影像處理工作流程</div>
+            </div>
+
+            <p>圖像信號處理（Image Signal Processor, ISP）的工作流程是將感測器（Sensor）輸出的原始數據（RAW Data）轉換為高品質數位影像的一系列複雜步驟。以下依據提供資料詳細說明 ISP 的主要處理階段與功能：</p>
+
+            <h3>1. 原始數據獲取與預處理 (RAW Data Stage)</h3>
+            <p>影像處理始於相機感測器捕捉到的 RAW 圖。</p>
+            <ul>
+                <li><strong>Bayer 模式擷取：</strong>多數彩色感測器使用 Bayer 濾光片，每個像素僅檢測紅、綠、藍三原色中的一種，此時影像仍為「馬賽克」狀態。</li>
+                <li><strong>黑電平校正 (BLC, Black Level Correction)：</strong>校正感測器在全黑環境下的基礎輸出值。</li>
+                <li><strong>鏡頭陰影校正 (LSC, Lens Shading Correction)：</strong>修正因鏡頭光學特性（如凸透鏡中心聚光強、邊緣弱）導致的影像中心與四周亮度不均（Luma Shading）或偏色（Color Shading）問題。</li>
+            </ul>
+
+            <h3>2. 色彩還原與白平衡 (Color Restoration & Balancing)</h3>
+            <p>此階段旨在將單色像素資訊轉化為彩色，並修正環境光造成的色偏。</p>
+            <ul>
+                <li><strong>去馬賽克 (Demosaicing / Debayer)：</strong>透過插值演算法，計算出每個像素丟失的另外兩種顏色資訊，使每個像素都具備完整 RGB 值。</li>
+                <li><strong>自動白平衡 (AWB, Auto White Balance)：</strong>針對不同色溫環境進行歸一化處理，調整不同通道的增益（Gain），使畫面中的中性區域（如白色）在數值上滿足 R'=G'=B'。</li>
+            </ul>
+
+            <h3>3. 色彩校正矩陣 (CCM, Color Correction Matrix)</h3>
+            <p>CCM 是 ISP 管線中決定色彩還原精度的核心模組，通常位於 AWB 之後。</p>
+            <ul>
+                <li><strong>功能：</strong>由於感測器對光譜的靈敏度與人眼不同，且濾鏡可能出現色彩混疊。CCM 利用一個 3x3 矩陣 將像素從感測器特定的 RGB 空間映射到標準色彩空間（如 sRGB 或 Display P3）。</li>
+                <li><strong>線性化要求：</strong>CCM 的矩陣運算必須在線性數據上執行。如果輸入已是經過 Gamma 編碼的非線性影像，必須先進行去編碼（Linearization）。</li>
+                <li><strong>約束條件：</strong>運算時需遵循「行總和為 1」的原則，以確保在校正其他色彩時不會破壞既有的白平衡。</li>
+            </ul>
+
+            <h3>4. 影像增強與最終輸出 (Enhancement & Output)</h3>
+            <p>校正完色彩後，ISP 會進行最終的視覺優化。</p>
+            <ul>
+                <li><strong>Gamma 校正：</strong>由於人眼對亮度的感受是非線性的，ISP 會應用 Gamma 曲線 將線性影像數據轉換為非線性，使其更貼近人眼所見的視覺效果。</li>
+                <li><strong>色彩處理 (CPROC) 與後處理：</strong>包含對比度調整、飽和度增強以及動態範圍（HDR）優化等步驟。</li>
+                <li><strong>其餘高級處理：</strong>包含 3D-LUT（三維查找表）色彩精細映射、降噪（Denoise）、銳化（Sharpen）與鏡頭畸變校正等。</li>
+            </ul>
+
+            <h3>ISP 簡化流水線：</h3>
+            <div class="code-block">
+                RAW 數據 → BLC → LSC → AWB → Demosaic → CCM → Gamma → CPROC → RGB 影像。
+            </div>
+
+            <h2>RAW 圖——相機 sensor 獲取到的原始圖像</h2>
+            <p>多數的彩色圖像傳感器使用 Bayer 模式，bayer 模式顏色傳感器是採用紅、綠、藍濾片，使用插值算法進行色彩還原。因此，每個像素只能檢測一種顏色，即「看到」紅色，綠色或藍色。</p>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/CCM_1/raw_file.PNG" alt="RAW圖">
+                <div class="img-caption">傳感器信號不包含顏色信息，每個像素代表一種顏色</div>
+            </div>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/CCM_1/raw_file_1.PNG" alt="RAW圖局部細節">
+                <div class="img-caption">RAW 圖局部細節</div>
+            </div>
+
+            <h2>黑電平校正（BLC, Black Level Correction）</h2>
+            <p>BLC（Black Level Correction，黑電平校正）是 ISP 流程中的前端校正步驟，用來扣除 sensor 在無光或低光時仍會輸出的底部偏移值，使 RAW 的黑位回到接近 0。這個偏移通常來自暗電流、器件偏置、ADC pedestal，以及讀出電路的固定誤差。</p>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/BLC/BLC.png" alt="BLC 校正前">
+                <div class="img-caption">BLC 校正前</div>
+            </div>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/BLC/BLC_1.png" alt="BLC 校正後">
+                <div class="img-caption">BLC 校正後</div>
+            </div>
+
+            <h2>鏡頭陰影校正（LSC, Lens Shading Correction）</h2>
+            <p>鏡頭陰影校正（LSC, Lens Shading Correction）是提升影像品質非常關鍵的一步。如果沒有經過 LSC 校正，拍出來的照片就會出現「中心亮、四周暗」（暗角）或是「中心與四周顏色不一致」（色偏）的問題。</p>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/LSC/lsc_3.jfif" alt="LSC">
+                <div class="img-caption">鏡頭陰影校正示意</div>
+            </div>
+
+            <h2>去馬賽克（Demosaicing / Debayer）</h2>
+            <p>為獲得每個像素的紅色，綠色和藍色信息，「去馬賽克」的重要步驟是對丟失的信息進行插值。這是圖像質量中至關重要的部分，因此，每個製造商對其詳細操作都應保密。由於不同的濾光片導致對光的靈敏度不同且信號強度較低，因此噪聲級別可能會非常不同。在去馬賽克過程中，噪聲在相鄰之間擴散，不同顏色通道中的噪聲相互關聯。</p>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/CCM_1/Demosaic_1.PNG" alt="Demosaic 示意圖">
+                <div class="img-caption">影像進行去馬賽克（Demosaic）後畫面偏綠</div>
+            </div>
+
+            <ul>
+                <li>影像進行去馬賽克（Demosaic）後畫面偏綠，最核心的原因是感光元件（Sensor）上的拜爾濾色鏡（Bayer Filter）中，綠色像素的數量是紅、藍像素的兩倍。</li>
+                <li>大多數感光元件表面覆蓋著 Bayer 陣列，其色彩單元由 1 個紅（R）、1 個藍（B）和 2 個綠（G）組成（佔比為 25% R、25% B、50% G）。</li>
+                <li>此設計是為了模擬人類視覺。人眼視網膜對綠色波長（約 550nm）的亮度和細節最為敏感。</li>
+                <li>由於感光元件上天生有一半的像素都在接收綠色光，原始數據（Raw Data）本身的綠色訊號量就遠大於紅、藍訊號。</li>
+            </ul>
+
+            <h2>白平衡（AWB, Auto White Balance）</h2>
+            <p>在數碼相機中，不同顏色通道的靈敏度可能會非常不同。為了獲得正確的色彩，使它們出現在人的視覺系統中，攝像機會以不同的方式控制不同通道的增益。經過白平衡後，圖像中的中性區域顯得中性，並且紅色，綠色和藍色的數字值幾乎相同。</p>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/image_flow/image_flow_3.png" alt="AWB 圖">
+                <div class="img-caption">AWB 自動白平衡處理示意</div>
+            </div>
+
+            <h2>色彩校正矩陣（CCM, Color Correction Matrix）</h2>
+            <p>每個攝像機都有各自的光譜靈敏度。因此，每個攝像機都具有特定的 RGB 輸出。為了獲得所有相機的一致結果，必須將此 RGB_camera 轉換為標準的已知色彩空間。在一般情況下是 sRGB，但可以是任何其他顏色空間。要將值從 RGB_camera 轉換為 sRGB，必須對數據應用 3×3 色彩校正矩陣（CCM）。</p>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/image_flow/image_flow_4.png" alt="CCM 圖">
+                <div class="img-caption">CCM 色彩校正矩陣處理示意</div>
+            </div>
+
+            <h2>Gamma 校正（亮度曲線校正）</h2>
+            <p>到目前步驟為止，圖像數據仍然是線性的。因此，將光強度加倍會使圖像中的數字值加倍，而不管圖像是在暗區還是在亮區進行檢查。為了在輸出設備上獲得正確的表示，通常在圖像上應用 gamma 功能。此色調曲線應用在圖像處理的最後階段，因為從現在開始，圖像數據變得非線性，開始接近於人眼所看到的圖像畫面。</p>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/image_flow/image_flow_5.png" alt="Gamma 圖">
+                <div class="img-caption">Gamma 校正處理示意</div>
+            </div>
+
+            <h2>色彩處理（CPROC）</h2>
+            <p>在相機的影像信號處理（ISP）管線中，CPROC（Color Processing，色彩處理）通常位於色彩空間轉換與伽馬校正等核心基礎處理之後、輸出最終 RGB 影像前的階段。它是針對影像進行主觀畫質微調（Fine-tuning）與色彩風格化（Styling）的重要模組。</p>
+
+            <p><strong>主要調整項目：</strong></p>
+            <ol>
+                <li>飽和度（Saturation）</li>
+                <li>色相（Hue）</li>
+                <li>亮度 / 明度（Brightness / Value）</li>
+                <li>對比度（Contrast）（部分平台或架構會納入 CPROC 範疇）</li>
+            </ol>
+
+            <div class="img-container">
+                <img src="../image/Study_note_image/image_flow/image_flow_6.png" alt="色彩處理">
+                <div class="img-caption">CPROC 色彩處理示意</div>
+            </div>
+
+            <h2>建議與說明</h2>
+
+            <h3>AWB（自動白平衡）應該在 Demosaic（去馬賽克）之前執行</h3>
+            <p>這是目前主流 ISP 架構（如行動裝置或 GPU ISP）中較正確且普遍的順序。以下詳細說明其流程邏輯與對影像品質的影響：</p>
+
+            <h4>1. 正確的處理流程</h4>
+            <p>根據資料，標準的高品質 ISP 流水線為：</p>
+            <div class="code-block">
+                RAW 數據 → BLC → LSC → AWB → Demosaic → CCM → ...
+            </div>
+            <p>在此流程中，AWB 的「增益應用（Gain Application）」是在 Bayer 原始數據域（Bayer Domain）進行的。</p>
+
+            <h4>2. AWB 在 Demosaic 之前執行的原因</h4>
+            <ul>
+                <li><strong>插值準確性與防止偏色：</strong>Demosaic 本質上是一個插值（Interpolation）過程，利用相鄰像素計算出缺失的顏色資訊。如果不同通道（R、G、B）的增益在插值前沒有先進行歸一化（即 AWB 校正），插值計算會因為像素間原始亮度的巨大差異而產生彩色偽影或邊緣色彩異常。</li>
+                <li><strong>線性特性一致性：</strong>RAW 數據在 Demosaic 之前是完美的線性數據。AWB 的增益調整是一個簡單的線性乘法運算（R′ = R × R_Gain）。在 Bayer 域進行校正能確保插值過程是在「平衡」後的線性數據上執行的。</li>
+                <li><strong>計算效率：</strong>在 Bayer 域應用 AWB 增益，只需要對每個像素進行一次乘法，比 Demosaic 後對三個完整的 RGB 通道進行運算更節省計算資源。</li>
+            </ul>
+
+            <h4>3. 順序對影像品質的影響</h4>
+            <p>若將 AWB 放在 Demosaic 之後做，會產生以下負面影響：</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>影響維度</th>
+                        <th>AWB 在 Demosaic 前做（推薦）</th>
+                        <th>AWB 在 Demosaic 後做</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>插值偽影</td>
+                        <td>較少，因為 R/G/B 通道已歸一化，邊緣計算較準確。</td>
+                        <td>較多，插值算法會放大通道間的原始不平衡，導致邊緣出現紫邊或偽色。</td>
+                    </tr>
+                    <tr>
+                        <td>噪聲控制</td>
+                        <td>有利。噪聲在 Demosaic 之前是獨立的，AWB 增益應用較單純。</td>
+                        <td>不利。Demosaic 會將噪聲擴散至相鄰像素，此時再做 AWB 會放大已關聯的噪聲。</td>
+                    </tr>
+                    <tr>
+                        <td>色彩準確度</td>
+                        <td>高。CCM 可以直接在已平衡的 RGB 空間進行更精確的映射。</td>
+                        <td>低。CCM 必須基於正確的白平衡點，否則會導致嚴重的色彩偏移。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>4. 與後續模組（CCM）的連動</h4>
+            <p>資料強調 CCM 必須在 AWB 之後執行。</p>
+            <ul>
+                <li><strong>原因：</strong>AWB 的目的是將「白色」校準為 R=G=B；而 CCM 的作用是在保持「白色」不變的前提下，將其他顏色校正到精確的目標空間。</li>
+                <li><strong>約束：</strong>為了不破壞已完成的白平衡，CCM 矩陣通常會限制「每一行的總和必須為 1」，確保 R=G=B 的輸入經過矩陣運算後依然輸出 $R^′ = G^′ = B^′$。</li>
+            </ul>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        // Get the button
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

@@ -181,6 +181,10 @@
             <p>Q-13 圖表通常是一個包含一系列灰階色塊的圖表，這些色塊從純黑到純白，中間有不同級別的灰色。它的主要規範和目的是：</p>
             <ul>
                 <li><strong>灰階色塊的數量與分佈：</strong>Q-13 圖表通常包含 11 到 21 個灰階色塊，這些色塊的反射密度值（或亮度值）是經過精確校準的，以提供一個線性或對數分佈的亮度變化。這使得我們可以測量相機在整個亮度範圍內的響應。</li>
+                    <div class="image-container">
+                        <img src="../image/Study_note_image/gamma/Q_13_chart.png" alt="Q_13_chart" class="image-medium">
+                        <p class="image-caption">圖 1：Q-13 chart (Gary Step Chart)</p>
+                    </div>
                 <li><strong>均勻性：</strong>每個灰階色塊的顏色和亮度都應該是高度均勻的，沒有紋理或雜訊，以確保測量的準確性。</li>
                 <li><strong>無色彩偏移：</strong>灰階色塊應是中性的灰色，不帶任何色彩偏向，以避免干擾亮度響應的測量。</li>
                 <li><strong>反射率：</strong>每個色塊的反射率是關鍵。它們的反射密度（Optical Density）通常是已知的，Imatest 會使用這些參考值來與相機捕獲到的亮度值進行比較。例如，一個典型的 Q-13 圖表可能包含從 Dmin (最小密度，最亮白) 到 Dmax (最大密度，最暗黑) 的灰階。</li>
@@ -188,6 +192,10 @@
 
             <h2>Imatest 如何使用 Q-13 圖表進行 Gamma 測試</h2>
             <p>Imatest 軟體（特別是 Stepchart 或 Color/Tone Interactive 模組）在使用 Q-13 圖表進行 Gamma 測試時，會遵循以下步驟：</p>
+                <div class="image-container">
+                    <img src="../image/Study_note_image/gamma/gamma_4.jfif" alt="使用Q-13 Chart 驗證影像gamma曲線示意圖" class="image-medium">
+                    <p class="image-caption">圖 2：使用Q-13 Chart 驗證影像gamma曲線示意圖</p>
+                </div>
             <ol>
                 <li><strong>拍攝 Q-13 圖表：</strong>
                     <ul>
@@ -218,8 +226,20 @@
                 <li><strong>結果報告：</strong>
                     <ul>
                         <li>Imatest 會輸出計算出的 Gamma 值。</li>
+                            <div class="image-container">
+                                <img src="../image/Study_note_image/gamma/gamma_step_1.png" alt="gamma_1" class="image-medium">
+                                <p class="image-caption">圖 3：Gamma 值</p>
+                            </div>
                         <li>它還會顯示曲線圖，視覺化相機的亮度響應，以及可能存在的陰影細節丟失、高光飽和或非線性響應等問題。</li>
+                            <div class="image-container">
+                                <img src="../image/Study_note_image/gamma/gamma_step_2.png" alt="gamma_2" class="image-medium">
+                                <p class="image-caption">圖 4：Gamma 曲線圖</p>
+                            </div>                        
                         <li>此外，Imatest 也會報告白平衡誤差、雜訊和其他相關的影像品質指標。</li>
+                            <div class="image-container">
+                                <img src="../image/Study_note_image/gamma/gamma_step_3.png" alt="gamma_3" class="image-medium">
+                                <p class="image-caption">圖 5：Gamma 白平衡誤差、雜訊</p>
+                            </div>
                     </ul>
                 </li>
             </ol>

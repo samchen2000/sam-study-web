@@ -1,18 +1,47 @@
 # A. ISP 操作流程
 ![ISP Tune Flow](../image/Study_note_image/esp_32_p4/esp32_iq_flow.png "ISP Tune Flow")
 ### BLC -> BF -> LSC -> Demosaic -> WBG -> AWB -> CCM -> Gamma -> AE -> SHARP -> Contrest&Hue&Saturation -> CRCP
-調用函數
-```esp_isp_new_processor()
-esp_isp_del_processor()
+### 調用函數
+```C
+esp_isp_new_processor() 
+esp_isp_del_processor()  // 用於 ISP 核心處理器。
 esp_isp_new_af_controller()
-esp_isp_del_af_controller()
+esp_isp_del_af_controller() //用於 ISP AF 控制器。
 esp_isp_new_awb_controller()
-esp_isp_del_awb_controller()
+esp_isp_del_awb_controller()  //用於 ISP AWB 控制器。
 esp_isp_new_ae_controller()
-esp_isp_del_ae_controller()
+esp_isp_del_ae_controller()  //用於 ISP AE 控制器。
 esp_isp_new_hist_controller()
-esp_isp_del_hist_controller()
+esp_isp_del_hist_controller()  //用於 ISP 長條圖控制器。
 ```
+
+## 資源配置
+### 安裝 ISP 驅動程式
+ISP 驅動程式需要由 esp_isp_processor_cfg_t 指定配置。
+指定 esp_isp_processor_cfg_t 中的配置後，可以調用 esp_isp_new_processor() 來分配和初始化 ISP 處理器。如果函數運行正常，將返回一個 ISP 處理器控制碼。請參考以下代碼：
+
+```
+esp-video-components-master\esp_video\src\device\esp_video_csi_device.c
+```
+```C
+    esp_isp_processor_cfg_t isp_config = {
+        .clk_src = ISP_CLK_SRC_DEFAULT,
+        .input_data_source = ISP_INPUT_DATA_SOURCE_CSI, // Force input data source to CSI
+        .has_line_start_packet = mipi_info->line_sync_en,
+        .has_line_end_packet = mipi_info->line_sync_en,
+        .h_res = width,
+        .v_res = height,
+        .yuv_range = csi_video->yuv_range,
+        .yuv_std = csi_video->yuv_std,
+        .input_data_color_type = in_out_format->isp_input_fmt,
+        .output_data_color_type = in_out_format->isp_output_fmt,
+        .bayer_order = csi_video->bayer_order,
+#if ESP_VIDEO_ISP_DRIVER_HAS_BYPASS
+        .flags = {
+            .bypass_isp = in_out_format->isp_bypass_required
+        }
+```
+
 - ## 1. BLC
 ISP BLC 控制器
 黑電平校正 (BLC) 旨在解決因相機感測器中光線折射不均而引起的問題。
@@ -28,6 +57,7 @@ ISP 去馬賽克控制器
 - ## 5. WBG
 ISP White Balance Gain.
 - ## 6. AWB
+
 - ## 7. CCM
 配置 CCM
 色彩校正矩陣可以調整 RGB888 圖元格式的顏色比例，可用於通過演算法調整圖像顏色（例如，使用 AWB 計算結果進行白平衡），或者通過濾波演算法用作篩檢程式。

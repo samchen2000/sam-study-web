@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP-32 P4 IQ Function 調整項目與說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            border-bottom-style: dotted;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 15px 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        figure {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        figcaption {
+            font-size: 0.9rem;
+            color: var(--color-secondary-text);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--color-primary-text);
+        }
+
+        pre {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        code {
+            background: #f2f2f2;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .math-formula {
+            background-color: var(--color-subtle-bg);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--color-accent);
+            margin: 1rem 0 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: var(--color-primary-text);
+            border-radius: 0 4px 4px 0;
+            overflow-x: auto;
+        }
+
+        .note-box {
+            background-color: var(--color-subtle-bg);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--color-accent);
+            margin: 1rem 0 1.5rem 0;
+            color: var(--color-primary-text);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .note-box strong {
+            color: var(--color-accent);
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .image-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .image-quad {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 600px) {
+            .image-pair, .image-quad {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>🎥 ESP-32 P4 IQ Function 調整項目與說明</h1>
+            <p>本文件說明 ESP32-P4 ISP 影像處理管線的所有可調參數與函式。ESP32-P4 採用管線化（pipeline）的 ISP 架構，涵蓋從感測器輸入到色彩輸出的完整處理流程。</p>
+
+            <h2>1️⃣ A. ISP 操作流程</h2>
+            <figure>
+                <img src="../image/Study_note_image/esp_32_p4/esp32_iq_flow.png" alt="ESP-32 P4 ISP Tune Flow">
+                <figcaption>ESP-32 P4 ISP Tune Flow</figcaption>
+            </figure>
+
+            <h3>處理管線順序</h3>
+            <div class="math-formula">BLC → BF → LSC → Demosaic → WBG → AWB → CCM → Gamma → AE → SHARP → Contrast&amp;Hue&amp;Saturation → CRCP</div>
+
+            <h3>調用函數</h3>
+            <pre><code>esp_isp_new_processor() 
+esp_isp_del_processor()  // 用於 ISP 核心處理器。
+esp_isp_new_af_controller()
+esp_isp_del_af_controller() // 用於 ISP AF 控制器。
+esp_isp_new_awb_controller()
+esp_isp_del_awb_controller()  // 用於 ISP AWB 控制器。
+esp_isp_new_ae_controller()
+esp_isp_del_ae_controller()  // 用於 ISP AE 控制器。
+esp_isp_new_hist_controller()
+esp_isp_del_hist_controller()  // 用於 ISP 長條圖控制器。</code></pre>
+
+            <h2>2️⃣ 資源配置</h2>
+            <h3>安裝 ISP 驅動程式</h3>
+            <p>ISP 驅動程式需要由 <code>esp_isp_processor_cfg_t</code> 指定配置。指定配置後，可以調用 <code>esp_isp_new_processor()</code> 來分配和初始化 ISP 處理器。如果函數運行正常，將返回一個 ISP 處理器控制碼。請參考以下代碼：</p>
+            <pre><code>esp-video-components-master\esp_video\src\device\esp_video_csi_device.c</code></pre>
+            <pre><code>C
+    esp_isp_processor_cfg_t isp_config = {
+        .clk_src = ISP_CLK_SRC_DEFAULT,
+        .input_data_source = ISP_INPUT_DATA_SOURCE_CSI, // Force input data source to CSI
+        .has_line_start_packet = mipi_info->line_sync_en,
+        .has_line_end_packet = mipi_info->line_sync_en,
+        .h_res = width,
+        .v_res = height,
+        .yuv_range = csi_video->yuv_range,
+        .yuv_std = csi_video->yuv_std,
+        .input_data_color_type = in_out_format->isp_input_fmt,
+        .output_data_color_type = in_out_format->isp_output_fmt,
+        .bayer_order = csi_video->bayer_order,
+#if ESP_VIDEO_ISP_DRIVER_HAS_BYPASS
+        .flags = {
+            .bypass_isp = in_out_format->isp_bypass_required
+        }
+    }</code></pre>
+
+            <h2>3️⃣ ISP 處理管線模組說明</h2>
+
+            <h3>1. BLC（Black Level Correction，黑位準校正）</h3>
+            <p>ISP BLC 控制器：黑電平校正 (BLC) 旨在解決因相機感測器中光線折射不均而引起的問題。補償感測器在無光環境下的基線訊號，確保暗部細節正確呈現。</p>
+
+            <h3>2. BF（Bayer Filter，拜耳濾波器）</h3>
+            <p>ISP BF 控制器：此流水線用於在拜耳模式下進行圖像輸入降噪。在感測器原始 RAW 資料階段即進行初步降噪，減少後續處理的雜訊累積。</p>
+
+            <h3>3. LSC（Lens Shading Correction，鏡頭陰影校正）</h3>
+            <p>ISP LSC 控制器：鏡頭陰影校正 (LSC) 旨在解決因相機鏡頭中光線折射不均而引起的問題。補償因鏡頭光學特性造成的亮度與色彩不均勻現象（暗角）。</p>
+
+            <h3>4. Demosaic（去馬賽克）</h3>
+            <p>ISP 去馬賽克控制器：此流水線用於執行圖像去馬賽克演算法，將 RAW 圖像（Bayer 格式）轉換為 RGB 模式。透過插值演算法重建完整的 RGB 三通道影像。</p>
+
+            <h3>5. WBG（White Balance Gain，白平衡增益）</h3>
+            <p>ISP White Balance Gain：根據 AWB 演算法計算的 R/G、B/G 比值，套用對應的通道增益以校正色彩偏差。</p>
+
+            <h3>6. AWB（Auto White Balance，自動白平衡）</h3>
+            <p>自動白平衡控制：根據影像統計分析，自動調整 R、G、B 通道增益，使白色物體在任何色溫光源下都呈現中性灰。</p>
+
+            <h3>7. CCM（Color Correction Matrix，色彩校正矩陣）</h3>
+            <p>配置 CCM：色彩校正矩陣可以調整 RGB888 圖元格式的顏色比例，可用於通過演算法調整圖像顏色（例如，使用 AWB 計算結果進行白平衡），或者通過濾波演算法用作篩檢程式。</p>
+
+            <h3>8. Gamma（Gamma 校正）</h3>
+            <p>啟用 gamma 校正：人眼的視覺系統對物理亮度的感知是非線性的。將 gamma 校正添加到 ISP 流水線中，可以將 RGB 座標轉換為座標與主觀亮度成正比的空間，使影像呈現更符合人眼感受的視覺效果。</p>
+
+            <h3>9. AE（Auto Exposure，自動曝光）</h3>
+            <p>自動曝光控制：根據畫面亮度統計，自動調整感測器曝光時間與增益，使畫面亮度維持在目標值。</p>
+
+            <h3>10. SHARP（Sharpness，銳化）</h3>
+            <p>ISP 銳化控制器：此流水線用於在 YUV 模式下銳化輸入圖像，增強影像邊緣與細節的清晰度。</p>
+
+            <h3>11. Contrast &amp; Hue &amp; Saturation（對比/色調/飽和度）</h3>
+            <p>ISP 色彩控制器：該流水線用於調整圖像的對比度、飽和度、色調和亮度。</p>
+            <ul>
+                <li><strong>對比度</strong>：應為 0 ~ 1.0，預設值為 1.0</li>
+                <li><strong>飽和度</strong>：應為 0 ~ 1.0，預設值為 1.0</li>
+                <li><strong>色調</strong>：應為 0 ~ 360，預設值為 0</li>
+                <li><strong>亮度</strong>：應為 -127 ~ 128，預設值為 0</li>
+            </ul>
+
+            <h3>12. CRCP</h3>
+            <p>CRCP 處理模組。</p>
+
+            <hr style="margin: 3rem 0; border: 0; border-top: 2px solid #e0e0e0;">
+
+            <h1>📋 B. ISP IPA (Image Processing Algorithm) 參數</h1>
+            <p>此說明 ESP ISP 影像處理演算法的所有可調參數。IPA 是一個管線化（pipeline）的影像處理框架，由多個演算法模組組成。下方依模組分類完整列出所有可調整的參數。</p>
+
+            <h2>一、IPA 整體管線配置 <code>esp_ipa_config_t</code></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>參數</th>
+                        <th>說明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>names[] / nums</td><td>演算法名稱陣列</td></tr>
+                    <tr><td>enable_log</td><td>演算法核心日誌開關</td></tr>
+                    <tr><td>version</td><td>設定版本號</td></tr>
+                    <tr><td>ian</td><td>影像分析設定（指向 esp_ipa_ian_config_t）</td></tr>
+                    <tr><td>agc</td><td>自動增益控制設定</td></tr>
+                    <tr><td>awb</td><td>自動白平衡設定</td></tr>
+                    <tr><td>acc</td><td>自動色彩校正設定</td></tr>
+                    <tr><td>adn</td><td>自動降噪設定</td></tr>
+                    <tr><td>aen</td><td>自動影像增強設定</td></tr>
+                    <tr><td>af</td><td>自動對焦設定</td></tr>
+                    <tr><td>atc</td><td>自動 AE 目標等級控制設定</td></tr>
+                    <tr><td>ext</td><td>延伸設定（hue / brightness / stats_region）</td></tr>
+                </tbody>
+            </table>
+            <pre><code>{
+    "version": 1,
+}</code></pre>
+
+            <h2>二、IAN（Image Analyze，影像分析）</h2>
+
+            <h3>1. 色彩溫度分析 <code>esp_ipa_ian_ct_config_t</code></h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>model</td><td>分析模型類型（MODEL_0/1/2）</td></tr>
+                    <tr><td>m_a0, m_a1, m_a2</td><td>來源資料模型參數</td></tr>
+                    <tr><td>f_n0</td><td>色溫濾波參數</td></tr>
+                    <tr><td>bp[] / bp_nums</td><td>色溫基本參數表（a0/a1）</td></tr>
+                    <tr><td>min_step</td><td>色溫最小步進值</td></tr>
+                    <tr><td>g_a0, g_a1</td><td>色溫參數</td></tr>
+                    <tr><td>g_a2[] / g_a2_nums</td><td>色溫參數 g_a2 查詢表</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"model": 0,</code></pre>
+            <pre><code>"m_0":
+    {
+                    
+    },
+"m_1":
+    {
+        "a0": -1,
+        "a1": 11
+    },
+"m_2":
+    {
+        "a0": -1,
+        "a1": 11,
+        "a2": 10
+    },</code></pre>
+            <pre><code>"f_n0": 1</code></pre>
+            <pre><code>"bp":
+    [
+        {
+            "a0": 10,
+            "a1": 1
+        },
+        {
+            "a0": 9,
+            "a1": 2
+        },
+        {
+            "a0": 8,
+            "a1": 3
+        },
+        {
+            "a0": 7,
+            "a1": 4
+        },
+        ...</code></pre>
+            <pre><code>"g":
+    {
+        "a0": -1,
+        "a1": -1,
+        "a2":
+        [
+            -1,
+            1,
+            -1,
+            1
+        ]
+    },</code></pre>
+
+            <h3>2. 直方圖分析 <code>esp_ipa_ian_luma_hist_config_t</code></h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>mean[]</td><td>直方圖分段平均值表</td></tr>
+                    <tr><td>low_index_start/end</td><td>低亮度區段起訖索引</td></tr>
+                    <tr><td>high_index_start/end</td><td>高亮度區段起訖索引</td></tr>
+                    <tr><td>back_light_radio_threshold</td><td>背光比例閾值</td></tr>
+                </tbody>
+            </table>
+
+            <h3>3. AE 區塊分析 <code>esp_ipa_ian_luma_ae_config_t</code></h3>
+            <ul>
+                <li><strong>weight[ISP_AE_REGIONS]</strong>：AE 各區塊權重</li>
+            </ul>
+
+            <h3>4. 環境亮度分析 <code>esp_ipa_ian_luma_env_config_t</code></h3>
+            <ul>
+                <li><strong>k</strong>：環境亮度係數</li>
+                <li><strong>speed_param[] / speed_param_size</strong>：速度參數陣列</li>
+                <li><strong>weight[]</strong>：環境亮度權重表</li>
+            </ul>
+
+            <h3>5. 整合設定 <code>esp_ipa_ian_config_t</code></h3>
+            <ul>
+                <li><strong>enable_log</strong>：影像分析日誌</li>
+            </ul>
+
+            <h2>三、AGC（Auto Gain Control，自動增益控制）</h2>
+
+            <h3>基本時序與增益</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>exposure_frame_delay</td><td>曝光生效延遲幀數</td></tr>
+                    <tr><td>gain_frame_delay</td><td>增益生效延遲幀數</td></tr>
+                    <tr><td>exposure_adjust_delay</td><td>曝光調整延遲時間（ms）</td></tr>
+                    <tr><td>min_gain_step</td><td>最小增益步進</td></tr>
+                    <tr><td>max_gain</td><td>最大感測器增益（0 表示不額外限制）</td></tr>
+                    <tr><td>inc_gain_ratio</td><td>亮度增益上升比例</td></tr>
+                    <tr><td>dec_gain_ratio</td><td>亮度增益下降比例</td></tr>
+                    <tr><td>gain_only</td><td>僅調整增益，不動曝光</td></tr>
+                    <tr><td>fixed_exposure_time</td><td>固定曝光時間（µs，僅在 gain_only=true）</td></tr>
+                </tbody>
+            </table>
+
+            <h3>抗閃爍</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>anti_flicker_mode</td><td>FULL / PART / NONE</td></tr>
+                    <tr><td>ac_freq</td><td>交流電頻率（50/60Hz）</td></tr>
+                </tbody>
+            </table>
+
+            <h3>亮度控制</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>luma_low / luma_high</td><td>低/高亮度</td></tr>
+                    <tr><td>luma_target</td><td>目標亮度</td></tr>
+                    <tr><td>luma_low_threshold / luma_high_threshold</td><td>低/高亮度閾值</td></tr>
+                    <tr><td>luma_low_regions / luma_high_regions</td><td>低/高亮度區塊數</td></tr>
+                    <tr><td>luma_weight_table[ISP_AE_REGIONS]</td><td>各區塊權重</td></tr>
+                    <tr><td>meter_mode</td><td>測光模式（AVERAGE / HIGHLIGHT / LOWLIGHT / THRESHOLD）</td></tr>
+                </tbody>
+            </table>
+
+            <h3>進階 PWL</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>luma_pwl_enable</td><td>環境亮度 PWL 動態目標位移開關</td></tr>
+                    <tr><td>luma_pwl[] / luma_pwl_size</td><td>環境亮度→目標亮度位移表</td></tr>
+                    <tr><td>low_light_prior_config</td><td>低光優先配置</td></tr>
+                    <tr><td>high_light_prior_config</td><td>高光優先配置</td></tr>
+                    <tr><td>light_threshold_config</td><td>亮度閾值表（含 use_env_luma、table、size）</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"agc":
+        {
+            "exposure":
+            {
+                "frame_delay": 2,
+                "adjust_delay": 0
+            },
+            "gain":
+            {
+                "min_step": 0.0001,
+                "frame_delay": 2
+            },
+            "anti_flicker":
+            {
+                "mode": "full",
+                "ac_freq": 50
+            },
+            "f_n0": 1,
+            "luma_adjust":
+            {
+                "target_low": 50,
+                "target_high": 150,
+                "target": 100,
+                "low_threshold": 30,
+                "low_regions": 10,
+                "high_threshold": 220,
+                "high_regions": 10,
+                "weight":
+                [
+                    1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1
+                ]
+            },
+            "mode": "high_light_priority",
+            "high_light_priority":
+            {
+                "low_threshold": 120,
+                "high_threshold": 180,
+                "weight_offset": 5,
+                "luma_offset": 5
+            },
+            "low_light_priority":
+            {
+                "low_threshold": 40,
+                "high_threshold": 80,
+                "weight_offset": 10,
+                "luma_offset": 10
+            },
+            "light_threshold_priority":
+            [
+                {
+                    "luma_threshold": 60,
+                    "weight_offset": 5
+                },
+                {
+                    "luma_threshold": 80,
+                    "weight_offset": 10
+                },
+                {
+                    "luma_threshold": 100,
+                    "weight_offset": 15
+                },
+                {
+                    "luma_threshold": 120,
+                    "weight_offset": 20
+                },
+                {
+                    "luma_threshold": 140,
+                    "weight_offset": 25
+                }
+            ],
+            "luma_pwl":
+            {
+                "enable": true,
+                "table":
+                [
+                    {
+                        "env_luma": 500,
+                        "luma_shift": -15
+                    },
+                    {
+                        "env_luma": 2000,
+                        "luma_shift": 0
+                    },
+                    {
+                        "env_luma": 5000,
+                        "luma_shift": 0
+                    },
+                    {
+                        "env_luma": 12000,
+                        "luma_shift": -10
+                    }
+                ]
+            }
+        },</code></pre>
+
+            <h2>四、AWB（Auto White Balance，自動白平衡）</h2>
+
+            <h3>通用設定</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>model</td><td>MODEL_0（灰世界）/ MODEL_1（色溫索引）/ MODEL_2（區域分類）</td></tr>
+                    <tr><td>min_red_gain_step / min_blue_gain_step</td><td>紅/藍增益最小步進（過小不寫入硬體）</td></tr>
+                    <tr><td>red_gain_scale / blue_gain_scale</td><td>紅/藍增益縮放（1.0 = 不補償）</td></tr>
+                    <tr><td>enable_log</td><td>日誌開關</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Model_0（灰世界）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>min_counted</td><td>觸發處理的最小白點數</td></tr>
+                    <tr><td>range</td><td>AWB 統計範圍（green_max/min、rg_max/min、bg_max/min）</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Sub-window（與 Model 0 共用）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>enable_subwin</td><td>啟用子窗口聚合（須 IPA_STATS_FLAGS_AWB_SUBWIN）</td></tr>
+                    <tr><td>min_subwin_wp_counted</td><td>每子窗口最小白點數</td></tr>
+                    <tr><td>min_subwin_participated</td><td>至少參與的子窗口數</td></tr>
+                    <tr><td>subwin_weight[][]</td><td>2D 子窗口權重（≤0 跳過，預設 1.0）</td></tr>
+                    <tr><td>subwin_green_dark / subwin_green_mid / subwin_green_bright</td><td>綠色亮度過濾（過暗/峰值/過亮）</td></tr>
+                    <tr><td>green_luma_env / green_luma_init / green_luma_step_ratio</td><td>綠色亮度環境變數與步進比</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Model_2（區域分類器）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>zones[] / zones_count</td><td>色度邊界框區域表</td></tr>
+                    <tr><td>ref_points[] / ref_points_count</td><td>校色溫參考點（含 rg/bg/radius）</td></tr>
+                    <tr><td>new_w / prev_w</td><td>時序 IIR 濾波新/舊幀權重</td></tr>
+                    <tr><td>export_ct</td><td>將估算 CT 發佈到 KV "ct"（供 ACC 使用）</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Model_2 時序穩定</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>outlier_rg / outlier_bg</td><td>逐格離群閘值（≤0 關閉）</td></tr>
+                    <tr><td>zone_hysteresis_ratio</td><td>區域切換遲滯（1.0 平等，>1 黏滯）</td></tr>
+                    <tr><td>zone_switch_count</td><td>區域切換去抖幀數</td></tr>
+                    <tr><td>type_counter_max</td><td>類型計數上限（達上限時清空其他）</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"awb":
+        {
+            "model": 0,
+            "min_red_gain_step": 0.5,
+            "min_blue_gain_step": 0.5,
+            "min_counted": 1000,
+            "range":
+            {
+                "green":
+                {
+                    "max": 200,
+                    "min": 180
+                },
+                "rg":
+                {
+                    "max": 1.2,
+                    "min": 0.8
+                },
+                "bg":
+                {
+                    "max": 1.2,
+                    "min": 0.8
+                }
+            },
+            "green_luma_env": "dummy_awb_luma",
+            "green_luma_init": 200,
+            "green_luma_step_ratio": 0.3,
+            "enable_sub_win": true,
+            "sub_win": {
+                "min_counted": 100,
+                "min_participated": 3,
+                "weight": [
+                    1.0, 1.0, 1.0, 1.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0, 1.0
+                ],
+                "green": {
+                    "dark": 40,
+                    "mid": 100,
+                    "bright": 200
+                }
+            },
+            "new_w": 1.0,
+            "prev_w": 0.0,
+            "export_ct": false,
+            "zone_switch_count": 1,
+            "type_counter_max": 500,
+            "outlier_rg": 0.0,
+            "outlier_bg": 0.0,
+            "zone_hysteresis_ratio": 0.0,
+            "zones": [
+                {
+                    "type": "mct",
+                    "rg": { "min": 0.45, "max": 0.70 },
+                    "bg": { "min": 0.45, "max": 0.70 },
+                    "enabled": true
+                }
+            ],
+            "ref_points": [
+                {
+                    "ct": 5200,
+                    "rg": 0.55,
+                    "bg": 0.55,
+                    "radius": 0.35
+                }
+            ]
+        },</code></pre>
+
+            <h2>五、ACC（Auto Color Correct，自動色彩校正）</h2>
+            <pre><code>"acc":</code></pre>
+
+            <h3>飽和度</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>sat_table[] / sat_table_size</td><td>色溫→飽和度對照表</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"saturation":
+            [
+                {
+                    "color_temp": 1000,
+                    "value": 1
+                },
+                {
+                    "color_temp": 2000,
+                    "value": 2
+                },
+                {
+                    "color_temp": 3000,
+                    "value": 3
+                },
+                {
+                    "color_temp": 4000,
+                    "value": 4
+                },
+                {
+                    "color_temp": 5000,
+                    "value": 5
+                }
+            ],</code></pre>
+
+            <h3>CCM（Color Correction Matrix）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>model</td><td>MODEL_0 / MODEL_1</td></tr>
+                    <tr><td>luma_env</td><td>亮度環境變數名</td></tr>
+                    <tr><td>luma_low_threshold / luma_low_ccm</td><td>低亮度閾值與對應 CCM</td></tr>
+                    <tr><td>ccm_table[] / ccm_table_size</td><td>色溫→CCM 對照表</td></tr>
+                    <tr><td>gain_lut_enable</td><td>增益型 CCM 強度 LUT 開關</td></tr>
+                    <tr><td>gain_lut[] / gain_lut_size</td><td>增益→CCM 混合強度表</td></tr>
+                    <tr><td>min_ct_step</td><td>最小色溫步進（MODEL_1）</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"ccm":
+            {
+                "low_luma":
+                {
+                    "luma_env": "dummy_gamma_luma",
+                    "threshold": 15.5,
+                    "matrix":
+                    [
+                        1.0, 0, 0,
+                        0, 1.0, 0,
+                        0, 0, 1.0
+                    ]
+                },
+                "table":
+                [
+                    {
+                        "color_temp": 1000,
+                        "matrix":
+                        [
+                            1.1, 1.1, 1.1,
+                            1.1, 1.1, 1.1,
+                            1.1, 1.1, 1.1
+                        ]
+                    },
+                    {
+                        "color_temp": 2000,
+                        "matrix":
+                        [
+                            1.2, 1.2, 1.2,
+                            1.2, 1.2, 1.2,
+                            1.2, 1.2, 1.2
+                        ]
+                    },
+                    {
+                        "color_temp": 3000,
+                        "matrix":
+                        [
+                            1.3, 1.3, 1.3,
+                            1.3, 1.3, 1.3,
+                            1.3, 1.3, 1.3
+                        ]
+                    },
+                    {
+                        "color_temp": 4000,
+                        "matrix":
+                        [
+                            1.4, 1.4, 1.4,
+                            1.4, 1.4, 1.4,
+                            1.4, 1.4, 1.4
+                        ]
+                    },
+                    {
+                        "color_temp": 5000,
+                        "matrix":
+                        [
+                            1.5, 1.5, 1.5,
+                            1.5, 1.5, 1.5,
+                            1.5, 1.5, 1.5
+                        ]
+                    }
+                ],
+                "gain_lut":
+                {
+                    "enable": true,
+                    "table":
+                    [
+                        { "gain": 1.0,  "strength": 1.0 },
+                        { "gain": 8.0,  "strength": 0.5 },
+                        { "gain": 16.0, "strength": 0.0 }
+                    ]
+                }
+            },</code></pre>
+
+            <h3>LSC（Lens Shadow Correction）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>lsc_table[] / lsc_table_size</td><td>解析度+色溫→LSC 對照表</td></tr>
+                    <tr><td>lsc_disable_gain</td><td>感測器增益≥此值時關閉 LSC（≤0 = 不關）</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"lsc":
+            {
+                "model": 0,
+                "img_w": 1080,
+                "img_h": 720,
+                "lsc_tbl_size": 64,
+                "table":
+                [
+                    {
+                        "ct": 3000,
+                        "calibrations_r_tbl":
+                        [
+                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+                        ],
+                        "calibrations_gr_tbl":
+                        [
+                            1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,
+                            1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,
+                            1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,
+                            1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5
+                        ],
+                        "calibrations_gb_tbl":
+                        [
+                            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+                        ],
+                        "calibrations_b_tbl":
+                        [
+                            2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5,
+                            2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5,
+                            2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5,
+                            2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5
+                        ]
+                    },
+                    {
+                        "ct": 5000,
+                        "calibrations_r_tbl":
+                        [
+                            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1
+                        ],
+                        "calibrations_gr_tbl":
+                        [
+                            0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3,
+                            0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3,
+                            0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3,
+                            0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3
+                        ],
+                        "calibrations_gb_tbl":
+                        [
+                            0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                            0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                            0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                            0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5
+                        ],
+                        "calibrations_b_tbl":
+                        [
+                            0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8,
+                            0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8,
+                            0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8,
+                            0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8
+                        ]
+                    }
+                ]
+            },</code></pre>
+
+            <h3>BLC（Black Level Correction）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>blc-&gt;model</td><td>BLC 模型</td></tr>
+                    <tr><td>blc-&gt;blc_table[] / blc-&gt;blc_table_size</td><td>增益→BLC 參數對照表</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"blc":
+            {
+                "model": 0,
+                "stretch": true,
+                "blc_table":
+                [
+                    {
+                        "gain": 1,
+                        "blc_param": {
+                            "blc_top_left": 16,
+                            "blc_top_right": 16,
+                            "blc_bottom_left": 16,
+                            "blc_bottom_right": 16
+                        }
+                    },
+                    {
+                        "gain": 17,
+                        "blc_param": {
+                            "blc_top_left": 32,
+                            "blc_top_right": 32,
+                            "blc_bottom_left": 32,
+                            "blc_bottom_right": 32
+                        }
+                    },
+                    {
+                        "gain": 33,
+                        "blc_param": {
+                            "blc_top_left": 48,
+                            "blc_top_right": 48,
+                            "blc_bottom_left": 48,
+                            "blc_bottom_right": 48
+                        }
+                    },
+                    {
+                        "gain": 49,
+                        "blc_param": {
+                            "blc_top_left": 64,
+                            "blc_top_right": 64,
+                            "blc_bottom_left": 64,
+                            "blc_bottom_right": 64
+                        }
+                    }
+                ]
+            }   
+        },</code></pre>
+
+            <h3>通用</h3>
+            <ul>
+                <li><strong>enable_log</strong>：ACC 日誌開關</li>
+            </ul>
+
+            <h2>六、ADN（Auto Denoising，自動降噪）</h2>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>bf_table[] / bf_table_size</td><td>增益→Bayer 濾波器（BF）參數對照表</td></tr>
+                    <tr><td>dm_table[] / dm_table_size</td><td>增益→去馬賽克（Demosaic）參數對照表</td></tr>
+                    <tr><td>enable_log</td><td>日誌開關</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"adn": {
+            "bf":
+            [
+                {
+                    "gain": 1,
+                    "param": {
+                        "level": 1,
+                        "matrix":
+                        [
+                            1, 1, 1,
+                            1, 1, 1,
+                            1, 1, 1
+                        ]
+                    }
+                },
+                {
+                    "gain": 2,
+                    "param": {
+                        "level": 2,
+                        "matrix":
+                        [
+                            2, 2, 2,
+                            2, 2, 2,
+                            2, 2, 2
+                        ]
+                    }
+                },
+                {
+                    "gain": 3,
+                    "param": {
+                        "level": 3,
+                        "matrix":
+                        [
+                            3, 3, 3,
+                            3, 3, 3,
+                            3, 3, 3
+                        ]
+                    }
+                },
+                {
+                    "gain": 4,
+                    "param": {
+                        "level": 4,
+                        "matrix":
+                        [
+                            4, 4, 4,
+                            4, 4, 4,
+                            4, 4, 4
+                        ]
+                    }
+                },
+                {
+                    "gain": 5,
+                    "param": {
+                        "level": 5,
+                        "matrix":
+                        [
+                            5, 5, 5,
+                            5, 5, 5,
+                            5, 5, 5
+                        ]
+                    }
+                },
+                {
+                    "gain": 128,
+                    "param": {
+                        "level": 5,
+                        "sigma": 1
+                    }
+                },
+                {
+                    "gain": 144,
+                    "param": {
+                        "level": 5,
+                        "sigma": 2
+                    }
+                }
+            ],
+            "demosaic":
+            [
+                {
+                    "gain": 1,
+                    "gradient_ratio": 1
+                },
+                {
+                    "gain": 2,
+                    "gradient_ratio": 2
+                },
+                {
+                    "gain": 3,
+                    "gradient_ratio": 3
+                },
+                {
+                    "gain": 4,
+                    "gradient_ratio": 4
+                },
+                {
+                    "gain": 5,
+                    "gradient_ratio": 5
+                }
+            ]
+        },</code></pre>
+
+            <h2>七、AEN（Auto Enhancement，自動影像增強）</h2>
+            <pre><code>"aen":</code></pre>
+
+            <h3>GAMMA</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>gamma-&gt;model</td><td>MODEL_0 / MODEL_1</td></tr>
+                    <tr><td>gamma-&gt;luma_env</td><td>亮度環境變數名</td></tr>
+                    <tr><td>gamma-&gt;luma_min_step</td><td>最小亮度步進</td></tr>
+                    <tr><td>gamma-&gt;gamma_table[] / gamma_table_size</td><td>亮度→GAMMA 對照表</td></tr>
+                    <tr><td>gamma-&gt;backlight</td><td>背光增強設定（含 low/high_hist_ratio_threshold、env_luma_threshold、low/high_index_*、luma_env、detect_count_threshold/margin、hist_ratio_filter、model、luma_min_step、gamma_table/size）</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"gamma":
+            {
+                "model": 1,
+                "use_gamma_param": false,
+                "luma_env": "dummy_gamma_luma",
+                "luma_min_step": 3.0,
+                "table":
+                [
+                    {
+                        "luma": 10.1,
+                        "gamma_param": 1.0,
+                        "y": 
+                        [
+                            0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 255
+                        ]
+                    },
+                    {
+                        "luma": 20.1,
+                        "gamma_param": 1.3,
+                        "y":
+                        [
+                            16, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 240, 255
+                        ]
+                    },
+                    {
+                        "luma": 30.1,
+                        "gamma_param": 1.6,
+                        "y":
+                        [
+                            32, 48, 56, 64, 72, 80, 96, 112, 128, 144, 160, 176, 192, 240, 248, 255
+                        ]
+                    }
+                ],</code></pre>
+            <pre><code>"backlight":
+                {
+                    "low_hist_ratio_threshold": 0.2,
+                    "high_hist_ratio_threshold": 0.15,
+                    "env_luma_threshold": 5.0,
+                    "low_index":
+                    {
+                        "start": 0,
+                        "end": 4
+                    },
+                    "high_index":
+                    {
+                        "start": 14,
+                        "end": 15
+                    },
+                    "luma_env": "dummy_backlight_env_luma",
+                    "detect_count_threshold": 2,
+                    "hist_ratio_filter": 1.0,
+                    "model": 0,
+                    "luma_min_step": 0.05,
+                    "use_gamma_param": false,
+                    "table":
+                    [
+                        {
+                            "luma": 0.35,
+                            "gamma_param": 1.0,
+                            "y":
+                            [
+                                50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 255
+                            ]
+                        },
+                        {
+                            "luma": 0.70,
+                            "gamma_param": 1.0,
+                            "y":
+                            [
+                                70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 255
+                            ]
+                        }
+                    ]
+                }
+            },</code></pre>
+
+            <h3>Sharpen（銳化）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>sharpen_table[] / sharpen_table_size</td><td>增益→銳化參數對照表</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"sharpen":
+            [
+                {
+                    "gain": 1,
+                    "param": {
+                        "h_thresh": 1,
+                        "l_thresh": 1,
+                        "h_coeff": 1,
+                        "m_coeff": 1,
+                        "matrix":
+                        [
+                            1, 1, 1,
+                            1, 1, 1,
+                            1, 1, 1
+                        ]
+                    }
+                },
+                {
+                    "gain": 2,
+                    "param": {
+                        "h_thresh": 2,
+                        "l_thresh": 2,
+                        "h_coeff": 2,
+                        "m_coeff": 2,
+                        "matrix":
+                        [
+                            2, 2, 2,
+                            2, 2, 2,
+                            2, 2, 2
+                        ]
+                    }
+                },
+                {
+                    "gain": 3,
+                    "param": {
+                        "h_thresh": 3,
+                        "l_thresh": 3,
+                        "h_coeff": 3,
+                        "m_coeff": 3,
+                        "matrix":
+                        [
+                            3, 3, 3,
+                            3, 3, 3,
+                            3, 3, 3
+                        ]
+                    }
+                },
+                {
+                    "gain": 4,
+                    "param": {
+                        "h_thresh": 4,
+                        "l_thresh": 4,
+                        "h_coeff": 4,
+                        "m_coeff": 4,
+                        "matrix":
+                        [
+                            4, 4, 4,
+                            4, 4, 4,
+                            4, 4, 4
+                        ]
+                    }
+                },
+                {
+                    "gain": 5,
+                    "param": {
+                        "h_thresh": 5,
+                        "l_thresh": 5,
+                        "h_coeff": 5,
+                        "m_coeff": 5,
+                        "matrix":
+                        [
+                            5, 5, 5,
+                            5, 5, 5,
+                            5, 5, 5
+                        ]
+                    }
+                }
+            ],</code></pre>
+
+            <h3>Contrast（對比）</h3>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>con_table[] / con_table_size</td><td>增益→對比對照表</td></tr>
+                </tbody>
+            </table>
+            <pre><code>"contrast":
+            [
+                {
+                    "gain": 1,
+                    "value": 1
+                },
+                {
+                    "gain": 2,
+                    "value": 2
+                },
+                {
+                    "gain": 3,
+                    "value": 3
+                },
+                {
+                    "gain": 4,
+                    "value": 4
+                },
+                {
+                    "gain": 5,
+                    "value": 5
+                }
+            ]
+        },</code></pre>
+
+            <h3>通用</h3>
+            <ul>
+                <li><strong>enable_log</strong>：AEN 日誌開關</li>
+            </ul>
+
+            <h2>八、AF（Auto Focus，自動對焦）</h2>
+            <pre><code>"af":</code></pre>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>model</td><td>AF 模型類型</td></tr>
+                    <tr><td>windows[ISP_AF_WINDOW_NUM]</td><td>採樣視窗座標</td></tr>
+                    <tr><td>weight_table[]</td><td>各視窗權重</td></tr>
+                    <tr><td>edge_thresh</td><td>邊緣閾值（高於此值才算有效像素）</td></tr>
+                    <tr><td>max_pos / min_pos</td><td>焦距位置上下限</td></tr>
+                    <tr><td>l1_scan_points_num / l2_scan_points_num</td><td>第一/二階掃描點數</td></tr>
+                    <tr><td>definition_high_threshold_ratio</td><td>清晰度上升重啟閾值</td></tr>
+                    <tr><td>definition_low_threshold_ratio</td><td>清晰度下降重啟閾值</td></tr>
+                    <tr><td>luminance_high_threshold_ratio</td><td>亮度上升重啟閾值</td></tr>
+                    <tr><td>luminance_low_threshold_ratio</td><td>亮度下降重啟閾值</td></tr>
+                    <tr><td>max_change_time</td><td>清晰度最大變化時間（µs）</td></tr>
+                    <tr><td>enable_log</td><td>日誌開關</td></tr>
+                </tbody>
+            </table>
+            <pre><code>{
+            "windows":
+            [
+                {
+                    "left": 50,
+                    "top": 100,
+                    "width": 100,
+                    "height": 100,
+                    "weight": 1
+                },
+                {
+                    "left": 150,
+                    "top": 200,
+                    "width": 100,
+                    "height": 100,
+                    "weight": 10
+                },
+                {
+                    "left": 250,
+                    "top": 300,
+                    "width": 100,
+                    "height": 100,
+                    "weight": 100
+                }
+            ],
+            "edge_thresh": 11,
+            "definition_high_threshold_ratio": 1.6,
+            "definition_low_threshold_ratio": 0.6,
+            "luminance_high_threshold_ratio": 1.6,
+            "luminance_low_threshold_ratio": 0.6,
+            "l1_scan_points_num": 11,
+            "l2_scan_points_num": 12,
+            "max_pos": 500,
+            "max_change_time": 500
+        },
+        "customized_ipa_1":
+        {
+            "name": "esp_ipa_customized_1"
+        }</code></pre>
+
+            <h2>九、ATC（Auto AE Target Level Control）</h2>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>model</td><td>ATC 模型</td></tr>
+                    <tr><td>init_value</td><td>AE 目標等級初始值</td></tr>
+                    <tr><td>delay_frames</td><td>AE 目標等級延遲幀數</td></tr>
+                    <tr><td>luma_env</td><td>AE 目標等級亮度環境變數名</td></tr>
+                    <tr><td>min_ae_value_step</td><td>最小 AE 步進</td></tr>
+                    <tr><td>luma_lut[] / luma_lut_size</td><td>亮度→AE 值查詢表</td></tr>
+                    <tr><td>enable_log</td><td>日誌開關</td></tr>
+                </tbody>
+            </table>
+
+            <h2>十、延伸設定 <code>esp_ipa_ext_config_t</code></h2>
+            <pre><code>"ext":</code></pre>
+            <table>
+                <thead>
+                    <tr><th>參數</th><th>說明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>hue</td><td>色調</td></tr>
+                    <tr><td>brightness</td><td>亮度</td></tr>
+                    <tr><td>stats_region</td><td>ISP 統計區域（左/上/寬/高）</td></tr>
+                </tbody>
+            </table>
+            <pre><code>{
+            "hue": 1,
+            "brightness": 2,
+            "stats_region":
+            {
+                "left": 3,
+                "top": 4,
+                "width": 5,
+                "height": 6
+            }
+        },</code></pre>
+
+            <h2>十一、ISP 統計與元資料旗標</h2>
+
+            <h3>統計旗標 <code>IPA_STATS_FLAGS_*</code></h3>
+            <p>六種統計資訊的有效性：</p>
+            <ul>
+                <li>AWB</li>
+                <li>AE</li>
+                <li>Histogram</li>
+                <li>Sharpen</li>
+                <li>AF</li>
+                <li>AWB_SUBWIN</li>
+            </ul>
+
+            <h3>元資料旗標 <code>IPA_METADATA_FLAGS_*</code></h3>
+            <p>共 20 項，控制 metadata 哪些欄位需要被更新：</p>
+            <ul>
+                <li>AWB</li>
+                <li>RG</li>
+                <li>BG</li>
+                <li>ET（曝光）</li>
+                <li>GN（像素增益）</li>
+                <li>BF（bayer filter）</li>
+                <li>SH（sharpen）</li>
+                <li>GAMMA</li>
+                <li>CCM</li>
+                <li>BR（brightness）</li>
+                <li>CN（contrast）</li>
+                <li>ST（saturation）</li>
+                <li>HUE</li>
+                <li>DM（demosaic）</li>
+                <li>LSC</li>
+                <li>AETL（AE 目標）</li>
+                <li>SR（統計區域）</li>
+                <li>AF</li>
+                <li>FP（焦距）</li>
+                <li>BLC</li>
+            </ul>
+
+            <h3>Gamma 更新旗標</h3>
+            <p><code>IPA_GAMMA_FLAGS_RED/GREEN/BLUE</code> — 控制哪個色通道需更新。</p>
+
+            <h2>十二、可調演算法模型清單（列舉型別）</h2>
+            <table>
+                <thead>
+                    <tr><th>模組</th><th>模型列舉</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>AGC 測光</td><td>ESP_IPA_AGC_METER_AVERAGE / HIGHLIGHT_PRIOR / LOWLIGHT_PRIOR / LIGHT_THRESHOLD</td></tr>
+                    <tr><td>AGC 抗閃爍</td><td>FULL / PART / NONE</td></tr>
+                    <tr><td>AWB</td><td>MODEL_0（灰世界）/ MODEL_1（色溫索引）/ MODEL_2（區域分類）</td></tr>
+                    <tr><td>AWB Zone</td><td>UHCT、HCT、MCT、LCT、ULCT、GREEN、SKIN</td></tr>
+                    <tr><td>IAN 色溫</td><td>MODEL_0 / 1 / 2</td></tr>
+                    <tr><td>ACC CCM</td><td>MODEL_0 / 1</td></tr>
+                    <tr><td>ACC BLC</td><td>MODEL_0</td></tr>
+                    <tr><td>AEN GAMMA</td><td>MODEL_0 / 1</td></tr>
+                    <tr><td>AF</td><td>MODEL_0</td></tr>
+                    <tr><td>ATC</td><td>MODEL_0</td></tr>
+                </tbody>
+            </table>
+
+            <h2>總結</h2>
+            <p>整份檔案將 IPA 拆解為 <strong>9 大演算法模組</strong>（IAN、AGC、AWB、ACC、ADN、AEN、AF、ATC、EXT），共提供 <strong>超過 150 個可調參數</strong>，涵蓋：</p>
+            <ol>
+                <li><strong>感測器控制</strong>（曝光、增益、焦距、AE 目標）</li>
+                <li><strong>影像統計分析</strong>（色溫、亮度、直方圖、背光）</li>
+                <li><strong>ISP 處理鏈</strong>（BLC → BF → Demosaic → LSC → Sharpen → Gamma → CCM → 色彩屬性）</li>
+                <li><strong>演算法策略</strong>（測光、抗閃爍、AWB 模式、AF 模式、時序穩定、區域分類）</li>
+                <li><strong>校對資料表</strong>（CCM、LSC、BLC、BF、DM、Sharpen、Contrast、SAT、Gamma、CT 參考點）</li>
+            </ol>
+            <p>每一個模組都允許透過「查表（LUT/PWL）+ 環境變數（env）」的方式動態調整，並透過 <code>enable_log</code> 進行除錯，是一套相當完整且彈性的 ISP 管線調校框架。</p>
+
+            <div class="note-box" style="margin-top: 3rem;">
+                <strong>💡 建議事項</strong>
+                <ul style="margin-bottom: 0;">
+                    <li>調整畫質前請務必保持鏡頭乾淨且對焦準確。</li>
+                    <li>若要從頭開始調整新 Sensor，建議先透過 Enable Control 關閉所有功能，觀察原始畫質後再逐一開啟調整。</li>
+                </ul>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

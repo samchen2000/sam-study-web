@@ -330,6 +330,29 @@ esp_isp_del_hist_controller()  // 用於 ISP 長條圖控制器。</code></pre>
         }
     }</code></pre>
 
+            <h3>ISP 核心與控制器調用流程 (Software API Flow)</h3>
+            <p>在軟體資源配置與初始化階段，需透過驅動結構設定與控制器建立函數來完成初始化：</p>
+            <pre><code>P
+[ 開始初始化 ISP ]
+        │
+        ├─► 1. 設置配置結構體：esp_isp_processor_cfg_t 
+        │      (設定時脈、CSI 輸入來源、解像度、YUV 格式、Bayer 陣列等)[cite: 1]
+        │
+        ├─► 2. 調用 esp_isp_new_processor()[cite: 1]
+        │      └─► 成功：分配並初始化 ISP 核心處理器，返回控制碼 (Processor Handle)
+        │
+        ├─► 3. 初始化各子控制器（依需求調用）：
+        │      ├─ 曝光控制:      esp_isp_new_ae_controller() / esp_isp_del_ae_controller()[cite: 1]
+        │      ├─ 白平衡控制:    esp_isp_new_awb_controller() / esp_isp_del_awb_controller()[cite: 1]
+        │      ├─ 對焦控制:      esp_isp_new_af_controller() / esp_isp_del_af_controller()[cite: 1]
+        │      └─ 長條圖控制器:  esp_isp_new_hist_controller() / esp_isp_del_hist_controller()[cite: 1]
+        │
+        │  [ 執行影像串流與 ISP IPA 管線運作 (IAN, AGC, AWB, ACC, ADN, AEN, ATC...) ]
+        │
+        └─► 4. 結束 / 卸載：
+               調用對應的 del 函數釋放資源 (如 esp_isp_del_processor())[cite: 1]
+            </code></pre>
+
             <h2>3️⃣ ISP 處理管線模組說明</h2>
 
             <h3>1. BLC（Black Level Correction，黑位準校正）</h3>

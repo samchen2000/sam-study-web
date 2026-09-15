@@ -7,7 +7,8 @@
 #ifconfig eth0 up        (啟動網卡)  
 #udhcpc                  (取得 IP)  
 #mixer -n 1 -q           (-q 參數用於開啟 iqserver) [1, 2]  
-
+@device:pnp:\\?\usb#vid_114d&pid_027c&mi_00#6&1e34da27&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global
+@device:pnp:\\?\usb#vid_04f2&pid_b74f&mi_00#6&1384440e&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global
 - 工具端連線：
 在 PC 開啟 IQ Tool。
 選擇產品類型（如 IP Camera）。

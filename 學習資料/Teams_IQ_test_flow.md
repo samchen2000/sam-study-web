@@ -25,11 +25,24 @@
 以下是基於微軟 Teams 視訊擷取規格書說明的完整實驗室測試實施指南：
 ### 1. 實驗室物理測試環境建置
 - 空間與反射控制： 測試實驗室必須為完全隔絕外部光源的暗室。房間的地板、天花板、牆壁和設備支架皆必須為無光澤（Matt）的黑色或深灰色，以避免在測試目標或相機上產生任何光影反射。測試圖表後方的背景牆面則建議塗成中灰色。
+    ![測試實驗室](../image/Study_note_image/Teams/teams_6.PNG "測試實驗室")
 - 照明控制系統（Automated Light Setup）：
-    - 測試必須使用可精確調整與變更照度（Lux）與色溫（Kelvin）的自動化照明系統。主要光源使用 4 盞 Color Kinetics ColorBlast intelliHue Powercore Gen4 Optifield 燈具，以 X 字形配置架設於距離圖卡表面 72cm 的平面上。此設定可在 1mx1m 的測試圖表上達到 90% 面積內照度變異低於 10% 的高均勻度。其色溫調整範圍可涵蓋 2000K 至 10000K 之間。
-    - 輔助光源列（Auxiliary Lights）： 包含 2700K Warm LED、A-light（鹵素白熾燈）、5000K Cool LED、CFL 3500K 等標準光源，安裝於兩側的垂直燈架上，並利用鏡子來導向光能，以確保在相當於 X-Rite ColorChecker 大小的中心區域上達到 10% 以內的照明均勻度。
-    - 光照強度與色溫必須在測試圖表的中心位置，使用專業的**分光光度計（如 Gigahertz-Optik MSC15）**進行精確量測與校正。
-- 測試軟硬體組件： 測試時將 DUT 相機連接至測試 PC，並利用遠端擷取工具（Remote Capture Tool, RCT） 擷取 raw 或 MJPEG 影像，並透過 TCP 傳輸至 Video TMT (Test Management Tool) / Video Analyzer 電腦進行客觀數據分析。
+    - 測試必須使用可精確調整與變更照度（Lux）與色溫（Kelvin）的自動化照明系統。主要光源使用 4 盞 Color Kinetics ColorBlast intelliHue Powercore Gen4 Optifield 燈具，以 X 字形配置架設於距離圖卡表面 72cm 的平面上。此設定可在 1mx1m 的測試圖表上達到 90% 面積內照度變異低於 10% 的高均勻度。其色溫調整範圍可涵蓋 2000K 至 10000K 之間。  
+    ![Color Kinetics ColorBlast intelliHue Powercore Gen4 Optifield](../image/Study_note_image/Teams/teams_8.PNG "Color Kinetics ColorBlast intelliHue Powercore Gen4 Optifield")
+    - 輔助光源列（Auxiliary Lights）： 包含 2700K Warm LED、A-light（鹵素白熾燈）、5000K Cool LED、CFL 3500K 等標準光源，安裝於兩側的垂直燈架上，並利用鏡子來導向光能，以確保在相當於 X-Rite ColorChecker 大小的中心區域上達到 10% 以內的照明均勻度。  
+    ![輔助光源列](../image/Study_note_image/Teams/teams_7.PNG "輔助光源列")
+    - 光照強度與色溫必須在測試圖表的中心位置，使用專業的**分光光度計（如 Gigahertz-Optik MSC15）**進行精確量測與校正。  
+    ![分光光度計](../image/Study_note_image/Teams/teams_9.PNG "分光光度計")
+- 測試軟硬體組件： 測試時將 DUT 相機連接至測試 PC，並利用遠端擷取工具（Remote Capture Tool, RCT） 擷取 raw 或 MJPEG 影像，並透過 TCP 傳輸至 Video TMT (Test Management Tool) / Video Analyzer 電腦進行客觀數據分析。  
+    - 連線方式
+    1. 將相機連接PC 開啟 遠端擷取工具（Remote Capture Tool, RCT）, 本機電腦與遠端電需要在同一個網域.
+    ![相機連接PC/NB](../image/Study_note_image/Teams/teams_10.PNG "相機連接PC/NB")
+    2. 確認本機端IP address , 點擊 "Peer" , 等待 遠端電腦連線.
+    ![連線前準備](../image/Study_note_image/Teams/teams_11.PNG "連線前準備")
+    3. 遠端電腦開啟Video TMT (Test Management Tool) / Video Analyzer -> Capture , 輸入本機電腦IP,點擊 "Peer Client"
+    ![連線前準備](../image/Study_note_image/Teams/teams_13.PNG "連線前準備")
+    ![連線前準備](../image/Study_note_image/Teams/teams_12.PNG "連線前準備")
+    4. 當出現畫面,表示連線成功.
 ### 2. 測試前置條件與健全測試（Sanity Tests）  
 在進行正式定量測試前，受測設備（DUT）必須通過基本的要求與前置驗證：
 - 端到端視訊健全測試（Video Sanity Tests）： 必須由兩位測試人員在 Well-lit office（面部照度至少 200 Lux）與 Simulated living room（照度 40 Lux ± 20 Lux，並使用檯燈模擬背光與眩光環境）條件下進行實際通話評估，評估項目包含視訊渲染、影像動作（手部揮舞測試抖動、拍手測試影音同步）、白板讀取品質及鏡頭縮放控制等。
@@ -54,7 +67,7 @@
 ![Spilled Coins](../image/Study_note_image/test_chart/Black&White_Imatest_Spilled_Coins%20.webp "Spilled Coins")
 - 幾何畸變量測（Geometric Distortion）： 使用 Imatest Dot Pattern 點矩陣圖卡，相機需看見至少 15 排點且不看到 dotted 區域外。依相機 FOV 大小不同，畸變程度需限制在 ≦ 6% 到 ≦ 14% 之間。對於圓柱投影（cylindrical projection）相機，則需多圖拼接覆蓋整個畫面對角線進行分析。
 ![Imatest Dot Pattern](../image/Study_note_image/test_chart/Dot%20Pattern.png "Imatest Dot Pattern")
-- 均勻度與雜散光量測： 使用 **Gray Board（中灰板）** 測量鏡頭的相對照度（Relative illumination）與色彩均勻性（Color uniformity）。色彩均勻性 Max C 需 ≦ 10。此外，在相機上方 10cm 架設一盞同型號眩光燈進行**雜散光/眩光（Veiling glare）**測試，開啟前後的灰階影像平均絕對像素差必須 ≦ 10。
+- 均勻度與雜散光量測： 使用 **Gray Board（中灰板）** 測量鏡頭的相對照度（Relative illumination）與色彩均勻性（Color uniformity）。色彩均勻性 Max C 需 ≦ 10。此外，在相機上方 10cm 架設一盞同型號眩光燈進行**雜散光/眩光（Veiling glare）**測試，開啟前後的灰階影像平均絕對像素差必須 ≦ 10。  
 ![Gray Board](../image/Study_note_image/test_chart/gray_18.webp "Gray Board")
 - 影像拼接與會議室專屬指標：
     - 多鏡頭相機需使用 Color Bars 圖卡量測拼接品質（Stitching quality），接縫處之邊緣不連續性需 ≦ 1.5 pixels、色差不連續性需 ≦ 5、亮度不連續性需 ≦ 5%。  
@@ -105,7 +118,7 @@
 - 目的： 這是為了確保後續在進行自動化畫質檢驗時，自動化軟體（Video Analyzer）能夠成功、穩定且可靠地運作。因此，相機的自動白平衡、自動曝光與自動對焦等功能，必須在特定時限內快速穩定下來，以契合自動化腳本的擷取時程。
 - 步驟與測試項目：
     - 防閃爍 (Anti-flicker)： 相機必須具備抑制 50Hz/60Hz 交流電日光燈頻閃的能力，避免頻閃嚴重降低影像的信噪比（可能劣化 > 8 dB）。標準級必須支援手動選擇，高級（Premium）則要求能自動偵測並切換頻閃模式。
-    - 3A 控制與穩定時間： 自動白平衡（AWB）、自動曝光（AEC）與自動增益（AGC）必須預設開啟24more_horiz。當更換測試圖卡或變更光照後，個人裝置必須在 5 秒內完成影像穩定，而會議室裝置則必須在 20 秒內穩定。
+    - 3A 控制與穩定時間： 自動白平衡（AWB）、自動曝光（AEC）與自動增益（AGC）必須預設開啟。當更換測試圖卡或變更光照後，個人裝置必須在 5 秒內完成影像穩定，而會議室裝置則必須在 20 秒內穩定。
     - 像素寬高比 (Pixel aspect ratio)： 所有解析度下的像素寬高比必須滿足 $0.98 \le R \le 1.02$，防止畫面產生拉伸變形，並確保測試軟體能順利自動偵測圖卡的感興趣區域（ROI）。
     - 視野一致性 (Field of view consistency)： 在不同解析度（如頻寬限制或光照變化導致解析度切換）之間轉換時，畫面中心位移必須 $\le 3\%$，垂直視野（VFOV）尺寸變化必須 $\le 25\%$，以維持流暢的使用者體驗。
     - 自動對焦效能 (Autofocus performance)： 自動對焦相機在 5 分鐘通話測試中，必須在 99% 的時間內保持對焦；且必須能透過 API 關閉自動對焦並設為預設名義距離，以避免視訊時產生擾人的「對焦游移（focus swimming）」。
@@ -113,9 +126,21 @@
     - 使用指示燈 (Usage indicator)： 在相機捕捉/傳送視訊時，必須亮起擴散、低亮度的指示燈（如 LED），並在關閉通話時熄滅，以確保使用者隱私。
 ## Video quality requirements in lab environment」（實驗室環境下的視訊品質要求）
 受測相機在實驗室標準環境下，必須通過的各項量化（定量）影像品質指標。
-這些測項總共分為 6 大類別（細節品質、色調與雜訊、色彩品質、幾何、陰影均勻性、時間特性），每個測項皆有其獨特的目的、對應的標準測試圖卡與客觀量測方法。以下為您詳細說明各測項內容：
+這些測項總共分為 6 大類別（細節品質、色調與雜訊、色彩品質、幾何、陰影均勻性、時間特性），每個測項皆有其獨特的目的、對應的標準測試圖卡與客觀量測方法。以下詳細說明各測項內容：
+
+| **Detail Quality(SFR Plus)** | **Tonal response and noise(colorchecker)** | **Color quality(colorchecker)** | **Geometry** | Shading(18% Grey board) |
+| ---- | ---- | ---- | ---- | ---- |
+MTF | Dynamic range(ITDR-36) | Color accuracy | Field of view(colorchecker) | Color uniformity
+Oversharpening | Exposure accuracy | Color saturation | Geometric distortion(Dot chart) | Relative illumination
+Edge roughness | Gamma | White balance error | | Veiling glare
+Depth of field | Spatial SNR | | |
+Texture acutance(Dead leaves) | Temporal SNR | | |
+
+
+
 ## 1. Detail quality (細節品質) 測項
 此類別旨在確保相機鏡頭的解析度足以匹配感測器，且感測器在經過內部影像處理與去馬賽克（demosaicing）後，仍能保留足夠的畫面細節。  
+
 - ### MTF (調變轉換函數 / 空間頻率響應)：
     - #### 定義與目的： MTF30（調變轉換函數衰減至低頻值 30% 時的空間頻率）是用來量測相機系統空間頻率響應的指標。MTF30 代表影像中能被接受並清晰捕捉的最高空間頻率。MTF 表現不佳通常歸因於劣質鏡頭、鏡頭與感測器不匹配，或不良的影像訊號處理（ISP）。
     - #### 測試圖卡與方式： 預設使用 SFR Plus (small) 圖卡，或可交替使用 SFR Plus (large)。Video Analyzer 會自動偵測並分析圖卡中心區域的 2 個水平與 2 個垂直邊緣，並報告多個邊緣中最差的一組數值。
@@ -481,7 +506,8 @@
         | CFL 3500K (80 Lux) | 平均 $\Delta C_{00} \le 10$<br>最大 $\Delta C_{00} \le 15$ | 平均 $\Delta C_{00} \le 5$<br>最大 $\Delta C_{00} \le 10$ |
 
         - B. 共享空間解決方案（Shared Space Solutions）合格標準
-        ### 會議室/共享空間裝置不需進行低光源 20 Lux 測試，但在明亮照明下需符合以下規範（請注意，3000K 與 6000K LED 在會議室裝置的測試照度為 200 Lux）：
+        會議室/共享空間裝置不需進行低光源 20 Lux 測試，但在明亮照明下需符合以下規範（請注意，3000K 與 6000K LED 在會議室裝置的測試照度為 200 Lux）：
+
         | 測試光源條件（色溫 / 照度）| Standard (標準級門檻) | Premium (高級設計指引) |
         | ---- | ---- | ---- |
         | 2700K E27 Warm LED (80 Lux) | 平均 $\Delta C_{00} \le 15$<br>最大 $\Delta C_{00} \le 20$ | 平均 $\Delta C_{00} \le 10$<br>最大 $\Delta C_{00} \le 15$ |
@@ -494,53 +520,427 @@
 - ### Color saturation (色彩飽和度)：
     - #### 定義與目的： 確保相機在各種照度與色溫下，影像色彩擁有合適且適中的飽和度，避免色彩看起來過於慘白黯淡（飽和度過低）或過度飽和鮮豔（飽和度過高）。
     - #### 測試圖卡與方式： 使用 ColorChecker 圖卡，分析第 1 到 18 號彩色色塊，由 Video Analyzer 計算飽和度百分比。
+    - #### 測試圖卡與架設要求（Test Chart &amp; Distance）
+        - **標準測試圖卡：** 採用 **X-Rite ColorChecker Classic** 測試圖卡。
+        - **感興趣區域（ROI）：** 影像分析儀（Video Analyzer）會自動偵測並計算圖卡上的 **第 1 至 18 號彩色色塊（Patches 1–18）**。
+        - **架設距離限制：**
+            - 受測設備（DUT）在測試期間**絕不能在 ColorChecker 圖卡上投射出任何陰影**。
+            - 在所有受測解析度下，圖卡必須填滿**至少 70% 的垂直視野（VFOV）**。
+            - 為確保測試的可重複性與自動化，建議**以具備最小視野的解析度為基準，盡量最小化相機與圖卡之間的物理距離**。
+    - #### 測試光源與色溫條件**
+        測試必須涵蓋多種代表性光源（涵蓋不同照度 Lux 與色溫 Kelvin）：
+        1. **2700K E27 Warm LED**（暖光 LED，照度 80 Lux）
+        2. **A-light**（模擬標準 A 光源之白熾燈/鹵素燈，照度 80 Lux）
+        3. **3000K LED**（個人裝置測試 20 Lux 與 80 Lux；共享空間裝置測試 200 Lux）
+        4. **6000K LED**（個人裝置測試 80 Lux；共享空間裝置測試 200 Lux）
+        5. **5000K E27 Cool LED**（冷光 LED，照度 80 Lux）
+        6. **CFL 3500K**（緊湊型螢光燈，照度 80 Lux）
+
+    - #### 合格判定標準（Success Criteria）**
+       色彩飽和度以百分比（%）表示，標準分為 **Standard（標準級門檻，認證強制性合格標準）** 與 **Premium（高級設計指引，非強制性）**：
+        - **A. 個人解決方案（Personal Solutions）判定標準**
+
+        | 測試光源條件（色溫 / 照度）                 | Standard (標準級門檻)  | Premium (高級設計指引) |
+        | ------------------------------- | ----------------- | ---------------- |
+        | **2700K E27 Warm LED (80 Lux)** | **[85%, 135%]** | `[95%, 135%]`    |
+        | **A-light (80 Lux)**            | **[80%, 135%]** | `[95%, 135%]`    |
+        | **3000K LED (20 Lux)**          | **[80%, 135%]** | `[95%, 135%]`    |
+        | **3000K LED (80 Lux)**          | **[85%, 135%]** | `[95%, 135%]`    |
+        | **6000K LED (80 Lux)**          | **[85%, 135%]** | `[95%, 135%]`    |
+        | **5000K E27 Cool LED (80 Lux)** | **[85%, 135%]** | `[95%, 135%]`    |
+        | **CFL 3500K (80 Lux)**          | **[85%, 135%]** | `[95%, 135%]`    |
+
+        *(註：A-light 與 20 Lux 低光源條件下，標準級門檻允許飽和度下限稍降至 80%**。)*
+        - **B. 共享空間解決方案（Shared Space Solutions）判定標準**
+        會議室/共享空間裝置由於傳輸至大型顯示器，飽和度的上限要求稍微收緊（上限降至 130%）：
+
+        | 測試光源條件（色溫 / 照度）                 | Standard (標準級門檻)  | Premium (高級設計指引) |
+        | ------------------------------- | ----------------- | ---------------- |
+        | **2700K E27 Warm LED (80 Lux)** | **[85%, 130%]** | `[95%, 130%]`    |
+        | **A-light (80 Lux)**            | **[80%, 130%]** | `[95%, 130%]`    |
+        | **3000K LED (200 Lux)**         | **[85%, 130%]** | `[95%, 130%]`    |
+        | **6000K LED (200 Lux)**         | **[85%, 130%]** | `[95%, 130%]`    |
+        | **5000K E27 Cool LED (80 Lux)** | **[85%, 130%]** | `[95%, 130%]`    |
+        | **CFL 3500K (80 Lux)**          | **[85%, 130%]** | `[95%, 130%]`    |
 - ### White balance error (白平衡誤差)：
     - #### 定義與目的： 除了整體色彩準確度外，自動白平衡（AWB）必須確保灰色調（中性色）在畫面中保持中性灰，而不會偏向任何粉紅色（pink）或洋紅色（magenta）等干擾視覺的偏色。
-    - #### 測試圖卡與方式： 使用 ColorChecker 圖卡，量測第 21 號中灰色色塊的白平衡誤差值（$\Delta C_{00}$）37。由 Video Analyzer 自動定位並計算。
+    - #### 測試圖卡與方式： 使用 ColorChecker 圖卡，量測第 21 號中灰色色塊的白平衡誤差值（$\Delta C_{00}$）。由 Video Analyzer 自動定位並計算。
+    - #### 測試圖卡與分析區域（Test Target & ROI）
+        - 標準測試圖卡： 使用 X-Rite ColorChecker Classic 測試圖卡。
+        - 感興趣區域（ROI）： 影像分析儀（Video Analyzer）會自動偵測並定位圖卡最下排灰階色塊中的 第 21 號中灰色色塊（Patch 21）。
+        - 量測指標： 計算 Patch 21 在受測影像中的色差值 $\Delta C_{00}$。
+    - ####  架設與距離要求（Test Setup & Distance）
+        - 遮影限制： 受測設備（DUT）在測試期間絕不能在 ColorChecker 圖卡上投射出任何陰影。
+        - 視野覆蓋率： 在所有受測解析度下，ColorChecker 圖卡必須填滿至少 70% 的垂直視野（VFOV）。
+        - 距離優化建議： 為了確保測試重複性與自動化，建議以具備最小視野（Smallest FOV）的解析度為基準，盡可能最小化相機與圖卡之間的物理距離。
+    - #### 光源、色溫與照度要求
+        - 測試必須涵蓋多種代表性光源（包含不同照度 Lux 與色溫 Kelvin）：
+        1. 2700K E27 Warm LED（暖光 LED，照度 80 Lux）
+        2. A-light（模擬標準 A 光源之白熾燈/鹵素燈，照度 80 Lux）
+        3. 3000K LED（個人裝置測試 20 Lux 與 80 Lux；共享空間裝置測試 200 Lux）
+        4. 6000K LED（個人裝置測試 80 Lux；共享空間裝置測試 200 Lux）
+        5. 5000K E27 Cool LED（冷光 LED，照度 80 Lux）
+        6. CFL 3500K（緊湊型螢光燈，照度 80 Lux）
+    - #### 合格判定標準（Success Criteria）
+        微軟規格書特別指出，白平衡誤差已取消 Premium（高級）標準，僅保留 Standard（標準級，認證強制門檻） 規範。各光源下的色差限制（$\Delta C_{00}$）如下：
+        - A. 個人解決方案（Personal Solutions）判定標準
+
+        | 測試光源條件（色溫 / 照度）| Standard (標準級門檻) |
+        | ------------------------ | -------------------- |
+        | 2700K E27 Warm LED (80 Lux) | $\Delta C_{00} \le 15$ |
+        | A-light (80 Lux) | $\Delta C_{00} \le 15$ |
+        | 3000K LED (20 Lux) | $\Delta C_{00} \le 15$ |
+        | 3000K LED (80 Lux) | $\Delta C_{00} \le 15$ |
+        | 6000K LED (80 Lux) | $\Delta C_{00} \le 10$ |
+        | 5000K E27 Cool LED (80 Lux) | $\Delta C_{00} \le 10$ |
+        | CFL 3500K (80 Lux) | $\Delta C_{00} \le 10$ |
+        (註：對於 3000K 以下的低色溫/暖光光源，規格書將門檻放寬 5 個單位至 $\Delta C_{00} \le 15$，以適度容許暖色光環境下的自然調性)。
+        - B. 共享空間解決方案（Shared Space Solutions）判定標準  
+    會議室/共享空間裝置同樣僅需滿足 Standard 標準（3000K 與 6000K 測試照度為 200 Lux）：
+    
+        | 測試光源條件（色溫 / 照度）| Standard (標準級門檻) |
+        | -------------------------| -------------------- |
+        | 2700K E27 Warm LED (80 Lux) | $\Delta C_{00} \le 15$ |
+        | A-light (80 Lux) | $\Delta C_{00} \le 15$ |
+        | 3000K LED (200 Lux) | $\Delta C_{00} \le 15$ |
+        | 6000K LED (200 Lux) | $\Delta C_{00} \le 10$ |
+        | 5000K E27 Cool LED (80 Lux) | $\Delta C_{00} \le 10$ |
+        | CFL 3500K (80 Lux) | $\Delta C_{00} \le 10$ |
 ## 4. Geometry (幾何) 測項
 確保相機的視角（FOV）符合場景需求，且不會產生誇張的線條形變或拼接痕跡。
 - ### Field of view (視野)：
     - #### 定義與目的： 確保相機有足夠寬廣的視野。對於個人解決方案，限制視野的關鍵在於垂直視野（VFOV），以確保能拍到使用者的頭部與軀幹；對於會議室/共享空間，關鍵則在於水平視野（HFOV），以完整容納所有會議參與者。
     - #### 測試圖卡與方式： 使用 ColorChecker 圖卡。透過 Video Analyzer 自動偵測圖卡物理大小與像素比例，進而計算出視野角度。
+    - #### **測試圖卡與分析方式**
+        -  **標準測試圖卡：** 使用 **X-Rite ColorChecker Classic** 測試圖卡。
+        -  **感興趣區域（ROI）：** 分析整張圖卡（Whole chart）。
+        -  **量測工具：** 由 **Video Analyzer** 軟體進行圖卡 ROI 的自動化偵測並計算出視野角度。
+    - #### 測試環境與架設要求 (光源, 色溫, 距離)**
+        - **測試距離（Testing Distance）與架設限制：**
+            - 受測設備（DUT）在測試期間**絕不能在 ColorChecker 圖卡上投射出任何陰影**。
+            - 在所有受測解析度下，ColorChecker 圖卡必須填滿**至少 70% 的垂直視野（VFOV）**。
+            -  為確保測試的可重複性與自動化，規格書建議以具備最小視野（Smallest FOV）的解析度為基準，**儘可能最小化相機與圖卡之間的物理距離**。
+        - **光源與色溫（Light &amp; Color Temperature）：**
+            - 測試於完全隔絕外部光源的暗室實驗室中進行。
+            - 個人裝置在標準實驗室條件下測試照度為 **80 Lux**（搭配 3000K LED）；共享空間/會議室裝置在 lab 檢驗時標準照度為 **200 Lux**（搭配 3000K LED）。
+    - #### **合格判定標準 (Success Criteria)**
+        - **A. 個人解決方案 (Personal Solutions) —— 垂直視野 (VFOV)**  
+        針對個人裝置，規格書定義了垂直視野的合格與建議標準：
+
+        | 指標種類                    | Standard (標準級門檻) | Premium (高級指引) | Recommended (建議規格) |
+        | ----------------------- | ---------------- | -------------- | ------------------ |
+        | **Vertical FOV (VFOV)** | **≥ 35°**  | `≥ 40°`  | `60°`        |
+
+        - **B. 共享空間 / 會議室解決方案 (Shared Space Solutions) —— 水平視野 (HFOV)**
+        會議室裝置的最低基本要求為 **HFOV ≥ 60°**（適用於大型會議室的底線）。微軟會根據具體的**會議室類型**與\*\*相機安裝位置（前置相機 Front of room / 桌上相機 On the table）\*\*設定詳細的 HFOV 門檻：
+
+        | 會議室類型 / 尺寸                                      | 相機安裝位置       | 最低 HFOV 要求                           |
+        | ----------------------------------------------- | ------------ | ------------------------------------ |
+        | **Phone Room** (電話亭 / 2m×2m)                    | 前置相機         | **≥ 90°**                      |
+        | **Focus Room** (焦點會議室 / 3m×3m)                  | 前置相機<br />桌上相機 | **≥ 90°**<br />**≥ 180°**  |
+        | **Small Room** (小型會議室 / 3m×4.5m 或 4.5m×4.5m)    | 前置相機<br />桌上相機 | **≥ 82°**<br />**≥ 270°**  |
+        | **Medium Room** (中型會議室 / 4.5m×6m)               | 前置相機<br />桌上相機 | **≥ 76°**<br />**≥ 270°**  |
+        | **Large Room** (大型會議室 / 4.5m×8.5m)              | 前置相機<br />桌上相機 | **≥ 70°**<br />**360°**    |
+        | **Extra-Large Room** (特大型會議室 / 6m×10m)          | 前置相機<br />桌上相機 | **≥ 70°**<br />**360°**    |
+        | **Collaboration: Huddle / Meeting Room** (協作空間) | 前置相機         | **≥ 120°**               |
+        | **Collaboration: Lounge** (休閒協作區)               | 前置相機         | **≥ 90°**（搭配觸控螢幕時需 **≥ 120°**） |
+
+        *註：若設備需使用變焦（Zoom）才能達到目標房間的最大推薦距離，則必須在套用相同變焦級別下量測 HFOV，並與上表門檻比對**。*
+
+        - #### **相關補充指標：視野一致性 (Field of View Consistency)**
+
+            除了單一解析度下的 FOV 之外，規格書在第 3.4.4 節要求相機在因網路頻光或光照切換解析度時，必須維持視野的一致性：
+            - **畫面中心位移（FOV Center Consistency）：** **≤ 3%**
+            - **垂直視野尺寸變化（Vertical FOV Consistency）：** **≤ 25%**
 - ### Geometric distortion (幾何畸變)：
     - #### 定義與目的： 對於使用線性投影（rectilinear projection）的相機，低幾何畸變可確保場景中的直線在畫面上保持筆直。過大的畸變（如魚眼形變）會扭曲空間，讓人難以正確感知場景物體的實際大小與形狀。
     - #### 測試圖卡與方式： 預設使用 Dot Pattern (small) 測試圖卡，交替使用 Dot Pattern (large) 圖卡。線性投影相機需讓圖卡填滿整個視野，量測至少 15 排點，且相機必須極精準對齊，避免產生梯形透視畸變。若相機支援柱狀投影（cylindrical projection），則需在畫面不同部分擷取多張圖卡影像（覆蓋至少一條對角線）進行多點拼接幾何分析。
+    - #### **測試圖卡與 ROI 規範 (Test Chart &amp; ROI)**
+        -  **標準測試圖卡：** 預設採用 **Imatest Dot Pattern test chart (small)** 點陣圖卡，若有需要亦可使用 **Dot Pattern test chart (large)** 尺寸。
+        -  **感興趣區域（ROI）：** 畫面中必須涵蓋並擷取**至少 15 排圓點（At least 15 rows of dots）**。
+        -  **視野覆蓋要求：** 相機畫面**不得看到點陣圖卡區域之外的背景**，以確保自動化分析軟體（Video Analyzer）能正確偵測與計算。
+
+    - #### **測試環境與架設要求 (Light, Color Temp, Setup)**
+        -  **光源與色溫（Light &amp; Color Temperature）：**
+            -  **個人解決方案：** 在 **80 Lux** 照度、**3000K LED** 色溫下，以相機支援的**最大解析度**進行測試。
+            -  **共享空間 / 會議室解決方案：** 在 **200 Lux** 照度、**3000K LED** 色溫下，以相機支援的**最大解析度**進行測試。
+        -  **直線投影相機（Rectilinear Projection）架設規範：**
+            -  圖卡必須填滿整個視野（Full FOV。若圖卡過小，可將相機靠近或更換較大尺寸的圖卡。
+            -  相機必須**極精準地對齊圖卡中心**，嚴格避免因角度傾斜而產生梯形透視畸變（Trapezoidal distortion），影響畸變數值計算。
+        - **柱狀投影相機（Cylindrical Projection，如超廣角/全景相機）架設規範：**
+            - 若相機採用柱狀投影（FOV ≥ 110°），必須在畫面的不同區域拍攝多張點陣圖卡影像。
+            - 結合後的多張圖卡覆蓋區域，必須**完全涵蓋畫面至少一條對角線（at least one diagonal of the frame）**。
+
+    - #### **合格判定標準 (Success Criteria)**
+        畸變數值以絕對百分比（`|≤ X%|`）呈現，**數值越小代表線條越筆直、畸變越低**。規格書區分為 **Standard（標準級門檻，認證強制門檻）** 與 **Premium（高級設計指引，非強制性）**：
+        -  **A. 個人解決方案 (Personal Solutions) 判定標準**
+        微軟根據相機的**垂直視野（VFOV）大小**給予不同的畸變容忍度（視野越寬，允許的畸變極限越高）：
+
+        | 相機視野範圍 (FOV)                      | Standard (標準級門檻) | Premium (高級設計指引) |
+        | --------------------------------- | ---------------- | ---------------- |
+        | **FOV 介於 35° 至 45°**              | \*\*\`           | ≤ 6%             |
+        | **FOV 介於 46° 至 65°**              | \*\*\`           | ≤ 10%            |
+        | **FOV 大於 65° (** **\&gt; 65°** **)** | \*\*\`           | ≤ 14%            |
+
+        - **B. 共享空間 / 會議室解決方案 (Shared Space Solutions) 判定標準**
+        針對會議室設備、內容相機與超廣角相機的規範如下：
+
+        | 設備類型 / 視野範圍                  | Standard (標準級門檻) | Premium (高級設計指引) |
+        | ---------------------------- | ---------------- | ---------------- |
+        | **所有內容相機 (Content Cameras)** | \*\*\`           | ≤ 10%            |
+        | **會議室相機 (FOV &lt; 110°)**       | \*\*\`           | ≤ 10%            |
+        | **會議室相機 (FOV ≥ 110°，柱狀投影)**  | \*\*\`           | ≤ 5%             |
+
+*(註：對於超過 110° 的超廣角會議室相機，若經過柱狀校正，其標準級門檻強制要求畸變必須* *|≤ 5%|* *，以防止大廣角畫面邊緣的人像嚴重拉伸变形**。)*
 - ### Stitching quality (拼接品質)：
     - #### 定義與目的： 針對擁有多鏡頭（multi-lens）的全景/寬視野相機，確保各鏡頭影像在融合拼接成一張大畫面時，接縫處不會產生明顯的視覺瑕疵。
     - #### 測試圖卡與方式： 使用 Color Bars 測試圖卡，測試距離為相機規定的最小使用距離。相機方向必須對準，使影像拼接縫垂直穿過圖卡中 4 條彩條的中心。由 Video Analyzer 分析並報告接縫處的邊緣不連續性（Edge discontinuity）、色彩不連續性（Color discontinuity）與亮度不連續性（Brightness discontinuity）。
+    - #### 測試環境與架設要求 (Light, Color Temp, Distance)
+        - 光源與色溫（Light Setup & Color Temperature）：
+            - 必須在 200 Lux 照度與 3000K LED 色溫的光源環境下進行測試。
+        - 測試距離（Testing Distance）：
+            - 採用該相機所標示的最小指定使用距離（Minimum specified usage distance for the camera）。由於距離相機越近，鏡頭間的視差（Parallax）越大、拼接難度越高，因此在最小使用距離下量測能考驗其極限性能。
+    - #### Color Bars 測試圖卡與對齊規範 (Test Target & ROI)
+        - 專用測試圖卡： 採用第 6.1.7.9 節所規範的 Color Bars（彩條）測試圖卡。
+        - 相機擺放與對齊（Camera Orientation）：
+            - 測試區域（ROI）為整張圖卡。
+            - 相機的擺放角度與方向必須極精準地對準圖卡，使畫面中的影像拼接縫（stitching area）在垂直方向上正好穿過 Color Bars 中 4 條彩條的正中心。
+        - 自動化分析： 由 Video Analyzer 軟體自動定位 ROI，並對接縫處進行像素級的幾何與色彩演算法分析。
+    - #### 合格判定標準 (Success Criteria)
+    Video Analyzer 會針對接縫處檢驗 3 項核心指標，微軟將判定標準分為 Standard（標準級門檻，認證強制門檻） 與 Premium（高級設計指引，非強制性）：
+    | 拼接品質量測參數 (Stitching Parameter) | 參數說明與物理意義 | Standard (標準級門檻) | Premium (高級設計指引) |
+    | ------------------------------------- | --------------- | --------------------- | --------------------- |
+    | Edge discontinuity (邊緣不連續性) | 量測兩側影像拼接時，物理線條或邊緣在接縫處的像素錯位程度。 | ≤ 1.5 pixels | ≤ 1 pixel |
+    | Color discontinuity ($\Delta C$) (色彩不連續性) | 量測跨越接縫兩側時，相同彩條區塊的色差變化量。 | ≤ 5 | ≤ 3 |
+    | Brightness discontinuity (亮度不連續性) | 量測跨越接縫兩側時，相對亮度的百分比偏差。 | ≤ 5% | ≤ 3% |
+
+    (註：若接縫處的線條錯位小於 1.5 個像素，且色差與亮度偏差極低，遠端使用者在觀看全景會議畫面時便不會感覺到畫面是由多張照片拼湊而成的。)
 ## 5. Shading (陰影 / 均勻性) 測項
 確保相機畫面各區域的亮度和色彩高度一致，避免鏡頭品質或內部反射導致邊角過暗或偏色。
 - ### Relative illumination (相對照度 / 邊角失光)：
     - #### 定義與目的： 相對照度或暗角（Vignetting），是指影像亮度從中心向四個邊角遞減的物理現象。此測項旨在確保相機能捕捉到亮度均勻的使用者與背景影像。
     - #### 測試圖卡與方式： 使用標準 Gray board（中灰板） 作為測試目標。相機必須拉近到畫面上只有灰板表面，且受測相機（DUT）本身不能在灰板上產生任何陰影投射。由 Video Analyzer 量測並計算全畫面的相對照度百分比（Corner RI）。
+    - #### 灰板（Gray Board）圖卡規格與架設規範 (Test Setup & Chart Rules)
+        - 灰板圖卡規格（Chart Specifications）：
+            - 尺寸與材質： 採用 1m × 1.005m 的鋁複合板（Aluminum composite），外圍以鋁型材包覆。
+            - 表面塗層： 表面覆蓋 Hama 中性灰紙或塗噴 18% 中性灰（18% Neutral Gray / N5，顏色參數為 $L^*a^*b^*$4） 的霧面漆（Matte surface），以保證表面消光且反射率均勻。
+        - 架設與距離限制（Distance & Alignment）：
+            - 防陰影限制： 受測相機（DUT）與灰板之間的物理距離，必須確保相機本體絕不能在灰板表面投射出任何陰影。
+            - 畫面滿版要求： 相機的視野畫面內只能看到灰板表面（Only the target surface can be in the frame），不得露出實驗室背景或灰板邊框之外的任何雜物。
+        - 感興趣區域（ROI）： Whole frame（整個畫面影格）。
+            - 由 Video Analyzer 自動進行全圖亮度分佈分析與相對照度百分比計算。
+    - ####  光源、色溫與照度要求 (Light Setup)
+        - 個人解決方案（Personal Solutions）： 在 80 Lux 照度與 3000K LED 色溫的光源環境下進行測試。
+        - 共享空間 / 會議室解決方案（Shared Space Solutions）： 在 200 Lux 照度與 3000K LED 色溫的光源環境下進行測試。 
+    - #### 合格判定標準 (Success Criteria)
+    相對照度數值以百分比（%）呈現（即邊角亮度相對於中心亮度的比值），百分比越高代表畫面亮度越均勻、暗角越輕微。微軟定義的標準如下：
+    
+    | 裝置類別 | 測試光源條件（照度 / 色溫） | Standard (標準級門檻) | Premium (高級設計指引) |
+    | -------- | ------------------------ | -------------------- | --------------------- |
+    | 個人解決方案 (Personal Solutions) | 80 Lux, 3000K LED | RI ≥ 70% | RI ≥ 80% |
+    | 共享空間解決方案 (Shared Space Solutions) | 200 Lux, 3000K LED | RI ≥ 70% | RI ≥ 80% |
+    (註：無論是個人或是會議室相機，其標準級（Standard）強制要求邊角相對照度不得低於 70%；若要達到 Premium 高級等級，則邊角相對照度必須達到 80% 以上)。
 - ### Color uniformity (色彩均勻性)：
     - #### 定義與目的： 量測整個影像畫面中色彩的變異度，而非僅比較中心與邊緣，確保畫面色彩表現一致，避免產生一邊偏黃、一邊偏綠等色彩不均勻瑕疵。
     - #### 測試圖卡與方式： 同樣將相機對準標準 Gray board。由 Video Analyzer 自動分析整個影格，計算最大色差變異數值（Max C）。
+    - #### 灰板（Gray Board）測試圖卡與架設規範 (Test Target & Setup)
+        - 測試圖卡： 採用標準的 Gray board（中灰板）。
+            - 規格細節： 採用 1m × 1.005m 的鋁複合板，表面覆蓋 Hama 中性灰紙或塗噴 18% 中性灰（18% Neutral Gray / N5）塗料。
+        - 架設與距離限制：
+            - 相機與灰板間的物理距離必須確保受測設備（DUT）絕不能在灰板上投射出任何陰影。
+            - 相機畫面內只能看到灰板表面，不得露出現場背景或灰板邊框之外的雜物。
+        - 感興趣區域（ROI）： Whole frame（整個影格畫面）。
+        - 量測工具： 由 Video Analyzer 軟體自動進行全畫面色彩分佈分析與數據計算。
+    - #### 光源、色溫與照度要求 (Light Setup)
+        - 個人解決方案（Personal Solutions）： 在 80 Lux 照度與 3000K LED 色溫的光源環境下進行測試。
+        - 共享空間 / 會議室解決方案（Shared Space Solutions）： 在 200 Lux 照度與 3000K LED 色溫的光源環境下進行測試。
+    - #### 合格判定標準 (Success Criteria)
+        量測指標為全畫面色彩變異的最大色差值 $\text{Max }\Delta C$。**數值越小代表畫面色彩越均勻**、**偏色越輕微**。微軟定義的標準如下：
+        - A. 個人解決方案 (Personal Solutions) 判定標準
+            - Standard (標準級門檻)： $\text{Max }\Delta C \le 10$
+            - Premium (高級設計指引)： $\text{Max }\Delta C \le 5$
+        - B. 共享空間 / 會議室解決方案 (Shared Space Solutions) 判定標準
+            - Standard (標準級門檻)： $\text{Max }\Delta C \le 10$
+            - Premium (高級設計指引)： $\text{Max }\Delta C \le 5$
+            (註：無論是個人或是會議室相機，其標準級（Standard）強制要求全畫面最大色差變異不得超過 10；若要達到 Premium 高級等級，則最大色差變異必須控制在 5 以內。)
 - ### Veiling glare (雜散光 / 眩光)：
     - #### 定義與目的： 當強光源（如室內天花板日光燈）直射或進入相機視野時，光線會在鏡頭內部鏡片組之間產生多次反射並散射至感測器上，形成雜散光（stray light）。這會嚴重劣化畫面中陰暗處的對比度，降低相機的實質動態範圍與清晰度。無防反射鍍膜（AR coating）或無光學遮光罩的設備極易產生此瑕疵。
     - #### 測試圖卡與方式： 使用 Gray board 作為背景。在相機上方 10cm 架設一盞同型號的眩光燈（其在相機位置的照度校正為 80 Lux，但不能使灰板表面照度增加超過 5 Lux）：
         1. 僅開啟 2 盞主輔助光源（照射灰板），擷取第一張影像。
         2. 同時開啟主輔助光源與眩光燈，擷取第二張影像。
         3. 將兩張影像轉為灰階，由 Video Analyzer 計算這兩張影像之間所有像素的平均絕對像素差值（average of absolute value pixel differences）。差值愈小，代表抗雜散光與眩光的能力愈優秀。
+    - #### **測試環境與光源架設規範 (Environment &amp; Setup)**
+        -  **測試圖卡與 ROI**：採用標準 **Gray board（中灰板）**，感興趣區域（ROI）為 **Whole frame（整個影格畫面）**。
+        -  **眩光燈位置**：眩光燈架設於相機上方，其高度必須高於視野（FOV）頂端邊緣至少 **10 cm**（以提供最寬垂直視野的解析度為基準進行調整）。
+        - **光源強度與校正規範**：
+            1. **眩光燈照度**：在相機位置測得的眩光燈照度必須校正為 **80 Lux**。
+            2. **圖卡增亮限制**：開啟眩光燈時，眩光燈投射在中灰板表面的照度增加量**不得超過 5 Lux**。
+            3. **主輔助燈照度**：照亮中灰板的兩盞主輔助燈，在灰板表面的照度須校正為 **80 Lux**（兩側架設角度約為 45° 至 55°）。
+        - **燈泡型號完全一致**：眩光燈所使用的燈泡型號，必須與兩盞主輔助燈**完全相同**（例如三盞燈皆統一採用 2700K Philips Warm LED 燈泡）。
+
+    - #### **測試步驟與分析方法 (Test Procedure)**
+        1. **第一張影像擷取**：僅開啟兩盞主輔助燈（照亮灰板），擷取一張中灰板影像。
+        2. **第二張影像擷取**：同時開啟主輔助燈與頂部眩光燈，擷取第二張中灰板影像。
+        3. **影像轉化與計算**：將兩張擷取的影像轉為灰階，並利用 **Video Analyzer** 計算這兩張影像之間所有像素的**平均絕對像素差值（Average of absolute value pixel differences）**。
+
+    - #### **合格判定標準 (Success Criteria)**
+
+        計算出的平均絕對像素差值越小，代表相機抑止內部散射與抗眩光能力越優秀。規格書定義的標準如下：
+
+        | 測項參數                    | Standard (標準級門檻) | Premium (高級設計指引) |
+        | -------------------------- | ---------------- | ---------------- |
+        | **Veiling glare (平均像素差值)** | **≤ 10**    | **≤ 5**     |
+
 ## 6. Timing (時間特性) 測項
 視訊通話的影像品質不限於靜態畫質，時間上的流暢度、超低延遲以及影音同步，是維持高品質視訊會議體驗的關鍵。
 - ### Jitter (影格時間抖動)：
     - #### 定義與目的： 確保相機及其驅動程式能夠以高度穩定、一致的速率輸出影像影格，防止影格間隔變異過大，導致視訊在視覺上產生卡頓、掉幀或撕裂感。
     - #### 測試圖卡與方式： 利用 Video Analyzer 連接遠端擷取工具（Remote Capture Tool, RCT）進行長時間的高精度影格時間戳記分析，測量在 30 fps 下影格間隔的標準差。
+    - #### **測試環境與光源規範 (Environment &amp; Light Setup)**
+        - **光源與色溫（Light &amp; Color Temperature）：**
+            -  測試必須在 **3000K LED** 色溫的光源下進行。
+        -  **測試照度（Lux Level）：**
+            - 測試環境照度校正為 **200 Lux**。
+        - **實驗室環境要求：**
+            - 必須在完全隔絕外部光線的暗室（Dark room）中進行，房間牆面、天花板與地面均塗噴消光黑或深灰色，防止外部雜光干擾測試。
+    - #### **合格判定標準 (Success Criteria)**
+        Jitter 測項僅設有 **Standard（標準級門檻，認證強制性合格標準）**：
+
+        | 測試參數                | 測試條件                                   | Standard (標準級門檻) |
+        | ------------------- | -------------------------------------- | ---------------- |
+        | **Jitter (影格時間抖動)** | **所有支援解析度、30 fps（200 Lux, 3000K LED）** | **≤ 7 ms**       |
+        *規範要求：受測相機在所有規定的解析度下，當設定為 30 fps 時，其影格傳送的時間抖動標準差必須小於或等於* **7 毫秒（ms）***。*
+    - #### **測試設備與軟體架構 (Test Equipment &amp; Setup)**
+        Jitter 測項不需使用特定測試圖卡（如 ColorChecker 或 SFRplus），而是透過軟體工具分析連續影格的時間戳記（Timestamps）：
+    1. **受測設備與測試電腦（DUT &amp; DUT PC）：**
+        - 相機連接至受測電腦（DUT PC），並執行微軟官方的 **Remote Capture Tool (RCT)** 軟體來擷取視訊流。
+    2. **測試管理電腦（Video Test Management PC）：**
+        - Remote Capture Tool 透過 TCP 網路協定，將擷取的影格與時間資料即時傳送至測試管理電腦上的 **Video Analyzer** 軟體。
+    3. **數據分析（Video Analyzer）：**
+        - **Video Analyzer 與 Remote Capture Tool 配對連線**，自動計算連續影格到達時間的波動程度，並輸出 Jitter 的毫秒數值。
 - ### Time to capture first image, change resolutions (首幀捕獲與解析度切換時間)：
     - #### 定義與目的：
         1. 首幀捕獲時間： 指相機從開啟到輸出並渲染第一張影像的時間。時間越短，使用者感知的通話建立延遲就越低。
         2. 解析度切換時間： 指相機在不同解析度間切換並重新建立視訊流所需的時間。這能確保 Teams 在網路變動時能流暢切換畫質，並防止在切換期間因重置相機流而導致嚴重的影音不同步。
     - #### 測試圖卡與方式： 透過 RCT 程式配合 Video Analyzer 自動化記錄其初始化與解析度轉換過程，並針對所有要求的解析度進行實測。
+    - #### **合格判定標準 (Success Criteria)**
+        根據規格書 Table 76，受測相機必須在所有支援與規定的解析度下進行測試，並符合以下時間限制（單位：毫秒 ms）：
+
+        | 測試參數                                     | Standard (標準級門檻) | Premium (高級設計指引) |
+        | ---------------------------------------- | ---------------- | ---------------- |
+        | **Time to capture first image (首幀捕獲時間)** | **≤ 1500 ms**    | **≤ 500 ms**     |
+        | **Time to change resolutions (解析度切換時間)** | **≤ 1500 ms**    | **≤ 750 ms**     |
+    *註：受測相機所支援的所有強制性解析度（如 1080p、720p、360p 等）皆需進行此項測試並符合標準**。*
+    - #### **測試環境與光源規範 (Light &amp; Environment Setup)**
+        -  **照度與色溫（Lux &amp; Color Temperature）：** 承接 Timing（時間特性）章節的標準實驗室規範，測試於 **200 Lux** 照度與 **3000K LED** 色溫的光源環境下進行。
+        - **實驗室環境：** 於完全隔絕外來雜光的暗室實驗室中進行，確保相機自動曝光（AEC）與自動白平衡（AWB）處於穩定的運作狀態。
+    - #### **測試設備與軟體架構 (Test Equipment &amp; Setup)**
+        本測項無須特定的實體圖像測試圖卡，而是採用自動化的時間戳記分析架構：
+        1. **受測設備與受測電腦（DUT &amp; DUT PC）：** 相機連接至受測電腦（DUT PC），並執行微軟官方的 **Remote Capture Tool (RCT)** 測試軟體。
+        2. **測試管理電腦（Video Test Management PC / Video TMT PC）：** 執行 **Video Analyzer** 軟體。
+        3. **數據分析與量測機制（Video Analyzer &amp; RCT Peering）：**
+            - Remote Capture Tool 透過 TCP 網路協定與 Video Analyzer 進行連線配對（Peered）[1][4]。
+            - 當發出啟動串流或切換解析度的指令時，系統會精確記錄指令發出時間點，直至接收並渲染出第一個有效影格（Valid frame），從而計算出精確的毫秒級時間差[1][4]。
 - ### System latency (系統影像延遲)：
     - #### 定義與目的： 確保相機、USB 匯流排、驅動程式和用戶端渲染不會引入過高的處理延遲。延遲量測涵蓋整個本機系統的端到端表現——即從物理光子進入相機鏡頭，到顯示器發射出對應影像光子的時間。
     - #### 測試圖卡與方式： 受測相機必須對準 Blinking LED（閃爍 LED） 測試圖表，並將其置於影像畫面的中心列。透過專屬的 延遲量測套件（Latency measurement kit） 與 RCT（此時關閉 YUV 轉換）測量光電反應的時間差，並由 Video Analyzer 分析出本機影像延遲（單位毫秒）。
+    - #### **測試環境與架設規範 (Environment &amp; Light Setup)**
+        - **光源與照度（Lux &amp; Light Setup）：**
+            -  測試照度必須保持在 **200+ Lux** 的明亮環境下，並於 **3000K LED** 標準色溫光源中進行。
+        -  **測試架設與圖卡擺放：**
+            -  採用包含閃爍 LED（Blinking LED）的 **Timing Test Chart** 測試圖卡。
+            -  受測相機（DUT）必須調整架設位置與焦距，使 **Blinking LED 精確位於視訊影格的水平中心排（Center row of video frames）**。
+        -  **影格率與標準主機：**
+            -  DUT PC 或測試螢幕上渲染出的視訊畫面必須達到相機支援的最大 **30 FPS** 影格率。
+            -  針對外接 USB 相機，微軟認證實驗室統一採用 **Microsoft Surface Pro 8** 作為標準測試主機（DUT PC）。
+
+    - #### **合格判定標準 (Success Criteria)**
+        測試透過 **Remote Capture Tool (RCT) v3.1** 於 200+ Lux 條件下量測本地視訊延遲，微軟針對非壓縮（Uncompressed YUY2）與壓縮格式（MJPEG / NV12）分別設定了 Standard（標準級，認證強制門檻）與 Premium（高級，卓越設計目標）標準：
+
+        | 視訊格式與測試條件                            | Standard (標準級門檻) | Premium (高級設計指引) |
+        | ------------------------------------ | ---------------- | ---------------- |
+        | **VL (200+ Lux, Uncompressed YUY2)** | **≤ 130 ms**     | **≤ 115 ms**     |
+        | **VL (200+ Lux, MJPEG / NV12)**      | **≤ 140 ms**     | **≤ 120 ms**     |
+
+    - #### **測試設備與軟硬體工具鏈 (Test Equipment &amp; Setup)**
+    系統影像延遲的量測高度依賴專用的光電測試硬體與自動化分析軟體：
+
+    1. **硬體測試儀器 —— 延遲測量套件（Latency Measurement Kit）：**
+        - 採用由 **ScienceMosaic™** 開發的專用 ARM 架構硬體延遲測試儀（ARM-based dedicated latency test tool）。
+        -  配備可發出特定脈衝訊號的 **Blinking LED** 光學發生器，以及對應的光學感測器（Optical sensors / TOSLINK 介面），用以感應螢幕渲染出亮點的瞬間。
+    2. **測試圖卡 (Timing Test Chart)：**
+        - 將 Latency Kit 的 Blinking LED 模組固定於中灰底板（Timing Test Chart）中央供相機對焦拍攝。
+    3. **測試軟體與流程控制 (Software Chain)：**
+        - **Remote Capture Tool (RCT v3.1)**：於受測主機（DUT PC）上執行，於 Options 選單中將 `Camera pin` 設定為 **'Record'**，並將 `YUV transform` 設定為 **'off'**。
+        - **Video Analyzer (Video TMT PC)**：Video Test Management PC 上的 Video Analyzer 軟體與 Latency Kit 相互配對連線（Peered），自動比較 LED 發光脈衝與螢幕畫面出現亮點的時間差，精確計算出毫秒級（ms）的系統影像延遲。
 - ###  Audio/video synchronization (影音同步性 / A/V Sync)：
     - #### 定義與目的： 確保傳送與接收端的視訊和音訊訊號保持高度同步，避免通話中產生對不上嘴型（Lip sync）的問題。如果相機為了處理影像使用了過多的影格緩衝（frame buffers），或音訊處理產生嚴重延遲，都容易導致影音不同步。
     - #### 測試圖卡與方式： 使用配備閃爍 LED 與蜂鳴喇叭（Blinking LED / beeping speaker）的 Timing 測試圖卡。在 1280x720 解析度、關閉 YUV 轉換下，利用延遲量測套件搭配 Video Analyzer 計算音訊領先或落後視訊的時間差。
+    - #### **合格判定標準 (Success Criteria)**
+        測試利用 **Remote Capture Tool** 於 **200+ Lux** 光源條件下量測影音偏離時間（AVoffsync，單位：毫秒 ms）。微軟分別設定了 Standard（標準級，認證強制門檻）與 Premium（高級，卓越設計目標）標準：
+
+        | 測項指標 (AVoffsync)         | Standard (標準級門檻) | Premium (高級設計指引) |
+        | ------------------------ | ---------------- | ---------------- |
+        | **音訊領先 (Audio leading)** | **&lt; 75 ms**      | **&lt; 65 ms**      |
+        | **音訊落後 (Audio behind)**  | **&lt; 105 ms**     | **&lt; 95 ms**      |
+
+    *(註：微軟對於音訊領先與落後給予不同容忍度，音訊領先影像超過 75 ms 或落後超過 105 ms 即判定為不合格**。)*
+    - #### **測試環境與軟體設定規範 (Environment &amp; Setup)**
+        - **測試照度（Lux Level）**：環境照度須保持在 **200+ Lux**。
+        - **指定測試解析度**：本測項**僅在 1280x720 (720p)** 解析度下進行測試。
+        - **軟體設定**：於 **Remote Capture Tool** 中，須將 `YUV transform` 設定為 **'off'**。
+
+    - #### **測試設備與硬體工具鏈 (Test Equipment &amp; Setup)**
+        - **測試標靶（Test Target）**：採用 **Timing Test Chart**，標靶上配置有**閃爍 LED（Blinking LED）** **與** **蜂鳴揚聲器（Beeping speaker）**，提供同步的視覺與聽覺發光/發聲訊號。
+        - **硬體測試儀器 —— 延遲測量套件（Latency Measurement Kit）**：
+            - 採用由 **ScienceMosaic™** 開發的專用影音延遲測試系統。
+            - 該儀器可自動產生特定的視覺閃爍模式（LED Blinking pattern）與聲音脈衝訊號（Speaker Beeping pattern）。
+            - 儀器本體配有 **3 個光學訊號輸入介面（TOSLINK 接頭）** 用於讀取視訊，以及 **2 個 RCA 音訊輸入介面** 用於讀取音訊。
+        - **數據分析**：由 **Video Analyzer** 軟體搭配 **Latency Measurement Kit** 自動比對聲音脈衝與影像閃爍訊號的時間差，並輸出精確的毫秒級影音時序誤差數值。
 - ### Video frame rate during a call (通話中視訊影格率)：
     - #### 定義與目的： 確保視訊串流在實際與遠端連線通話期間，能夠穩定維持高流暢影格率，不產生顯著的品質衰退。
     - #### 測試圖卡與方式： 受測相機（DUT）與一台配置有 1080p 相機的參考電腦（Reference PC）建立實際的 Teams 雙向通話。透過專用 DVI 影像擷取卡，將參考電腦上接收並顯示的視訊輸出以固定 50 或 60 fps 擷取下來，由 Video Analyzer 計算出實際的發送（Send）影格率與接收（Receive）影格率是否符合流暢度規範。
+    - #### **測試環境與光源規範 (Environment, Lux &amp; Color Temp)**
+        - **光源與色溫：** 測試統一使用 **3000K LED** 色溫的光源環境。
+        -  **測試照度（Lux Levels）：**
+        -  **個人解決方案（Personal solutions）：** 須測試涵蓋低照度 **20 Lux**、典型照度 **80 Lux**、**160 Lux** 以及明亮照度 **200 Lux**。
+        - **共享空間解決方案（Shared space solutions）：** 於 **200 Lux** 明亮照度下進行量測。
+        -  **網路條件（Network Conditions）：** 於理想無封包遺失的區域網路環境（Lossless network condition）下建立 Teams 視訊通話。
+    - #### **合格判定標準 (Success Criteria)**
+        微軟針對發送（Send）與接收（Receive）的傳輸張數設定了以下 Standard（標準級，認證強制門檻）合格要求（單位：fps）：
+        - **A. 個人解決方案 (Personal Solutions) 判定標準**
+
+        | 視訊傳送 / 接收測試條件                                       | Standard (標準級門檻) |
+        | --------------------------------------------------- | ---------------- |
+        | **Send video frame rate (20 Lux, 3000K LED)**       | **\&gt; 14 fps**    |
+        | **Send video frame rate (80 Lux, 3000K LED)**       | **\&gt; 29 fps**    |
+        | **Send video frame rate (160 Lux, 3000K LED)**      | **\&gt; 29 fps**    |
+        | **Send video frame rate (200 Lux, 3000K LED)**      | **\&gt; 29 fps**    |
+        | **Receive video frame rate (30fps, 最大解析度)** *(註 1)* | **\&gt; 29 fps**    |
+        *(註 1：Receive 測試僅適用於產品本身具備視訊接收與顯示能力的設備**。)*
+        - **B. 共享空間 / 會議室解決方案 (Shared Space Solutions) 判定標準**
+
+        | 視訊傳送 / 接收測試條件                                       | Standard (標準級門檻) |
+        | --------------------------------------------------- | ---------------- |
+        | **Send video frame rate (200 Lux, 3000K LED)**      | **\&gt; 29 fps**    |
+        | **Receive video frame rate (30fps, 最大解析度)** *(註 2)* | **\&gt; 29 fps**    |
+        *(註 2：同樣僅適用於具備視訊顯示/接收能力的會議室硬體**。)*
+
+    - #### **測試架構與步驟 (Test Setup &amp; Procedure)**
+        1. **建立端到端通話（End-to-End Call）：** 在受測設備（DUT Teams Client）與參考電腦（Reference PC）之間建立 Microsoft Teams 雙向視訊通話。
+        2. **參考端設定：** Reference PC 配置具備 1080p 解析度的鏡頭與螢幕輸出（1280x720 或 1920x1080），以確保傳送 DUT 所能接收的最大解析度。
+        3. **視訊訊號擷取：** 將 Reference PC 的顯示輸出（DVI/HDMI）連接至測試管理電腦（Video Test Management PC）上的 **DVI 擷取卡**，以固定 **50 fps 或 60 fps** 的採樣率進行高幀率擷取。
+        4. **影格率計算：** 擷取 DUT 傳送至 Reference PC 螢幕上的影像影格，並透過 **Video Analyzer** 分析實際的獨特影格率（Unique frame rate）。
+
+    - #### **測試設備與軟硬體工具鏈 (Test Equipment &amp; Setup)**
+        - **測試標靶（Test Target）：**
+            -  採用 **Timing test chart（時間測試圖卡）** 或空的 **Gray board（灰板）**。
+            - **人工輔助驗證：** 若對自動量測結果存疑，可使用設定為 **300 RPM** 旋轉速度的旋轉物件（Rotating object）對著相機拍攝，透過畫面轉動角度人工計算並驗證實際曝光時間與獨立影格率。
+        - **硬體擷取卡（Capture Card）：** 採用專業級 **Datapath VisionRGB-E2 / VisionRGB-E2s Dual DVI capture card** 雙介面擷取卡。
+        - **測試電腦架構：**
+            - **DUT PC / DUT Client：** 連接受測相機並執行 Teams 通話。
+            - **Reference PC / REF Client：** 配合建立通話並提供最高 1080p 畫面。
+            - **Video Test Management PC：** 安裝 Datapath DVI 擷取卡並執行 **Video Analyzer** 軟體，負責接收與計算影格率。
 ### Table 3：共享空間裝置不同會議室類型之關鍵參數對照表
 | 會議室類型 / 尺寸 | 相機配置位置 (Camera Position) | 最大推薦測試距離 (Max Distance) | 水平視野要求 (HFOV) | 最小測試距離 (Min Distance) |
 | ---- | ---- | ---- | ---- | ---- |

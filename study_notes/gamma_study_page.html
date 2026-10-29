@@ -448,6 +448,23 @@
                 <li><strong>解碼端（Decoding / 顯示端）：</strong>顯示器通常會套用 $\gamma \approx 2.2$ 的次方將其還原。
                     <ul>
                         <li>兩者相乘：$(X^{1/2.2})^{2.2} = X^1$，剛好完美抵銷，還原出正確的線性光強度供人眼觀看。</li>
+                        <li>在IQ Tool 中的計算：
+                            <ol>
+                                <li>基本計算公式</li>
+                                <ul>在影像處理與顯示器中，輸入值與輸出值的計算步驟如下：</ul>
+                                <ul> <strong>1. 將輸入值標準化：</strong>將原本的像素或訊號範圍（例如 0 ~ 1023）除以最大值，轉換成 0 ~ 1 之間的浮點數 x。</ul>
+                                <ul>$(x_{normalized} = Input/1023)$</ul>
+                                <ul><strong>2. 代入 Gamma 冪函數：</strong>計算非線性對應值。</ul>
+                                <ul>$(y=x_{normalized}^{\gamma }\quad $ 或 $y=x_{normalized}^{1/\gamma }$ )視校正方向而定。</ul>
+                                <ul>還原至原本的數值範圍**：將計算完的 y 乘回原範圍（如乘以 255）。</ul>
+                                <ul>$Output = y {X} 1023$</ul>
+                            </ol>
+                                <ul>以常見的 **Gamma 2.2** 顯示器校正為例（校正公式 $Output = (Input/255)^{1/2.2} {X} 255$），當輸入值為 50 時，計算出的對應輸出亮度約為 121。</ul>
+                        </li>
+            <div class="img-container">
+                <img src="../image/Study_note_image/gamma/gamma_8.png" alt="Excel 計算曲線圖">
+                <div class="img-caption">Excel 計算曲線圖</div>
+            </div>
                     </ul>
                 </li>
             </ul>

@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lens Shading (鏡頭陰影) 原理解析與校正 - Sam 影像處理小幫手</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for Formula rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Custom scrollbar for grid view */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        .grid-cell {
+            font-size: 0.65rem;
+            line-height: 1;
+            transition: all 0.15s ease;
+        }
+        .grid-cell:hover {
+            transform: scale(1.15);
+            z-index: 10;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        }
+        /* 針對 17x17 緊湊型網格的樣式優化 */
+        .grid-cols-17 {
+            display: grid;
+            grid-template-columns: repeat(17, minmax(0, 1fr));
+        }
+        .compact-grid-cell {
+            font-size: 0.55rem;
+            line-height: 1.1;
+            font-family: monospace;
+            letter-spacing: -0.5px;
+            transition: all 0.15s ease;
+            aspect-ratio: 1 / 1;
+        }
+        .compact-grid-cell:hover {
+            transform: scale(1.4);
+            z-index: 20;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            border-radius: 4px;
+        }
+        /* Custom Prism-like syntax highlight styling */
+        pre code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+        }
+                /* Navbar Styles */
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Demo</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html#demo_section">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Header / Navbar -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-cyan-400 p-2.5 rounded-xl shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-camera-retro text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent">Lens Shading 校正教室</h1>
+                    <p class="text-xs text-slate-400">講者 / 導師：Sam </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="#theory-section" class="text-sm text-slate-300 hover:text-brand-400 transition-colors hidden md:inline-block"><i class="fa-solid fa-book-open mr-1"></i> 原理解析</a>
+                <a href="#interactive-section" class="text-sm text-slate-300 hover:text-brand-400 transition-colors hidden md:inline-block"><i class="fa-solid fa-sliders mr-1"></i> 即時實驗室</a>
+                <a href="#grid-section" class="text-sm text-slate-300 hover:text-brand-400 transition-colors hidden md:inline-block"><i class="fa-solid fa-table-cells mr-1"></i> 17x17 Gain Map</a>
+                <a href="#code-section" class="text-sm text-slate-300 hover:text-brand-400 transition-colors hidden md:inline-block"><i class="fa-brands fa-python mr-1"></i> Python Code</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Banner / Intro -->
+        <section class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                <div class="space-y-3 max-w-3xl">
+                    <div class="inline-flex items-center space-x-2 bg-brand-500/10 border border-brand-500/30 px-3 py-1 rounded-full text-brand-400 text-xs font-semibold">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>影像演算法實務導覽</span>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-white">歡迎來到 Lens Shading (暗角/鏡頭陰影) 校正互動工作坊！</h2>
+                    <p class="text-slate-300 text-sm md:text-base leading-relaxed">
+                        我是 <span class="text-brand-400 font-semibold">Sam </span> 🤖！在光學成像系統中，Lens Shading（鏡頭陰影）是相機 ISP (Image Signal Processor) 校正鏈中最基礎且關鍵的一環。本文將帶你深入剖析陰影產生的物理成因，並透過即時動態 17x17 Mesh Gain 圖表與畫素級處理，親自體驗演算法補償的震撼效果！
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Theory Section (原理解析) -->
+        <section id="theory-section" class="space-y-6">
+            <div class="flex items-center space-x-3 border-l-4 border-brand-500 pl-4">
+                <h2 class="text-xl md:text-2xl font-bold text-white">1. Lens Shading 物理成因與數學模型</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Physics Cause 1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all shadow-lg flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-lightbulb text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-100 text-base">Cosine Fourth Law (\(\cos^4\theta\) 法則)</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            光學自然暗角 (Natural Vignetting)。根據光學幾何學，離軸光線到達感光元件的照度與入場角 \(\theta\) 的四次方成正比：
+                            \[ E(\theta) = E_0 \cdot \cos^4(\theta) \]
+                            當角度越大（越接近鏡頭邊緣），光線照度衰減越嚴重，導致畫面四角顯著變暗。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Physics Cause 2 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all shadow-lg flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                            <i class="fa-solid fa-ban text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-100 text-base">光學機械遮擋 (Optical Vignetting)</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            鏡頭內部的鏡片筒身、光圈開口或濾鏡邊緣對傾斜入場的光線產生物理物理遮蔽。離軸極限角度的光束會被「裁切」(Vignetted)，使邊緣入射的光束截面積小於中心，進一步加劇邊緣亮度下降。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Physics Cause 3 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all shadow-lg flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                            <i class="fa-solid fa-microchip text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-100 text-base">CRA Mismatch (主光角不匹配)</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            CMOS 微透鏡 (Microlens) 與鏡頭出射主光角 (Chief Ray Angle) 不匹配。大角度入射光無法完全聚焦在感光二極體 (Photodiode) 內部，部分光線被金屬互連層遮擋，甚至造成 Color Shading (色偏陰影)。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mathematical Compensation Model -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg space-y-4">
+                <h3 class="font-bold text-slate-200 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-brand-400"></i>
+                    補償數學模型 (Mathematical Compensation Models)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-300">
+                    <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-2">
+                        <h4 class="font-semibold text-brand-400">1. 二項多項式徑向模型 (Polynomial Gain Curve)</h4>
+                        <p class="text-xs text-slate-400">假設 Lens Shading 以影像中心點 \((c_x, c_y)\) 呈圓形對稱衰減，定義正規化距離 \(r = \sqrt{\frac{(x-c_x)^2 + (y-c_y)^2}{R_{max}^2}}\)：</p>
+                        <div class="text-center py-2 font-mono text-cyan-300 bg-slate-900 rounded border border-slate-800">
+                            \( Gain(r) = 1 + k \cdot r^2 + \gamma \cdot r^4 \)
+                        </div>
+                        <p class="text-xs text-slate-400">校正後畫素：\( I_{corrected}(x,y) = I_{raw}(x,y) \times Gain(r) \)</p>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-2">
+                        <h4 class="font-semibold text-brand-400">2. 工業級 17x17 Grid Mesh 網格擬合法</h4>
+                        <p class="text-xs text-slate-400">硬體 ISP 常將畫面切割為 \(17 \times 17\) 個區域節點，記錄每個節點的 R, Gr, Gb, B 增益倍數（Gain Table）。在硬體執行時透過雙線性插值 (Bilinear Interpolation) 計算每個畫素的精確補償值。</p>
+                        <div class="text-center py-2 font-mono text-cyan-300 bg-slate-900 rounded border border-slate-800">
+                            \( GainMap[i][j] \in [1.0, 4.0] \)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Control & Canvas Section -->
+        <section id="interactive-section" class="space-y-6">
+            <div class="flex items-center justify-between border-l-4 border-brand-500 pl-4">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold text-white">2. 即時 Lens Shading 校正實驗室</h2>
+                    <p class="text-xs text-slate-400">請調整參數觀察對影像及 17x17 Gain Map 的動態影響</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label for="image-upload" class="cursor-pointer bg-brand-600 hover:bg-brand-500 text-white text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>上傳自訂圖片</span>
+                    </label>
+                    <input type="file" id="image-upload" accept="image/*" class="hidden">
+                    <button id="reset-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg border border-slate-700 transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i>重置
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Controls Panel (Left, 4 cols) -->
+                <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-6 shadow-xl h-fit">
+                    <h3 class="font-bold text-slate-100 text-base border-b border-slate-800 pb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-brand-400"></i>
+                        校正控制面板
+                    </h3>
+
+                    <!-- Slider 1: Gain Intensity (k) -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <label for="k-slider" class="font-medium text-slate-200">校正增益強度 (\(k\))</label>
+                            <span id="k-value" class="font-mono text-brand-400 font-bold">1.20</span>
+                        </div>
+                        <input type="range" id="k-slider" min="0.0" max="3.0" step="0.05" value="1.20" class="w-full accent-brand-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                        <p class="text-[11px] text-slate-500">決定四角補償最大增益幅度，值越大對四周亮度的補償越多。</p>
+                    </div>
+
+                    <!-- Slider 2: Exponential Roll-off / Gamma -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <label for="gamma-slider" class="font-medium text-slate-200">衰減曲線指數 (\(\gamma\))</label>
+                            <span id="gamma-value" class="font-mono text-brand-400 font-bold">2.00</span>
+                        </div>
+                        <input type="range" id="gamma-slider" min="1.0" max="4.0" step="0.1" value="2.00" class="w-full accent-brand-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                        <p class="text-[11px] text-slate-500">控制暗角從中心向邊緣衰減的急促程度（高次方衰減）。</p>
+                    </div>
+
+                    <!-- Mode Toggle: RGB vs Unified -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-200">補償模式</label>
+                        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800 text-xs">
+                            <button id="mode-unified" class="py-1.5 rounded-md font-medium text-center transition-all bg-brand-600 text-white shadow">統一通道補償</button>
+                            <button id="mode-separate" class="py-1.5 rounded-md font-medium text-center transition-all text-slate-400 hover:text-slate-200">RGB 獨立通道</button>
+                        </div>
+                    </div>
+
+                    <!-- Experimental Features Container (Simulating Sam's hidden/reserved functionalities) -->
+                    <div class="border border-slate-800 rounded-xl p-4 bg-slate-950/50 space-y-4">
+                        <button id="toggle-advanced" class="w-full flex items-center justify-between text-xs font-bold text-amber-400 hover:text-amber-300">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-flask"></i>
+                                <span>進階實驗性功能 (Sam 預留模組)</span>
+                            </span>
+                            <i id="advanced-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
+                        </button>
+
+                        <div id="advanced-panel" class="space-y-4 hidden pt-2 border-t border-slate-800/80">
+                            <!-- Center Offset X -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-slate-400">光學中心 X 偏移 (\(dx\))</span>
+                                    <span id="cx-val" class="font-mono text-slate-300">0</span>
+                                </div>
+                                <input type="range" id="cx-slider" min="-50" max="50" step="1" value="0" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded cursor-pointer">
+                            </div>
+
+                            <!-- Center Offset Y -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-slate-400">光學中心 Y 偏移 (\(dy\))</span>
+                                    <span id="cy-val" class="font-mono text-slate-300">0</span>
+                                </div>
+                                <input type="range" id="cy-slider" min="-50" max="50" step="1" value="0" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded cursor-pointer">
+                            </div>
+
+                            <!-- R Gain Factor -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-slate-400">Red 通道微調係數</span>
+                                    <span id="rgain-val" class="font-mono text-rose-400">1.00</span>
+                                </div>
+                                <input type="range" id="rgain-slider" min="0.5" max="1.5" step="0.05" value="1.00" class="w-full accent-rose-500 bg-slate-800 h-1.5 rounded cursor-pointer">
+                            </div>
+
+                            <!-- B Gain Factor -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-slate-400">Blue 通道微調係數</span>
+                                    <span id="bgain-val" class="font-mono text-sky-400">1.00</span>
+                                </div>
+                                <input type="range" id="bgain-slider" min="0.5" max="1.5" step="0.05" value="1.00" class="w-full accent-sky-500 bg-slate-800 h-1.5 rounded cursor-pointer">
+                            </div>
+                            
+                            <p class="text-[10px] text-amber-500/80 italic leading-tight">
+                                *Sam 註記：鏡頭組裝偏心或感光元件貼合誤差會導致光學中心與影像中心不一致，需要非對稱偏心補償。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Vignetting Generator Button -->
+                    <div class="pt-2">
+                        <button id="gen-vignette-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i>
+                            <span>產生極端暗角測試圖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas & Image View (Right, 8 cols) -->
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Original Image Canvas Card -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                    校正前 (Raw Image with Vignetting)
+                                </span>
+                                <span id="hover-original-info" class="text-[11px] font-mono text-slate-400">X: - Y: -</span>
+                            </div>
+                            <div class="relative aspect-square w-full bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center">
+                                <canvas id="canvas-original" class="w-full h-full object-contain cursor-crosshair"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Corrected Image Canvas Card -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    校正後 (LSC Compensated Image)
+                                </span>
+                                <span id="hover-corrected-info" class="text-[11px] font-mono text-brand-400 font-bold">Gain: -</span>
+                            </div>
+                            <div class="relative aspect-square w-full bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center">
+                                <canvas id="canvas-corrected" class="w-full h-full object-contain cursor-crosshair"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Realtime Tooltip Banner -->
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between text-xs text-slate-300 shadow">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-mouse-pointer text-brand-400"></i>
+                            <span>於影像上移動滑鼠可即時檢視該座標增益值。</span>
+                        </div>
+                        <div class="font-mono text-slate-400" id="mouse-pos-display">
+                            (x, y) = (0, 0)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 17x17 Grid Mesh Gain Map Section -->
+        <section id="grid-section" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-l-4 border-brand-500 pl-4 gap-2">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold text-white">3. 17x17 工業級 LSC Mesh Gain Map</h2>
+                    <p class="text-xs text-slate-400">硬體 ISP 校正用 \(17 \times 17\) 增益矩陣數據與熱力圖 (Heatmap View)</p>
+                </div>
+                <!-- Legend -->
+                <div class="flex items-center space-x-3 text-xs bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <span class="text-slate-400">增益倍數：</span>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-3 h-3 rounded-sm bg-blue-600 inline-block"></span>
+                        <span class="text-slate-400">1.0x</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-3 h-3 rounded-sm bg-green-500 inline-block"></span>
+                        <span class="text-slate-400">1.5x</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-3 h-3 rounded-sm bg-amber-500 inline-block"></span>
+                        <span class="text-slate-400">2.0x</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-3 h-3 rounded-sm bg-rose-600 inline-block"></span>
+                        <span class="text-slate-400">3.0x+</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl space-y-4">
+                <!-- 精簡緊湊版的 17x17 視圖容器 -->
+                <div class="max-w-xl mx-auto bg-slate-950 p-2 md:p-3 rounded-xl border border-slate-800 shadow-inner">
+                    <!-- 17x17 Grid Container -->
+                    <div id="grid-container" class="grid grid-cols-17 gap-[2px] w-full aspect-square select-none">
+                        <!-- Grid cells will be dynamic populated by JS -->
+                    </div>
+                </div>
+                <div class="text-center">
+                    <span class="text-xs text-slate-400">💡 提示：滑鼠懸停於方格上可放大查看該點的精確 Gain 數值；調整左側控制面板滑桿，熱力圖將同步動態更新。</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Python Code Section -->
+        <section id="code-section" class="space-y-6">
+            <div class="flex items-center justify-between border-l-4 border-brand-500 pl-4">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold text-white">4. Python (OpenCV + NumPy) 實作程式碼</h2>
+                    <p class="text-xs text-slate-400">由 Sam 撰寫之高擴充性 Lens Shading Correction 演算法範例</p>
+                </div>
+                <button id="copy-code-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>複製程式碼</span>
+                </button>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <div class="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                        <span class="ml-2 text-xs font-mono text-slate-400">lens_shading_correction.py</span>
+                    </div>
+                    <span class="text-xs text-slate-500 font-mono">Python 3.9+</span>
+                </div>
+                <pre class="p-4 md:p-6 overflow-x-auto text-slate-300 bg-slate-950/70"><code id="python-code-display" class="language-python">import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+def generate_lens_shading_gain_map(height, width, k=1.2, gamma=2.0, center_offset=(0, 0)):
+    """
+    【Sam 影像處理小幫手 - 函數說明】
+    計算 2D Lens Shading 補償增益圖 (Gain Map)。
+
+    參數 (Parameters):
+        height (int): 影像高度
+        width (int): 影像寬度
+        k (float): 暗角補償強度係數 (Gain Compensation Intensity)
+        gamma (float): 衰減指數 (Exponential Roll-off Factor)
+        center_offset (tuple): 預留之非對稱中心偏移量 (dx, dy)，單位為像素
+        
+    傳回 (Returns):
+        np.ndarray: shape (height, width) 的 float32 增益矩陣
+    """
+    # 1. 建立影像 X, Y 座標網格
+    y_indices, x_indices = np.indices((height, width), dtype=np.float32)
+
+    # 2. 計算光學中心 (預留非對稱偏移量 dx, dy)
+    cx = (width / 2.0) + center_offset[0]
+    cy = (height / 2.0) + center_offset[1]
+
+    # 3. 計算各點至光學中心之歐式距離 r
+    dx = x_indices - cx
+    dy = y_indices - cy
+    dist_sq = dx**2 + dy**2
+
+    # 4. 最大可能距離的平方 (用於將距離正規化至 [0, 1])
+    max_dist_sq = (width / 2.0)**2 + (height / 2.0)**2
+
+    # 5. 正規化半徑 (Normalized Radius, 範圍 0.0 ~ 1.0)
+    r_norm = np.sqrt(dist_sq / max_dist_sq)
+
+    # 6. 多項式增益模型計算: Gain(r) = 1 + k * (r^gamma)
+    gain_map = 1.0 + k * (r_norm ** gamma)
+
+    return gain_map
+
+
+def apply_lens_shading_correction(image_bgr, k=1.2, gamma=2.0, channel_gains=(1.0, 1.0, 1.0)):
+    """
+    對輸入 BGR 影像進行 Lens Shading 畫素補償。
+
+    參數:
+        image_bgr (np.ndarray): 輸入之 uint8 BGR 影像
+        k (float): 補償強度
+        gamma (float): 曲線指數
+        channel_gains (tuple): (B_gain, G_gain, R_gain) 預留 RGB 獨立通道微調係數
+
+    傳回:
+        np.ndarray: 校正後之 uint8 BGR 影像
+    """
+    h, w, c = image_bgr.shape
+
+    # 生成基礎 2D 增益圖
+    base_gain_map = generate_lens_shading_gain_map(h, w, k=k, gamma=gamma)
+
+    # 將 uint8 影像轉換為 float32 進行精確乘法運算
+    img_float = image_bgr.astype(np.float32)
+    corrected_img = np.zeros_like(img_float)
+
+    # 分別對 B, G, R 三個通道進行增益乘法
+    for ch in range(3):
+        # 結合通道專屬微調係數
+        ch_gain = base_gain_map * channel_gains[ch]
+        corrected_img[:, :, ch] = img_float[:, :, ch] * ch_gain
+
+    # 【預留擴充功能 - 屏蔽/備用區】
+    # ---------------------------------------------------------------------
+    # 1. 預留：過曝截斷預防 (Clipping Avoidance / Soft Knee Mapping)
+    # corrected_img = np.clip(corrected_img, 0, 255)
+    #
+    # 2. 預留：將 2D Gain Map 降採樣為 17x17 網格並進行雙線插值 (Mesh Simulation)
+    # grid_gain_17x17 = cv2.resize(base_gain_map, (17, 17), interpolation=cv2.INTER_AREA)
+    # interpolated_gain = cv2.resize(grid_gain_17x17, (w, h), interpolation=cv2.INTER_LINEAR)
+    # corrected_img[:, :, ch] = img_float[:, :, ch] * interpolated_gain
+    # ---------------------------------------------------------------------
+
+    # 數值數值數值數值截斷至 [0, 255] 並轉回 uint8
+    corrected_img = np.clip(corrected_img, 0, 255).astype(np.uint8)
+
+    return corrected_img, base_gain_map
+
+
+def generate_17x17_grid_mesh(gain_map):
+    """
+    將全尺寸增益圖採樣為 17x17 網格點矩陣 (Mesh Table)
+    """
+    grid_17x17 = cv2.resize(gain_map, (17, 17), interpolation=cv2.INTER_AREA)
+    return grid_17x17
+
+
+# ==========================================
+# 實作範例 / 測試流程
+# ==========================================
+if __name__ == "__main__":
+    print(" Sam 影像處理小幫手 - 正在執行 Lens Shading 校正模擬...")
+
+    # 1. 讀取或創建一張測試影像 (例如 400x400 灰階/彩色圖)
+    h_test, w_test = 400, 400
+    synthetic_raw = np.full((h_test, w_test, 3), 180, dtype=np.uint8)
+
+    # 模擬光學暗角衰減 (人為加入 Shading)
+    shading_degrade = 1.0 / generate_lens_shading_gain_map(h_test, w_test, k=1.5, gamma=2.0)
+    for ch in range(3):
+        synthetic_raw[:, :, ch] = np.clip(synthetic_raw[:, :, ch] * shading_degrade, 0, 255)
+
+    # 2. 執行 Lens Shading 校正 (使用 k=1.5, gamma=2.0 進行完全補償)
+    corrected_image, gain_map = apply_lens_shading_correction(
+        synthetic_raw, 
+        k=1.5, 
+        gamma=2.0,
+        channel_gains=(1.0, 1.0, 1.0) # (B, G, R)
+    )
+
+    # 3. 提取 17x17 工業級 Mesh Table
+    mesh_table_17x17 = generate_17x17_grid_mesh(gain_map)
+
+    print(f"✅ 校正完成！17x17 Gain Table 中心點增益: {mesh_table_17x17[8, 8]:.2f}x")
+    print(f"✅ 校正完成！17x17 Gain Table 左上角增益: {mesh_table_17x17[0, 0]:.2f}x")
+
+    # 4. 可視化展示 (使用 Matplotlib)
+    # plt.figure(figsize=(10, 4))
+    # plt.subplot(1, 2, 1); plt.title("Original with Vignetting"); plt.imshow(cv2.cvtColor(synthetic_raw, cv2.COLOR_BGR2RGB))
+    # plt.subplot(1, 2, 2); plt.title("LSC Compensated"); plt.imshow(cv2.cvtColor(corrected_image, cv2.COLOR_BGR2RGB))
+    # plt.show()
+</code></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-900/60 py-6 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-brand-600 text-white px-4 py-2.5 rounded-xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-3 flex items-center space-x-2 text-xs">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-msg">已成功複製程式碼！</span>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Store Application State
+        const state = {
+            k: 1.20,
+            gamma: 2.00,
+            mode: 'unified', // 'unified' or 'separate'
+            cx: 0,
+            cy: 0,
+            rGain: 1.00,
+            bGain: 1.00,
+            originalImage: null, // Image object if uploaded
+            mouseX: 0,
+            mouseY: 0
+        };
+
+        // DOM Element Cache
+        const kSlider = document.getElementById('k-slider');
+        const kValue = document.getElementById('k-value');
+        const gammaSlider = document.getElementById('gamma-slider');
+        const gammaValue = document.getElementById('gamma-value');
+        
+        const modeUnifiedBtn = document.getElementById('mode-unified');
+        const modeSeparateBtn = document.getElementById('mode-separate');
+
+        const toggleAdvancedBtn = document.getElementById('toggle-advanced');
+        const advancedPanel = document.getElementById('advanced-panel');
+        const advancedChevron = document.getElementById('advanced-chevron');
+
+        const cxSlider = document.getElementById('cx-slider');
+        const cySlider = document.getElementById('cy-slider');
+        const cxVal = document.getElementById('cx-val');
+        const cyVal = document.getElementById('cy-val');
+
+        const rGainSlider = document.getElementById('rgain-slider');
+        const bGainSlider = document.getElementById('bgain-slider');
+        const rGainVal = document.getElementById('rgain-val');
+        const bGainVal = document.getElementById('bgain-val');
+
+        const genVignetteBtn = document.getElementById('gen-vignette-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const imageUploadInput = document.getElementById('image-upload');
+
+        const canvasOriginal = document.getElementById('canvas-original');
+        const canvasCorrected = document.getElementById('canvas-corrected');
+        const ctxOriginal = canvasOriginal.getContext('2d');
+        const ctxCorrected = canvasCorrected.getContext('2d');
+
+        const gridContainer = document.getElementById('grid-container');
+        const hoverOriginalInfo = document.getElementById('hover-original-info');
+        const hoverCorrectedInfo = document.getElementById('hover-corrected-info');
+        const mousePosDisplay = document.getElementById('mouse-pos-display');
+
+        // Initialize 17x17 Grid Map elements
+        function initGridMesh() {
+            gridContainer.innerHTML = '';
+            for (let i = 0; i < 17 * 17; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'compact-grid-cell rounded-[1px] border border-slate-900/40 flex items-center justify-center font-semibold cursor-pointer text-center select-none overflow-hidden';
+                cell.id = `grid-cell-${i}`;
+                cell.innerText = '1.0';
+                gridContainer.appendChild(cell);
+            }
+        }
+
+        // Calculate Gain for normalized radius r
+        function calculateGain(rNorm) {
+            return 1.0 + state.k * Math.pow(rNorm, state.gamma);
+        }
+
+        // Color mapping for Gain values in heatmap
+        function getHeatmapColor(gain) {
+            // gain usually between 1.0 and 3.5+
+            const minG = 1.0;
+            const maxG = 3.0;
+            const norm = Math.min(Math.max((gain - minG) / (maxG - minG), 0), 1);
+
+            // Interpolate colors: Blue (1.0) -> Green (1.5) -> Yellow (2.0) -> Red (3.0+)
+            let r = 0, g = 0, b = 0;
+            if (norm < 0.33) {
+                // Blue to Green
+                const t = norm / 0.33;
+                r = 20;
+                g = Math.floor(100 + t * 155);
+                b = Math.floor(220 * (1 - t));
+            } else if (norm < 0.66) {
+                // Green to Yellow
+                const t = (norm - 0.33) / 0.33;
+                r = Math.floor(255 * t);
+                g = 225;
+                b = 20;
+            } else {
+                // Yellow to Red
+                const t = (norm - 0.66) / 0.34;
+                r = 240;
+                g = Math.floor(225 * (1 - t));
+                b = 30;
+            }
+            return { r, g, b, css: `rgb(${r}, ${g}, ${b})` };
+        }
+
+        // Update 17x17 Grid View Values & Colors
+        function updateGridView() {
+            const cols = 17;
+            const rows = 17;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const idx = r * cols + c;
+                    const cell = document.getElementById(`grid-cell-${idx}`);
+                    if (!cell) continue;
+
+                    // Normalized grid coordinates in [-1, 1]
+                    const nx = (c / (cols - 1)) * 2 - 1 - (state.cx / 100);
+                    const ny = (r / (rows - 1)) * 2 - 1 - (state.cy / 100);
+
+                    const distNorm = Math.sqrt((nx * nx + ny * ny) / 2); // normalize max radius
+                    const gain = calculateGain(distNorm);
+
+                    cell.innerText = gain.toFixed(2);
+                    const color = getHeatmapColor(gain);
+                    cell.style.backgroundColor = color.css;
+
+                    // Dynamically adjust text contrast
+                    const brightness = (color.r * 299 + color.g * 587 + color.b * 114) / 1000;
+                    cell.style.color = brightness > 140 ? '#0f172a' : '#ffffff';
+                }
+            }
+        }
+
+        // Generate Synthetic Image with Vignetting
+        function createDefaultSyntheticImage() {
+            const size = 350;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const ctx = tempCanvas.getContext('2d');
+
+            // Draw a nice colorful test pattern (Grid + Radial shapes)
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw grid pattern
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < size; i += 35) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0); ctx.lineTo(i, size);
+                ctx.moveTo(0, i); ctx.lineTo(size, i);
+                ctx.stroke();
+            }
+
+            // Draw colored shapes
+            ctx.fillStyle = '#38bdf8'; // Cyan circle
+            ctx.beginPath();
+            ctx.arc(size * 0.3, size * 0.3, 50, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#f43f5e'; // Rose square
+            ctx.fillRect(size * 0.55, size * 0.2, 80, 80);
+
+            ctx.fillStyle = '#10b981'; // Emerald triangle
+            ctx.beginPath();
+            ctx.moveTo(size * 0.3, size * 0.8);
+            ctx.lineTo(size * 0.15, size * 0.55);
+            ctx.lineTo(size * 0.45, size * 0.55);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#fbbf24'; // Amber circle
+            ctx.beginPath();
+            ctx.arc(size * 0.7, size * 0.7, 45, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Add synthetic Lens Shading to this original image
+            const imgData = ctx.getImageData(0, 0, size, size);
+            const data = imgData.data;
+            const cx = size / 2;
+            const cy = size / 2;
+            const maxDistSq = (size / 2) ** 2 + (size / 2) ** 2;
+
+            // Apply a default shading attenuation (e.g. k=1.3, gamma=2.0)
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const idx = (y * size + x) * 4;
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const rNorm = Math.sqrt((dx * dx + dy * dy) / maxDistSq);
+                    
+                    // Attenuation factor
+                    const shadingFactor = 1.0 / (1.0 + 1.4 * Math.pow(rNorm, 2.0));
+
+                    data[idx] = Math.min(255, data[idx] * shadingFactor);     // R
+                    data[idx+1] = Math.min(255, data[idx+1] * shadingFactor); // G
+                    data[idx+2] = Math.min(255, data[idx+2] * shadingFactor); // B
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+
+            const img = new Image();
+            img.src = tempCanvas.toDataURL();
+            img.onload = () => {
+                state.originalImage = img;
+                renderCanvases();
+            };
+        }
+
+        // Render Original & Corrected Canvases
+        function renderCanvases() {
+            if (!state.originalImage) return;
+
+            const img = state.originalImage;
+            const w = img.width;
+            const h = img.height;
+
+            // Set canvas resolutions
+            canvasOriginal.width = w;
+            canvasOriginal.height = h;
+            canvasCorrected.width = w;
+            canvasCorrected.height = h;
+
+            // Render Original
+            ctxOriginal.drawImage(img, 0, 0);
+
+            // Read Original Pixel Data
+            const srcImgData = ctxOriginal.getImageData(0, 0, w, h);
+            const srcData = srcImgData.data;
+
+            // Create Corrected Buffer
+            const dstImgData = ctxCorrected.createImageData(w, h);
+            const dstData = dstImgData.data;
+
+            const cx = (w / 2) + state.cx;
+            const cy = (h / 2) + state.cy;
+            const maxDistSq = (w / 2) ** 2 + (h / 2) ** 2;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const rNorm = Math.sqrt((dx * dx + dy * dy) / maxDistSq);
+
+                    // Base Gain
+                    const baseGain = calculateGain(rNorm);
+
+                    let rGain = baseGain;
+                    let gGain = baseGain;
+                    let bGain = baseGain;
+
+                    // If Separate Mode or Advanced Params
+                    if (state.mode === 'separate') {
+                        rGain *= state.rGain;
+                        bGain *= state.bGain;
+                    }
+
+                    // Apply Gains with Saturate/Clamp
+                    dstData[idx]     = Math.min(255, srcData[idx]     * rGain); // Red
+                    dstData[idx + 1] = Math.min(255, srcData[idx + 1] * gGain); // Green
+                    dstData[idx + 2] = Math.min(255, srcData[idx + 2] * bGain); // Blue
+                    dstData[idx + 3] = srcData[idx + 3];                        // Alpha
+                }
+            }
+
+            ctxCorrected.putImageData(dstImgData, 0, 0);
+            updateGridView();
+        }
+
+        // Handle Mouse Hover on Canvas for Inspection
+        function handleCanvasMouseMove(e) {
+            const rect = canvasOriginal.getBoundingClientRect();
+            const scaleX = canvasOriginal.width / rect.width;
+            const scaleY = canvasOriginal.height / rect.height;
+
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+            if (x >= 0 && x < canvasOriginal.width && y >= 0 && y < canvasOriginal.height) {
+                const cx = (canvasOriginal.width / 2) + state.cx;
+                const cy = (canvasOriginal.height / 2) + state.cy;
+                const maxDistSq = (canvasOriginal.width / 2) ** 2 + (canvasOriginal.height / 2) ** 2;
+                const rNorm = Math.sqrt(((x - cx) ** 2 + (y - cy) ** 2) / maxDistSq);
+                const gain = calculateGain(rNorm);
+
+                hoverOriginalInfo.innerText = `X: ${x}, Y: ${y}`;
+                hoverCorrectedInfo.innerText = `Gain: ${gain.toFixed(2)}x`;
+                mousePosDisplay.innerText = `(x, y) = (${x}, ${y}) | 補償係數: ${gain.toFixed(3)}x`;
+            }
+        }
+
+        // Toast Notification Helper
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+            }, 3000);
+        }
+
+        // Event Listeners Setup
+        function setupEventListeners() {
+            // Slider 1: k
+            kSlider.addEventListener('input', (e) => {
+                state.k = parseFloat(e.target.value);
+                kValue.innerText = state.k.toFixed(2);
+                renderCanvases();
+            });
+
+            // Slider 2: Gamma
+            gammaSlider.addEventListener('input', (e) => {
+                state.gamma = parseFloat(e.target.value);
+                gammaValue.innerText = state.gamma.toFixed(2);
+                renderCanvases();
+            });
+
+            // Mode Switches
+            modeUnifiedBtn.addEventListener('click', () => {
+                state.mode = 'unified';
+                modeUnifiedBtn.className = 'py-1.5 rounded-md font-medium text-center transition-all bg-brand-600 text-white shadow';
+                modeSeparateBtn.className = 'py-1.5 rounded-md font-medium text-center transition-all text-slate-400 hover:text-slate-200';
+                renderCanvases();
+            });
+
+            modeSeparateBtn.addEventListener('click', () => {
+                state.mode = 'separate';
+                modeSeparateBtn.className = 'py-1.5 rounded-md font-medium text-center transition-all bg-brand-600 text-white shadow';
+                modeUnifiedBtn.className = 'py-1.5 rounded-md font-medium text-center transition-all text-slate-400 hover:text-slate-200';
+                renderCanvases();
+            });
+
+            // Toggle Advanced Options
+            toggleAdvancedBtn.addEventListener('click', () => {
+                const isHidden = advancedPanel.classList.contains('hidden');
+                if (isHidden) {
+                    advancedPanel.classList.remove('hidden');
+                    advancedChevron.style.transform = 'rotate(180deg)';
+                } else {
+                    advancedPanel.classList.add('hidden');
+                    advancedChevron.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Advanced Sliders
+            cxSlider.addEventListener('input', (e) => {
+                state.cx = parseInt(e.target.value);
+                cxVal.innerText = state.cx;
+                renderCanvases();
+            });
+
+            cySlider.addEventListener('input', (e) => {
+                state.cy = parseInt(e.target.value);
+                cyVal.innerText = state.cy;
+                renderCanvases();
+            });
+
+            rGainSlider.addEventListener('input', (e) => {
+                state.rGain = parseFloat(e.target.value);
+                rGainVal.innerText = state.rGain.toFixed(2);
+                renderCanvases();
+            });
+
+            bGainSlider.addEventListener('input', (e) => {
+                state.bGain = parseFloat(e.target.value);
+                bGainVal.innerText = state.bGain.toFixed(2);
+                renderCanvases();
+            });
+
+            // Upload Custom Image
+            imageUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            state.originalImage = img;
+                            renderCanvases();
+                            showToast('成功載入自訂圖片！');
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Generate Extreme Vignette Preset
+            genVignetteBtn.addEventListener('click', () => {
+                createDefaultSyntheticImage();
+                showToast('已生成測試圖！');
+            });
+
+            // Reset Settings
+            resetBtn.addEventListener('click', () => {
+                state.k = 1.20;
+                state.gamma = 2.00;
+                state.mode = 'unified';
+                state.cx = 0;
+                state.cy = 0;
+                state.rGain = 1.00;
+                state.bGain = 1.00;
+
+                kSlider.value = 1.20; kValue.innerText = '1.20';
+                gammaSlider.value = 2.00; gammaValue.innerText = '2.00';
+                cxSlider.value = 0; cxVal.innerText = '0';
+                cySlider.value = 0; cyVal.innerText = '0';
+                rGainSlider.value = 1.00; rGainVal.innerText = '1.00';
+                bGainSlider.value = 1.00; bGainVal.innerText = '1.00';
+
+                modeUnifiedBtn.click();
+                renderCanvases();
+                showToast('已重置所有校正參數');
+            });
+
+            // Canvas Hover Events
+            canvasOriginal.addEventListener('mousemove', handleCanvasMouseMove);
+            canvasCorrected.addEventListener('mousemove', handleCanvasMouseMove);
+
+            // Copy Code Button
+            document.getElementById('copy-code-btn').addEventListener('click', () => {
+                const codeText = document.getElementById('python-code-display').innerText;
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = codeText;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                showToast('已複製 Python 實作程式碼至剪貼簿！');
+            });
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            initGridMesh();
+            setupEventListeners();
+            createDefaultSyntheticImage();
+        });
+    </script>
+</body>
+</html>

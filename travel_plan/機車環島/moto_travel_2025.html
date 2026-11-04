@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>環島七天六夜旅遊計畫書</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 15px 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        figure {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        figcaption {
+            font-size: 0.9rem;
+            color: var(--color-secondary-text);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--color-primary-text);
+        }
+
+        pre {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        code {
+            background: #f2f2f2;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .math-formula {
+            background-color: var(--color-subtle-bg);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--color-accent);
+            margin: 1rem 0 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: var(--color-primary-text);
+            border-radius: 0 4px 4px 0;
+            overflow-x: auto;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .image-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .image-pair figure {
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .image-pair {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+
+        h4, h5, h6 { font-family: var(--font-heading); color: var(--color-primary-text); margin-top: 1.75rem; margin-bottom: 1rem; }
+        figure { margin: 1.5rem 0; text-align: center; }
+        figure img { display: block; margin: 0 auto; }
+        figcaption { font-size: 0.9rem; color: var(--color-secondary-text); margin-top: 0.5rem; font-style: italic; }
+        .image-missing { color: var(--color-secondary-text); font-style: italic; }
+
+    </style>
+</head>
+<body>
+<nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content"><div class="container">
+<h1>環島七天六夜旅遊計畫書</h1>
+<h2>旅遊日期</h2>
+<ul>
+<li><p>2023年10月5日（星期日）至2023年10月11日（星期六）</p></li>
+</ul>
+<h2>旅遊地點</h2>
+<ul>
+<li><p>台灣環島（新北土城出發，順時針經桃園、新竹、台中、嘉義、台南、高雄、屏東、台東、花蓮、宜蘭、基隆，回到新北）</p></li>
+</ul>
+<h2>每日行程與午休安排</h2>
+<h3>1. <strong>第一天：新北土城 → 桃園 → 台中市區</strong>（約170km）</h3>
+<p><code>2025年10月5日</code></p>
+<ul>
+<li><p>上午：新北土城出發，經桃園沿國道/省道南下</p></li>
+<li><p>旅遊景點：桃園大溪老街、小烏來風景區（天空步道）、苗栗三義木雕博物館</p></li>
+<li><p><strong>12:00~13:00 午休建議：苗栗三義木雕博物館（苗栗縣三義鄉廣盛村廣聲新城88號）</strong></p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%A4%A7%E6%BA%AA%E8%80%81%E8%A1%97.jfif" alt="大溪老街" title="大溪老街"><figcaption>大溪老街</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%A4%A9%E7%A9%BA%E6%AD%A5%E9%81%93.jfif" alt="小烏來風景區（天空步道)" title="小烏來風景區(天空步道)"><figcaption>小烏來風景區(天空步道)</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E8%8B%97%E6%A0%97%E4%B8%89%E7%BE%A9%E6%9C%A8%E9%9B%95%E5%8D%9A%E7%89%A9%E9%A4%A8.jfif" alt="苗栗三義木雕博物館" title="苗栗三義木雕博物館"><figcaption>苗栗三義木雕博物館</figcaption></figure></li>
+<li><p>下午：抵達台中市區，彩虹眷村、台中公園、逢甲夜市</p></li>
+<li><p>住宿：台中</p></li>
+</ul>
+<h3>2. <strong>第二天：台中 → 彰化 → 嘉義</strong>（約120km）</h3>
+<p><code>2025年10月6日</code></p>
+<ul>
+<li><p>上午：台中出發，經彰化、雲林至嘉義</p></li>
+<li><p>旅遊景點：彰化八卦山大佛、雲林劍湖山世界、嘉義檜意森活村</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%BD%B0%E5%8C%96%E5%85%AB%E5%8D%A6%E5%B1%B1%E5%A4%A7%E4%BD%9B.jfif" alt="彰化八卦山大佛" title="彰化八卦山大佛"><figcaption>彰化八卦山大佛</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E9%9B%B2%E6%9E%97%E5%8A%8D%E6%B9%96%E5%B1%B1%E4%B8%96%E7%95%8C.jfif" alt="雲林劍湖山世界" title="雲林劍湖山世界"><figcaption>雲林劍湖山世界</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%98%89%E7%BE%A9%E6%AA%9C%E6%84%8F%E6%A3%AE%E6%B4%BB%E6%9D%91.jfif" alt="嘉義檜意森活村" title="嘉義檜意森活村"><figcaption>嘉義檜意森活村</figcaption></figure></li>
+<li><p><strong>12:00~13:00 午休建議：嘉義文化路夜市（嘉義市東區文化路）</strong></p></li>
+<li><p>下午：嘉義市區景點、文化路夜市</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E6%96%87%E5%8C%96%E8%B7%AF%E5%A4%9C%E5%B8%82.jfif" alt="文化路夜市" title="文化路夜市"><figcaption>文化路夜市</figcaption></figure></li>
+<li><p>住宿：嘉義</p></li>
+</ul>
+<h3>3. <strong>第三天：嘉義 → 台南 → 高雄</strong>（約110km）</h3>
+<p><code>2025年10月7日</code></p>
+<ul>
+<li><p>上午：嘉義出發，騎行至台南、高雄</p></li>
+<li><p>旅遊景點：台南赤崁樓、安平古堡、台南花園夜市</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%8F%B0%E5%8D%97%E8%B5%A4%E5%B4%81%E6%A8%93.jfif" alt="台南赤崁樓" title="台南赤崁樓"><figcaption>台南赤崁樓</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%AE%89%E5%B9%B3%E5%8F%A4%E5%A0%A1.jfif" alt="安平古堡" title="安平古堡"><figcaption>安平古堡</figcaption></figure>
+<figure class="image-missing"><p>Image unavailable: 台南花園夜市</p></figure></li>
+<li><p><strong>12:00~13:00 午休建議：台南赤崁樓附近（台南市中西區民族路二段212號）</strong></p></li>
+<li><p>下午：高雄龍虎塔、旗津風車公園、六合夜市</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E9%AB%98%E9%9B%84%E9%BE%8D%E8%99%8E%E5%A1%94.jfif" alt="高雄龍虎塔" title="高雄龍虎塔"><figcaption>高雄龍虎塔</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E6%97%97%E6%B4%A5%E9%A2%A8%E8%BB%8A%E5%85%AC%E5%9C%92.jfif" alt="旗津風車公園" title="旗津風車公園"><figcaption>旗津風車公園</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%85%AD%E5%90%88%E5%A4%9C%E5%B8%82.jfif" alt="六合夜市" title="六合夜市"><figcaption>六合夜市</figcaption></figure></li>
+<li><p>住宿：高雄</p></li>
+</ul>
+<h3>4. <strong>第四天：高雄 → 屏東 → 台東</strong>（約120km）</h3>
+<p><code>2025年10月8日</code></p>
+<ul>
+<li><p>上午：高雄出發，經屏東沿南迴公路至台東</p></li>
+<li><p>旅遊景點：屏東墾丁大街、台東伯朗大道</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%B1%8F%E6%9D%B1%E5%A2%BE%E4%B8%81%E5%A4%A7%E8%A1%97.jfif" alt="屏東墾丁大街" title="屏東墾丁大街"><figcaption>屏東墾丁大街</figcaption></figure></li>
+<li><p><strong>12:00~13:00 午休建議：台東伯朗大道（台東縣池上鄉）</strong></p></li>
+<li><p>下午：三仙台、台東夜市</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E4%B8%89%E4%BB%99%E5%8F%B0.jfif" alt="三仙台" title="三仙台"><figcaption>三仙台</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%8F%B0%E6%9D%B1%E5%A4%9C%E5%B8%82.jfif" alt="台東夜市" title="台東夜市"><figcaption>台東夜市</figcaption></figure></li>
+<li><p>住宿：台東</p></li>
+</ul>
+<h3>5. <strong>第五天：台東 → 花蓮</strong>（約170km）</h3>
+<p><code>2025年10月9日</code></p>
+<ul>
+<li><p>上午：台東出發，沿花東縱谷北上</p></li>
+<li><p>旅遊景點：池上飯包文化故事館、瑞穗牧場、花蓮七星潭</p></li>
+<li><p><strong>12:00~13:00 午休建議：花蓮七星潭（花蓮縣新城鄉海岸路）</strong></p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E6%B1%A0%E4%B8%8A%E9%A3%AF%E5%8C%85%E6%96%87%E5%8C%96%E6%95%85%E4%BA%8B%E9%A4%A8.jfif" alt="池上飯包文化故事館" title="池上飯包文化故事館"><figcaption>池上飯包文化故事館</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E7%91%9E%E7%A9%97%E7%89%A7%E5%A0%B4.jfif" alt="瑞穗牧場" title="瑞穗牧場"><figcaption>瑞穗牧場</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E8%8A%B1%E8%93%AE%E4%B8%83%E6%98%9F%E6%BD%AD.jfif" alt="花蓮七星潭" title="花蓮七星潭"><figcaption>花蓮七星潭</figcaption></figure></li>
+<li><p>下午：太魯閣國家公園、花蓮東大門夜市</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%A4%AA%E9%AD%AF%E9%96%A3%E5%9C%8B%E5%AE%B6%E5%85%AC%E5%9C%92.jfif" alt="太魯閣國家公園" title="太魯閣國家公園"><figcaption>太魯閣國家公園</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E8%8A%B1%E8%93%AE%E6%9D%B1%E5%A4%A7%E9%96%80%E5%A4%9C%E5%B8%82.jfif" alt="花蓮東大門夜市" title="花蓮東大門夜市"><figcaption>花蓮東大門夜市</figcaption></figure></li>
+<li><p>住宿：花蓮</p></li>
+</ul>
+<h3>6. <strong>第六天：花蓮 → 宜蘭 → 基隆</strong>（約130km）</h3>
+<p><code>2025年10月10日</code></p>
+<ul>
+<li><p>上午：花蓮出發，沿蘇花公路北上</p></li>
+<li><p>旅遊景點：蘇澳冷泉、宜蘭羅東夜市</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%AE%9C%E8%98%AD%E7%BE%85%E6%9D%B1%E5%A4%9C%E5%B8%82.jfif" alt="宜蘭羅東夜市" title="宜蘭羅東夜市台"><figcaption>宜蘭羅東夜市台</figcaption></figure></li>
+<li><p><strong>12:00~13:00 午休建議：宜蘭羅東運動公園（宜蘭縣羅東鎮公正路666號）</strong></p></li>
+<li><p>下午：基隆廟口夜市、和平島公園</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%9F%BA%E9%9A%86%E5%BB%9F%E5%8F%A3%E5%A4%9C%E5%B8%82.jfif" alt="基隆廟口夜市" title="基隆廟口夜市"><figcaption>基隆廟口夜市</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%AE%9C%E8%98%AD%E7%BE%85%E6%9D%B1%E5%A4%9C%E5%B8%82.jfif" alt="和平島公園" title="和平島公園"><figcaption>和平島公園</figcaption></figure></li>
+<li><p>住宿：基隆</p></li>
+</ul>
+<h3>7. <strong>第七天：基隆 → 新北土城</strong>（約40km）</h3>
+<p><code>2025年10月11日</code></p>
+<ul>
+<li><p>上午：基隆出發，沿北海岸回新北土城</p></li>
+<li><p>旅遊景點：野柳地質公園、淡水老街</p></li>
+<li><p><strong>12:00~13:00 午休建議：新北市淡水老街（新北市淡水區中正路）</strong></p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E9%87%8E%E6%9F%B3%E5%9C%B0%E8%B3%AA%E5%85%AC%E5%9C%92.jfif" alt="野柳地質公園" title="野柳地質公園"><figcaption>野柳地質公園</figcaption></figure>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E6%B7%A1%E6%B0%B4%E8%80%81%E8%A1%97.jfif" alt="淡水老街" title="淡水老街"><figcaption>淡水老街</figcaption></figure></li>
+<li><p>下午：返抵新北土城，行程結束</p></li>
+</ul>
+<h2>交通方式</h2>
+<ul>
+<li><p>機車自駕環島</p></li>
+</ul>
+<h2>預算估算</h2>
+<ul>
+<li><p>交通費：機車油費約NT$1,500</p></li>
+<li><p>住宿費：每晚約NT$1,000，共6晚約NT$6,000</p></li>
+<li><p>餐飲費：每日約NT$500，共7天約NT$3,500</p></li>
+<li><p>門票及其他費用：約NT$2,000</p></li>
+<li><p>伴手禮及雜費：約NT$1,000</p></li>
+<li><p>總預算：約NT$14,000</p></li>
+</ul>
+<h2>裝備準備</h2>
+<ul>
+<li><p>機車及相關配件（安全帽、手套、雨衣等）</p></li>
+<li><p>旅遊衣物及個人用品</p></li>
+<li><p>手機及行動電源</p></li>
+<li><p>地圖或導航設備</p></li>
+</ul>
+<h2>個人衣物</h2>
+<ul>
+<li><p>輕便服裝（適合騎行）</p></li>
+<li><p>防曬用品（帽子、太陽眼鏡、防曬乳）</p></li>
+<li><p>盥洗用品（牙刷、毛巾、洗髮精等</p></li>
+<li><p>輕便鞋（適合長時間騎行）, 拖鞋.</p></li>
+<li><p>三套換洗衣物</p></li>
+<li><p>個人電子設備及充電器</p></li>
+</ul>
+<h2>行程距離</h2>
+<ul>
+<li><p>第一天：約170km</p></li>
+<li><p>第二天：約120km</p></li>
+<li><p>第三天：約110km</p></li>
+<li><p>第四天：約120km</p></li>
+<li><p>第五天：約170km</p></li>
+<li><p>第六天：約130km</p></li>
+<li><p>第七天：約40km</p></li>
+</ul>
+<h2>當地天氣預報</h2>
+<ul>
+<li><p>10月5日：晴，氣溫24-30℃</p></li>
+<li><p>10月6日：多雲，氣溫23-29℃</p></li>
+<li><p>10月7日：局部短暫陣雨，氣溫22-28℃</p></li>
+<li><p>10月8日：晴，氣溫24-30℃</p></li>
+<li><p>10月9日：多雲，氣溫23-29℃</p></li>
+<li><p>10月10日：局部短暫陣雨，氣溫22-28℃</p></li>
+<li><p>10月11日：晴，氣溫24-30℃</p></li>
+</ul>
+<h2>住宿安排</h2>
+<ul>
+<li><p>第一天：台中市區飯店</p></li>
+</ul>
+<h3>參考住宿飯店資訊與價格</h3>
+<ul>
+<li><p>台中：逢甲商旅 (約NT$1,200/晚)、星享道酒店 (約NT$1,500/晚)\</p></li>
+</ul>
+<p><code>網咖 : 逢甲夜市附近有多家網咖，如「逢甲網咖」、「電競網咖」，價格約NT$100-200/小時。</code></p>
+<p>逢甲網咖地址：台中市西屯區福星路521號&lt;br&gt; 電競網咖地址：台中市西屯區文華路71號&lt;br&gt; 台中快樂Esport網路電競館 : 台中市西屯區福星路480號&lt;br&gt; 費用含在包廂費不限次數與時間，但水溫難以控制，建議自備盥洗用品。\</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%BF%AB%E6%A8%82Esport%E7%B6%B2%E8%B7%AF%E9%9B%BB%E7%AB%B6%E9%A4%A8.PNG" alt="台中快樂Esport網路電競館" title="台中市西屯區福星路480號"><figcaption>台中市西屯區福星路480號</figcaption></figure>
+<hr>
+<p>快樂鳥網路電競館北屯店 : 台中市北屯區文心路四段186號&lt;br&gt; 3樓公共空間備有淋浴間如要使用要另加$50元會給沐浴用品。&lt;br&gt; VIP包廂區飲料一樣無限暢飲\</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%BF%AB%E6%A8%82%E9%B3%A5%E7%B6%B2%E8%B7%AF%E9%9B%BB%E7%AB%B6%E9%A4%A8%E5%8C%97%E5%B1%AF%E5%BA%97.PNG" alt="快樂鳥網路電競館北屯店" title="台中市北屯區文心路四段186號"><figcaption>台中市北屯區文心路四段186號</figcaption></figure>
+<ul>
+<li><p>第二天：嘉義市區飯店</p></li>
+<li><p>嘉義：蘭桂坊花園酒店 (約NT$1,000/晚)、嘉義觀止 (約NT$1,300/晚)</p></li>
+</ul>
+<p><code>網咖 : 嘉義市區有「嘉義網咖」、「電競網咖」，價格約NT$100-200/小時。</code></p>
+<p>嘉義網咖地址：嘉義市西區中山路317號&lt;br&gt; 電競網咖地址：嘉義市西區中山路318號&lt;br&gt; 安安網咖-垂楊店 : 嘉義市西區垂楊路539號\</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E5%AE%89%E5%AE%89%E7%B6%B2%E5%92%96.PNG" alt="安安網咖" title="嘉義市西區垂楊路539號"><figcaption>嘉義市西區垂楊路539號</figcaption></figure>
+<hr>
+<p>極速特區24小時網路電競館-嘉義店 : 嘉義市東區吳鳳南路238號&lt;br&gt; 淋浴間的使用也含在包廂的費用裡\</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E6%A5%B5%E9%80%9F%E7%89%B9%E5%8D%8024%E5%B0%8F%E6%99%82%E7%B6%B2%E8%B7%AF%E9%9B%BB%E7%AB%B6%E9%A4%A8-%E5%98%89%E7%BE%A9%E5%BA%97.PNG" alt="極速特區24小時網路電競館-嘉義店" title="嘉義市東區吳鳳南路238號"><figcaption>嘉義市東區吳鳳南路238號</figcaption></figure>
+<hr>
+<ul>
+<li><p>第三天：高雄市區飯店</p></li>
+<li><p>高雄：漢來大飯店 (約NT$2,500/晚)、高雄福華大飯店 (約NT$1,800/晚)</p></li>
+</ul>
+<p><code>網咖 : 高雄市區有「高雄網咖」、「電競網咖」，價格約NT$100-200/小時。</code></p>
+<p>高雄網咖地址：高雄市苓雅區中正路123號&lt;br&gt; 電競網咖地址：高雄市苓雅區和平一路456號&lt;br&gt; 競宿電競館(高雄鳳山) : 高雄市鳳山區青年路二段226號\</p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E7%AB%B6%E5%AE%BF%E9%9B%BB%E7%AB%B6%E9%A4%A8%28%E9%AB%98%E9%9B%84%E9%B3%B3%E5%B1%B1%29.PNG" alt="競宿電競館(高雄鳳山)" title="高雄市鳳山區青年路二段226號"><figcaption>高雄市鳳山區青年路二段226號</figcaption></figure>
+<p>領航者電競人文 – 林森店 : 高雄市新興區林森一路251號\</p>
+<p><code>提供洗衣機$30含洗及脫、烘衣機$40使用30分鐘。</code></p>
+<p><code>使用熱水需投幣，20元使用20分鐘，免費提供盥洗用品，含毛巾、牙刷…等等。</code></p>
+<figure><img src="../../image/travel_plan/%E6%A9%9F%E8%BB%8A%E7%92%B0%E5%B3%B6/%E9%A0%98%E8%88%AA%E8%80%85%E9%9B%BB%E7%AB%B6%E4%BA%BA%E6%96%87%E2%80%93%E6%9E%97%E6%A3%AE%E5%BA%97.PNG" alt="領航者電競人文" title="高雄市新興區林森一路251號"><figcaption>高雄市新興區林森一路251號</figcaption></figure>
+<hr>
+<ul>
+<li><p>第四天：台東市區飯店</p></li>
+<li><p>台東：娜路彎大酒店 (約NT$1,500/晚)、台東桂田喜來登 (約NT$2,000/晚)</p></li>
+</ul>
+<p><code>網咖 : 台東市區有「台東網咖」、「電競網咖」，價格約NT$100-200/小時。</code></p>
+<p>台東網咖地址：台東市中華路一段456號&lt;br&gt; 台東可以考慮跳過-- 電競網咖地址：台東市中華路二段789號&lt;br&gt; 網咖24h-台東店 : 台東市中華路一段536號\</p>
+<hr>
+<ul>
+<li><p>第五天：花蓮市區飯店</p></li>
+<li><p>花蓮：美侖大飯店 (約NT$2,000/晚)、花蓮福容大飯店 (約NT$1,800/晚)</p></li>
+<li><p>花蓮艾利斯膠囊背包客 : 花蓮市國盛八街號</p></li>
+<li><p>蜂巢膠囊旅店 : \</p></li>
+</ul>
+<p>-- 飯店電話：0937168173&lt;br&gt; -- 飯店地址：花蓮縣花蓮市國民十街一號2樓&lt;br&gt; -- 入住時間：15:00之後&lt;br&gt; -- 退房時間：11:00之前\</p>
+<ul>
+<li><p>Sleeping Boot 背包客棧\</p></li>
+</ul>
+<p>-- 花蓮市進豐街73號</p>
+<hr>
+<ul>
+<li><p>第六天：基隆市區飯店</p></li>
+<li><p>基隆：基隆長官公署 (約NT$1,500/晚)、基隆福華大飯店 (約NT$1,800/晚)</p></li>
+<li><p>第七天：返回新北土城</p></li>
+</ul>
+<h3>注意事項</h3>
+<ul>
+<li><p>預訂住宿及交通工具，避免臨時找不到住處或交通工具。</p></li>
+<li><p>注意天氣狀況，攜帶適當的防曬或雨具。</p></li>
+<li><p>保持手機充電，攜帶行動電源以備不時之需。</p></li>
+<li><p>注意交通安全，遵守交通規則，佩戴安全帽。</p></li>
+<li><p>預訂住宿及交通工具，避免臨時找不到住處或交通工具。</p></li>
+</ul>
+    </div></main>
+<footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+    <a href="#" id="back-to-top-btn" title="????">?</a>
+<script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

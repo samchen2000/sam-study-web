@@ -235,10 +235,12 @@ graph TD
         - 在圖像處理 (Image Processing) 頁面的 Gamma Generate 區域，輸入 Preset Gamma 數值（建議範圍 1.5–3.0）並點擊 Generate。
         - 工具會自動繪製 Gamma 曲線、生成 16 點 Look-Up Table (LUT) 以及對應的 C/C++ 代碼片段。
         - 頁面支援導入 BGR888 格式的 RGB BIN 影像；拖動採樣點時，右側預覽圖會即時套用當前 Gamma 曲線並同步刷新。
+        ![gamma生成與代碼導出](../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_9.PNG "gamma生成與代碼導出") 
     2. **在線動態固定點編輯 (Live Tuning Gamma Editing)**：
         - 在在線調優 (Live Tuning) 頁面的 Module Selection 中選取 Gamma 模組。
         - 輸入 Preset Gamma 值點擊 Apply 生成預設曲線，或直接在圖表上記拖動採樣點 (Sampling Points) 調整輸出階調。
         - 啟用 Auto Apply 時，拖動採樣點會即時將 Gamma 配置寫入開發板；未啟用時可點擊 Send 手動下發。
+        ![在線動態固定點編輯](../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_10.PNG "在線動態固定點編輯") 
     3. **曲線視覺化對比 (Gamma Analysis)**：
         - 在分析工具 (Analysis Tools) 的 Gamma Curves 模組中，可將使用者自訂的 Gamma 曲線與標準 sRGB 色彩空間的 Gamma ($\gamma \approx 2.2$) 曲線進行繪圖對比，並點擊 Save Graphs 儲存結果。
 - ### **拜耳域降噪 (Bayer Filter, BF) 標定步驟**
@@ -248,6 +250,7 @@ graph TD
         - **Denoise Level (降噪等級)**：設定降噪強度，抑制全圖的高頻雜訊與暗部顆粒感。
         - **Filter Matrix (濾波矩陣)**：配置空間濾波矩陣權重，控制降噪的平滑特性與範圍。
     3. **下發與即時驗證**：修改參數後點擊 Send 寫入設備，點擊 Capture 擷取影像，觀察平坦區域與暗部的雜訊抑制狀況。
+        ![拜耳域降噪 (Bayer Filter, BF) 標定](../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_10.PNG "拜耳域降噪 (Bayer Filter, BF) 標定") 
 - ### **銳化與細節增強 (Sharpening) 調優流程**
     銳化模組用於補償光學與降噪帶來的邊緣模糊，提升影像的高頻細節與清晰度。
     1. **模組選取**：在 Live Tuning 頁面的 Module Selection 中選取 Sharpen 模組。
@@ -256,6 +259,7 @@ graph TD
         - **High-Threshold & Mid-Threshold Sharpen Gain (高/中閾值銳化增益)**：分別調整強邊緣與中等細節區域的增強係數。
         - **Low-Pass Filter Matrix (低通濾波矩陣)**：設定低通濾波矩陣，抑制邊緣過度銳化產生的白邊 (Over-shoot) 或高頻噪點放大。
     3. **即時寫入與預覽**：點擊 Send 下發參數，點擊 Capture 拍攝單張影像，或點擊 RTSP Preview 開啟動態視訊視窗，實時觀察物體輪廓與線條的銳利度。
+        ![銳化與細節增強 (Sharpening) 調優](../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_10.PNG "銳化與細節增強 (Sharpening) 調優") 
 - ### **邊緣與細節量化分析 (Edge Analysis)**
     為避免過度銳化導致影像品質劣化，可使用圖像分析工具進行量化評估：
     1. **圖像導入**：進入圖像分析 (Image Analysis) 頁面的 Edge Analysis 模組，導入 BIN、PNG 或 JPG 格式影像。

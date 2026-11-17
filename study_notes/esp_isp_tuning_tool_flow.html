@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP ISP 調優工具 操作與說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <!-- 引入 Mermaid.js 繪製流程圖 -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'neutral',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 860px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 1.85rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            border-bottom-style: dashed;
+        }
+
+        h4 {
+            font-size: 1.15rem;
+            border-bottom-style: dotted;
+            color: #34495e;
+        }
+
+        h5 {
+            font-size: 1.05rem;
+            border-bottom: none;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-text);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 15px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        figure {
+            margin: 1.8rem 0;
+            text-align: center;
+        }
+
+        figcaption {
+            font-size: 0.9rem;
+            color: var(--color-secondary-text);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        pre {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        code {
+            background: #f2f2f2;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .math-formula {
+            background-color: var(--color-subtle-bg);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--color-accent);
+            margin: 1rem 0 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.05rem;
+            color: var(--color-primary-text);
+            border-radius: 0 4px 4px 0;
+            overflow-x: auto;
+        }
+
+        .mermaid-container {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .image-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .image-pair figure {
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .image-pair {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>🛠️ ESP ISP 調優工具 操作與說明</h1>
+            <p>ESP ISP 調優工具（ESP ISP Tuning Tool）提供了完整的影像品質（IQ）調優方案，涵蓋 <strong>線上參數調優（Live Tuning）</strong>、<strong>離線參數標定（Calibration）</strong> 以及 <strong>圖像處理與分析工具</strong>。</p>
+            <p>以下為 ESP ISP Tool 支援的所有核心影像調整、標定與分析項目：</p>
+
+            <h2>🎛️ 一、核心 ISP 模組線上調整項目 (Live Tuning)</h2>
+            <p>在線上調優頁面（Live Tuning）中，工具可與 ESP32-P4 開發板實時連線，對以下 10 個核心 ISP 管道模組進行參數寫入與效果預覽：</p>
+
+            <h3>1. Exposure（曝光時間控制）</h3>
+            <ul>
+                <li><strong>說明</strong>：配置 Sensor 的感光曝光時間（微秒 μs），控制畫面整體進光量。支援自動曝光增益（Auto Exposure Gain）調整功能。</li>
+            </ul>
+
+            <h3>2. Pixel Gain（像素增益）</h3>
+            <ul>
+                <li><strong>說明</strong>：設定 Sensor 的類比與數位像素增益，控制訊號放大倍率。可搭配 Automation 進行自動化暗場增益掃描。</li>
+            </ul>
+
+            <h3>3. BLC（Black Level Correction / 黑電平校正）</h3>
+            <ul>
+                <li><strong>說明</strong>：扣除 Sensor 固有的暗電流（Dark Current）與固定信號偏置（Fixed Offset），維持訊號的線性一致性。支援設定 Bayer 域四個角（Top Left, Top Right, Bottom Left, Bottom Right Offset）的偏置數值。</li>
+            </ul>
+
+            <h3>4. LSC（Lens Shading Correction / 鏡頭陰影校正）</h3>
+            <ul>
+                <li><strong>說明</strong>：補償鏡頭光學邊緣衰減（中心亮、邊緣暗）現象。可配置 Bayer 域 4 通道的增益矩陣，將畫面邊緣亮度拉齊至接近中心亮度。</li>
+            </ul>
+
+            <h3>5. BF（Bayer Filter / 拜耳域降噪與濾波）</h3>
+            <ul>
+                <li><strong>說明</strong>：在 Bayer 原始影像階段進行降噪，支援設定降噪等級（Denoise Level）與空間濾波矩陣（Filter Matrix）。</li>
+            </ul>
+
+            <h3>6. Demosaic（去馬賽克 / 色彩插值）</h3>
+            <ul>
+                <li><strong>說明</strong>：將 Bayer 單通道 RAW 圖像插值轉換為 RGB 彩色圖像，支援設定去馬賽克梯度比（Gradient Ratio）。</li>
+            </ul>
+
+            <h3>7. WB（White Balance / 白平衡）</h3>
+            <ul>
+                <li><strong>說明</strong>：調整紅通道增益（Red Gain）與藍通道增益（Blue Gain），消除環境光源產生的色偏，確保白色與灰色物體正確還原。</li>
+            </ul>
+
+            <h3>8. CCM（Color Correction Matrix / 色彩校正矩陣）</h3>
+            <ul>
+                <li><strong>說明</strong>：配置 3 × 3 的色彩校正矩陣，修正 Sensor 的色彩響應，使其精準映射至目標參考色彩（如 X-Rite 24 色卡 Lab 參考值）。</li>
+            </ul>
+
+            <h3>9. Gamma（Gamma 曲線校正）</h3>
+            <ul>
+                <li><strong>說明</strong>：調整影像灰階與對比度。支援設定 Preset Gamma 值，或透過直接拖拽採樣點進行固定點曲線編輯，即時改變畫面的亮暗階過渡。</li>
+            </ul>
+
+            <h3>10. Sharpen（銳化 / 邊緣增強）</h3>
+            <ul>
+                <li><strong>說明</strong>：增強影像細節與邊緣清晰度。支援配置高頻分量的高低閾值（High/Low Thresholds）、高/中閾值銳化數值以及低通濾波矩陣。</li>
+            </ul>
+
+            <h2>📐 二、離線參數標定與擬合模組 (ISP Parameter Calibration)</h2>
+            <h3>1. BLC 離線標定</h3>
+            <p>導入完全遮光拍攝的黑電平 RAW 影像，自動計算不同 Pixel Gain 下的黑電平偏置數值。</p>
+
+            <h3>2. LSC 離線標定</h3>
+            <p>導入均勻光源（如燈箱）拍攝的 RAW 影像，自動劃分 Split-window 網格並計算全圖四通道網格增益。</p>
+
+            <h3>3. CCM 離線標定</h3>
+            <p>導入 24 色卡 RAW/RGB 影像，選取角點提取色塊，搭配實際色溫（Actual CT）、白點（White Point）與 Lab 參考值自動計算 3x3 CCM 矩陣與 WB Gain。</p>
+
+            <h3>4. WBCT 標定（白平衡與色溫擬合）</h3>
+            <p>收集不同色溫（如 A, U30, TL84, D50, D65）下的色卡數據，採用線性、二次或三次擬合計算 <code>BG/RG FIT</code> 與 <code>CT/(RG,BG)</code> 色溫曲線。</p>
+
+            <h2>🔬 三、圖像處理與輔助分析工具 (Image Processing &amp; Analysis)</h2>
+            <h3>1. 圖像處理工具 (Image Processing)</h3>
+            <ul>
+                <li><strong>24 色卡 Lab 提取</strong>：從 PNG/JPG/BMP 色卡圖像中提取 24 個色塊的 Lab 數值並匯出 JSON。</li>
+                <li><strong>RAW / RGB 圖像預覽</strong>：檢視 RAW 影像的灰度圖與去馬賽克彩色圖，或預覽 BGR888 格式的 RGB BIN 檔案。</li>
+                <li><strong>Gamma LUT 生成器</strong>：生成 Gamma 曲線、16 點 Look-Up Table (LUT) 與對應的 C/C++ 代碼片段，並可將曲線即時套用至 RGB 影像。</li>
+            </ul>
+
+            <h3>2. 圖像分析工具 (Image Analysis)</h3>
+            <ul>
+                <li><strong>LSC 圖像分析</strong>：繪製 3D 照度分佈圖（3D Shading Visualization），評估畫面亮度均勻度與暗角校正效果。</li>
+                <li><strong>RAW 圖像分析</strong>：拆分並顯示 R、GR、GB、B 四通道的 Bayer 數據與亮度分佈。</li>
+                <li><strong>邊緣分析</strong>：計算並視覺化影像高頻分量，統計最大值、最小值、平均值並提供高頻直方圖。</li>
+                <li><strong>白塊分析</strong>：依據 Threshold（RGB之和/G/灰階）、X/Y 窗口數與 RG/BG 比例條件，篩選並標記影像中無偏色的有效白塊窗口。</li>
+            </ul>
+
+            <h2>🔄 四、ISP Tuning 調整步驟流程圖</h2>
+            <div class="mermaid-container">
+                <div class="mermaid">
+graph TD
+    A[開始 ISP Tuning 流程] --> B[1. 環境準備與感測器資訊設定]
+    B --> C[2. 黑電平校正 BLC 標定]
+    C --> D[3. 鏡頭陰影校正 LSC 標定]
+    D --> E[4. 白平衡 WB 與色彩校正 CCM 標定]
+    E --> F[5. 多色溫白平衡與色溫擬合 WBCT 標定]
+    F --> G[6. Gamma 曲線與細節增強調整 Gamma / BF / Sharpen]
+    G --> H[7. 在線即時調優與實時預覽 Live Tuning / RTSP]
+    H --> I[8. 生成與匯出初始化設定檔 configs.yml / isp_init.h]
+    I --> J[完成配置與硬體部署]
+                </div>
+            </div>
+
+            <pre><code>💡 調優作業流程順序：
+[ 1. 環境準備與感測器設定 ] ──► [ 2. 黑電平 BLC 標定 ] ──► [ 3. 鏡頭陰影 LSC 標定 ] ──► [ 4. 白平衡 WB & CCM 標定 ]
+                                                                                              │
+┌─────────────────────────────────────────────────────────────────────────────────────────────┘
+▼
+[ 5. 多色溫擬合 WBCT 標定 ] ──► [ 6. Gamma / BF / Sharpen 調優 ] ──► [ 7. 在線調優 Live Tuning / RTSP ] ──► [ 8. 匯出 configs.yml / isp_init.h ]</code></pre>
+
+            <h2>📋 五、ISP Tuning 調整步驟說明</h2>
+
+            <h3>1. 環境準備與感測器資訊設定 (Environment &amp; Sensor Info Setup)</h3>
+            <ul>
+                <li><strong>設定檔載入</strong>：啟動工具時，系統會載入預設設定檔 <code>default_configs.yml</code> 並創建可供客製化修改的複本 <code>configs.yml</code> 或 <code>.espispt</code> 專案檔。
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_1.PNG" alt="預設設定檔載入介面">
+                        <figcaption>圖 1：預設設定檔載入介面</figcaption>
+                    </figure>
+                </li>
+                <li><strong>感測器參數更新</strong>：在開始標定前，必須先設定並確認感測器（Sensor）的解析度（寬與高）、位元深度（Bit Depth）以及 Bayer 格式（如 RGGB、BGGR）。
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_2.PNG" alt="感測器參數設定介面">
+                        <figcaption>圖 2：感測器參數設定介面</figcaption>
+                    </figure>
+                </li>
+            </ul>
+
+            <h3>2. 黑電平校正 (Black Level Correction, BLC)</h3>
+            <ul>
+                <li><strong>目的</strong>：消除感測器固有的暗電流（Dark Current）與固定信號偏置（Fixed Signal Offset），確保完全無光時的像素值能準確對齊真正的黑色，維持訊號的線性一致性。</li>
+                <li><strong>操作</strong>：在完全遮擋鏡頭（無光環境）下拍攝全黑 RAW 影像，計算 Bayer 各通道（R, Gr, Gb, B）的偏置數值。</li>
+                <li><strong>順序依賴</strong>：BLC 是所有 ISP 標定中最優先執行的步驟，後續所有模組均需先扣除黑電平偏置。</li>
+            </ul>
+
+            <h3>3. 鏡頭陰影校正 (Lens Shading Correction, LSC)</h3>
+            <ul>
+                <li><strong>目的</strong>：補償鏡頭光學特性造成的「中心亮、邊緣暗」（光學暗角）現象，將畫面各區域亮度拉齊至接近中心亮度。</li>
+                <li><strong>操作</strong>：在輝度箱、積分球或均勻光源下拍攝無紋理的灰白平面 RAW 影像，統計網格區域並計算 Bayer 四通道的網格增益矩陣。</li>
+                <li><strong>順序依賴</strong>：執行 LSC 標定前，必須先完成 BLC 標定並將 BLC 結果寫入或套用至設備。</li>
+            </ul>
+
+            <h3>4. 白平衡 (WB) 與色彩校正矩陣 (CCM) 標定</h3>
+            <ul>
+                <li><strong>目的</strong>：調整 R/B 通道增益消除環境色偏，並透過 3 × 3 矩陣將感測器捕捉到的色彩映射至標準目標色彩（如 Lab 參考值）。</li>
+                <li><strong>操作</strong>：在均勻光源下拍攝標準 24 色卡（ColorChecker）RAW 或 RGB 影像。框選 24 色卡區域，利用最下一排的灰色色塊（Patch 19–23）計算 WB Gains（R Gain, B Gain），並選擇誤差矩陣演算法（如 ΔE<sub>ab</sub><sup>00</sup> 或 ΔC<sub>ab</sub><sup>00</sup>）計算 3x3 CCM 矩陣。</li>
+                <li><strong>順序依賴</strong>：執行 CCM 標定前，必須先完成 BLC 與 LSC 標定並將結果寫入設備。</li>
+            </ul>
+
+            <h3>5. 多色溫白平衡與色溫擬合 (WBCT Calibration)</h3>
+            <ul>
+                <li><strong>目的</strong>：建立白平衡增益與色溫之間的對應關係，確保影像在不同光照色溫環境下皆能正確還原色彩。</li>
+                <li><strong>操作</strong>：收集多個不同標準光源與色溫點（如 A, U30, TL84, D50, D65 以及極端色溫 2500K/7500K）下的 24 色卡樣本。執行擬合演算法（線性、二次或三次擬合），計算出 <code>BG/RG FIT</code> 與 <code>CT/(RG,BG)</code> 色溫曲線。</li>
+            </ul>
+
+            <h3>6. Gamma 曲線與細節增強調整 (Gamma, BF &amp; Sharpening)</h3>
+            <ul>
+                <li><strong>Gamma 校正</strong>：對比或生成 Gamma 曲線（對比標準 sRGB γ ≈ 2.2 或 16 點 Look-Up Table），調整畫面灰階過渡與整體對比度。</li>
+                <li><strong>降噪與銳化</strong>：設定 Bayer 域降噪（BF / BNE）與 Sharpen 銳化參數（高/低頻閾值及濾波矩陣），在抑制噪點與維持細節邊緣之間取得平衡。</li>
+            </ul>
+
+            <h3>7. 在線即時調優與實時預覽 (Live Tuning &amp; Preview)</h3>
+            <ul>
+                <li><strong>操作</strong>：連接實體開發板，在 Live Tuning 介面中即時寫入 Exposure、Pixel Gain、Demosaic、Sharpen 等模組參數。</li>
+                <li><strong>實時驗證</strong>：透過 Capture 拍照或 RTSP 實時視訊串流觀察成像效果，進行閉環微調與驗證。</li>
+            </ul>
+
+            <h3>8. 生成與匯出初始化設定檔 (Generate Configuration Files)</h3>
+            <ul>
+                <li><strong>軟體/演算法設定檔</strong>：將標定與調優完成的參數匯出為 <code>configs.yml</code> 或 JSON 配置文件，供 ISP 軟體參考模型運作。</li>
+                <li><strong>硬體/FPGA 初始化檔</strong>：生成 <code>isp_init.h</code> 標頭檔，將浮點數轉換為適合硬體運算的整數格式（如 Integer CCM），供 FPGA 韌體或晶片驅動初始化載入。</li>
+            </ul>
+
+            <h2>🔍 六、ISP Tuning 工具各功能調整步驟詳解</h2>
+
+            <h3>1. 黑電平校正 (Black Level Correction, BLC)</h3>
+            <h4>📌 BLC 核心概念與目的</h4>
+            <p><strong>黑電平校正（Black Level Correction, BLC）</strong>主要用於<strong>消除感測器固有的暗電流（Dark Current）與固定訊號偏置（Fixed Signal Offset）</strong>。由於感測器即使在完全無光的環境下，輸出像素值也往往不為零，BLC 透過扣除此偏置值，將 0 像素值精準對齊真正的黑色，確保後續所有 ISP 處理模組皆能取得具備線性一致性的輸入訊號。</p>
+
+            <h4>📌 標定環境與影像採集準備</h4>
+            <p>在執行 BLC 標定前，需手動採集無光環境下的暗場 RAW 影像：</p>
+            <ol>
+                <li><strong>完全遮光</strong>：關閉設備光圈，或使用鏡頭蓋完全遮擋鏡頭，確保完全沒有任何光線進入感測器。</li>
+                <li><strong>多增益採集</strong>：在在線調優（Live Tuning）頁面中，將曝光時間固定，並分別在<strong>低增益（Low Gain）</strong>與<strong>高增益（High Gain）</strong>下各點擊 <strong>Capture</strong> 拍攝並擷取一張黑電平 RAW 影像。</li>
+            </ol>
+
+            <h4>📌 黑電平標定與計算步驟</h4>
+            <ol>
+                <li><strong>導入黑電平影像</strong>：開啟標定頁面的 BLC 模組，載入剛才拍攝的黑電平 RAW 影像。
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_3.PNG" alt="導入黑電平影像介面">
+                        <figcaption>圖 3：導入黑電平影像介面</figcaption>
+                    </figure>
+                </li>
+                <li><strong>參數辨識與確認</strong>：工具會優先從 RAW 檔名（格式如 <code>Name_WxH_Nbits_Bayer.raw</code>）、專案設定或已連接設備自動推斷解析度、位元深度與 Bayer 格式。若辨識失敗或參數不符，會彈出對話框供手動確認與修正。</li>
+                <li><strong>自動計算通道偏置</strong>：影像成功載入後，演算法會自動執行並分別計算出 Bayer 域中 <strong>R、Gr、Gb、B</strong> 四個通道的獨立黑電平數值（或四角偏置值）。
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_4.PNG" alt="自動計算通道偏置介面">
+                        <figcaption>圖 4：自動計算通道偏置結果</figcaption>
+                    </figure>
+                </li>
+            </ol>
+
+            <h4>📌 結果處理與在線驗證</h4>
+            <p>標定完成後，工具提供多種結果處置與驗證方式：</p>
+            <ul>
+                <li><strong>Stash（暫存結果）</strong>：輸入該張影像對應的 Pixel Gain 進行暫存。相同增益的暫存資料會自動覆蓋，並隨專案儲存。在 Live Tuning 頁面的 <strong>Stashed BLC</strong> 選項中，可依增益直接選用並下發至開發板進行即時驗證。</li>
+                <li><strong>Export（導出設定檔）</strong>：可將所有暫存的 BLC 結果匯出為 <code>blc_table</code> 或直接寫入 <code>configs.yml</code> 設定檔。</li>
+                <li><strong>Transfer（直接傳遞）</strong>：將當前計算出的 BLC 數值直接傳送至在線調優頁面。</li>
+                <li><strong>Apply（套用校正）</strong>：亦可將計算好的 BLC 數值套用至其他待校正的 RAW 影像上，套用時可選擇是否啟用線性化（Linearization）功能。</li>
+            </ul>
+
+            <h4>📌 自動化暗場增益掃描 (Automation Workflow)</h4>
+            <p>若要自動建立完整增益下的 BLC 資料庫，可在 <strong>Online Tuning &gt; Automation</strong> 頁籤中執行自動化採集：</p>
+            <ol>
+                <li>固定曝光時間（Exposure Time），並設定<strong>起始增益 (Start Gain)</strong>、<strong>結束增益 (End Gain)</strong> 與<strong>步長 (Step)</strong>。</li>
+                <li>蓋上鏡頭蓋後點擊 <strong>Start Capture</strong>，工具會自動依序擷取全範圍增益下的 RAW 畫面並計算每一幀的 BLC 數值。</li>
+                <li>採集完成後，可將所有 RAW 檔案與 BLC 數據整批導出。</li>
+            </ol>
+
+            <hr style="margin: 2.5rem 0; border: 0; border-top: 1px dashed #e0e0e0;">
+
+            <h3>2. 鏡頭陰影校正 (Lens Shading Correction, LSC)</h3>
+            <h4>📌 LSC 核心概念與目的</h4>
+            <p><strong>鏡頭陰影校正（Lens Shading Correction, LSC）</strong> 用於補償由鏡頭光學特性造成的「中心亮、邊緣暗」（光學暗角/亮度衰減）現象。LSC 透過對影像不同網格位置進行 Bayer 四通道的增益補償，將畫面各區域的亮度拉齊至接近中心亮度。</p>
+            <div class="math-formula">前置條件：執行 LSC 標定前，必須先完成 BLC（黑電平校正）標定，並將 BLC 校正結果寫入或套用至設備，以確保後續計算輸入為線性訊號。</div>
+
+            <h4>📌 光源選擇與標定環境準備</h4>
+            <p>LSC 標定對光照均勻度極為敏感，因此對光源與採集環境有明確規範：</p>
+            <ol>
+                <li><strong>光源與目標要求</strong>：
+                    <ul>
+                        <li><strong>亮度分佈平坦且均勻</strong>：光源必須確保全圖照射高度均勻。</li>
+                        <li><strong>目標平滑無紋理</strong>：拍攝物體不可有圖案、線條、劃痕或污跡。</li>
+                    </ul>
+                </li>
+                <li><strong>理想標定設備與光源</strong>：
+                    <ul>
+                        <li><strong>標準設備（首選）</strong>：輝度箱（Luminance Box）、積分球（Integrating Sphere）或 DNP 燈箱。</li>
+                        <li><strong>替代目標</strong>：燈箱無明顯劃痕或污跡的灰色內壁，或透過毛玻璃均勻擴散的光源。</li>
+                        <li><strong>限制條件下方案</strong>：任意亮度分佈均勻的平整灰/白平面（如白牆），但標定精準度可能會有所降低。</li>
+                        <li><strong>注意</strong>：不同鏡頭模組（Lens Module）的光學特性不同，必須分別進行獨立標定。</li>
+                    </ul>
+                </li>
+                <li><strong>影像採集步驟</strong>：
+                    <ol>
+                        <li>將鏡頭對準目標區域，確保環境無外來雜散光干擾。</li>
+                        <li>調整光源亮度，使鏡頭<strong>中心區域的平均亮度達到最大飽和值的 70% 左右</strong>。</li>
+                        <li>拍攝並採集一張 RAW 影像。</li>
+                        <li>切換不同色溫光源（如 A 光、TL84、D50、D65 等），重複上述步驟採集多組不同色溫下的 LSC RAW 影像。</li>
+                    </ol>
+                </li>
+            </ol>
+
+            <h4>📌 Split-window 網格標定與計算步驟</h4>
+            <ol>
+                <li><strong>導入標定 RAW 影像</strong>：
+                    <p>在標定頁面開啟 LSC 模組並導入採集的 RAW 影像。工具會優先從檔名自動辨識解析度、位深與 Bayer 格式；若無法推斷，會跳出對話框供手動確認與修正。</p>
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_5.PNG" alt="開啟 LSC 模組介面">
+                        <figcaption>圖 5：開啟 LSC 模組介面</figcaption>
+                    </figure>
+                </li>
+                <li><strong>自動統計中心亮度與顯示 Split-window 網格</strong>：
+                    <p>影像成功載入後，工具會自動統計中心區域各通道的平均亮度，並在預覽圖上疊加 <strong>LSC Split-window 網格</strong>。</p>
+                </li>
+                <li><strong>選取目標亮度區域 (Center Value)</strong>：
+                    <ul>
+                        <li><strong>單視窗選取</strong>：可以直接點擊某個網格窗口作為目標亮度區域。</li>
+                        <li><strong>多視窗框選</strong>：可按住滑鼠拖拽出一個矩形區域，系統會自動由預先分割好的網格窗口組合而成。</li>
+                        <li>工具會自動計算所選窗口區域的四通道（R, Gr, Gb, B）平均亮度，並填入 <strong>Center Value</strong>。</li>
+                    </ul>
+                </li>
+                <li><strong>執行計算 (Run)</strong>：
+                    <p>點擊 <strong>Run</strong> 按鈕，工具會以當前 Center Value（若未選擇視窗，則預設使用自動計算的中心亮度）作為目標中心亮度。</p>
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_6.PNG" alt="自動計算中心亮度">
+                        <figcaption>圖 6：自動計算中心目標亮度</figcaption>
+                    </figure>
+                    <p>演算法會自動計算 Bayer 四通道的網格增益矩陣（Grid Gains），並在右側即時顯示校正後的影像。</p>
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_7.PNG" alt="選取目標亮度區域與校正預覽">
+                        <figcaption>圖 7：選取目標亮度區域與校正後預覽</figcaption>
+                    </figure>
+                </li>
+            </ol>
+
+            <h4>📌 結果處置與在線驗證</h4>
+            <ul>
+                <li><strong>Stash（暫存結果）</strong>：點擊 Stash 按鈕並輸入當前影像對應的色溫（Color Temperature, CT）進行暫存。相同色溫的結果會自動覆蓋，數據隨專案檔案儲存。</li>
+                <li><strong>Live Tuning 在線套用</strong>：在 Live Tuning 頁面的 <strong>Stashed LSC</strong> 選項中，可依色溫（CT）直接選用暫存的 LSC 結果，並點擊 Send 將 Bayer 4 通道增益矩陣下發至開發板進行即時驗證。</li>
+                <li><strong>Export / Transfer</strong>：點擊 Export 可將所有暫存的 LSC 結果導出；點擊 Transfer 可將當前 LSC 結果直接傳遞給 Live Tuning 頁面。</li>
+            </ul>
+
+            <h4>📌 LSC 效果分析 (3D Shading Visualization)</h4>
+            <p>校正完成後，可至圖像分析（Image Analysis）頁面的 <strong>LSC Analysis</strong> 模組，導入套用 LSC 參數後拍攝的 RAW 影像。工具會生成 <strong>3D 照度分佈圖（3D Shading Visualization）</strong>，方便直觀觀察畫面全域的亮度分佈曲面、鏡頭暗角程度與陰影校正效果。</p>
+
+            <hr style="margin: 2.5rem 0; border: 0; border-top: 1px dashed #e0e0e0;">
+
+            <h3>3. 白平衡 (WB) 與色彩校正矩陣 (CCM) 標定</h3>
+            <h4>📌 CCM 核心概念與前置條件</h4>
+            <p><strong>色彩校正矩陣（Color Correction Matrix, CCM）</strong> 用於修正感測器（Sensor）的色彩響應，透過將感測器捕捉到的色彩空間轉換並映射至標準目標色彩（如 X-Rite 24 色卡 Lab 參考值），消除色偏、修正飽和度並還原真實色彩。</p>
+            <div class="math-formula">前置條件：執行 CCM 標定前，必須先完成 BLC（黑電平校正）與 LSC（鏡頭陰影校正）標定，並將 BLC 與 LSC 的校正結果寫入設備中。</div>
+
+            <h4>📌 標定環境與影像採集準備</h4>
+            <ol>
+                <li><strong>標定器材</strong>：準備標準 X-Rite ColorChecker Classic（24 色卡）。</li>
+                <li><strong>拍攝規範</strong>：
+                    <ul>
+                        <li>在均勻光源下將鏡頭對準 24 色卡，確保色卡佔據全圖面積 80% 以上。</li>
+                        <li>調整光源亮度，使最亮灰階 Patch 19 的 G 通道數值約達到飽和值的 0.8 倍左右。拍攝並採集 RAW 影像或 BGR888 BIN 格式影像。</li>
+                    </ul>
+                </li>
+                <li><strong>多色溫採集覆蓋</strong>：
+                    <ul>
+                        <li>建議優先覆蓋常用標準光源色溫點：A、U30、U35、TL84、D50、D65。</li>
+                        <li>建議補充低色溫與高色溫極端點（如 2500K 與 7500K），以提升 CCM 在各種實際場景下的泛化能力。</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>📌 順時針角點選取與色塊提取步驟</h4>
+            <ol>
+                <li><strong>導入標定影像</strong>：在標定頁面開啟 CCM 模組，導入拍攝的 RAW 或 BGR888 BIN 影像。工具會優先從檔名自動辨識解析度、位元深度與 Bayer 格式；若缺少完整參數，會彈出對話框供手動確認與修正。</li>
+                <li><strong>順時針選取 24 色卡角點 (Clockwise Corner Selection)</strong>：
+                    <ul>
+                        <li>影像成功載入後，在畫面上依照順時針方向依次點擊 24 色卡的四個角點。</li>
+                        <li>點擊完成後，調優工具會自動對 24 色卡進行分割與色塊提取（Patch Partitioning）。</li>
+                        <li>提取完成後，右側的標定參數頁面會自動顯示點擊色塊的平均 RGB 數值。</li>
+                    </ul>
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_8.PNG" alt="自動顯示點擊色塊的平均 RGB 數值">
+                        <figcaption>圖 8：順時針選取 24 色卡角點與色塊 RGB 均值提取</figcaption>
+                    </figure>
+                </li>
+            </ol>
+
+            <h4>📌 色溫 (Actual CT)、白點 (White Point) 與白塊標定流程</h4>
+            <p>色塊劃分完成後，需在 Set CCM Parameters 區域配置核心參數：</p>
+            <ol>
+                <li><strong>設定實際色溫 (Actual CT)</strong>：在 Actual CT 欄位中填入當前採集環境下實測的固定色溫數值（例如 6504K）。</li>
+                <li><strong>白點連動與設定 (White Point &amp; Auto Linking)</strong>：
+                    <ul>
+                        <li><strong>Auto 白點自動連動</strong>：啟用 Auto 功能時，工具會自動根據輸入的 Actual CT 選擇最接近的標準參考白點。</li>
+                        <li><strong>手動調整</strong>：使用者亦可手動在下拉式選單中切換指定的 White Point（如 D65, D50 等）。</li>
+                    </ul>
+                </li>
+                <li><strong>選擇參考 Lab 數值與 Gamma (Lab Ref &amp; Gamma)</strong>：
+                    <ul>
+                        <li><strong>Lab 參考值</strong>：工具預設提供 X-Rite D50、3NH D50 與 TC021-S 等色卡 Preset，亦支援使用者自訂 Lab 數據。</li>
+                        <li><strong>Gamma 設定</strong>：目前預設支援 sRGB Gamma 參數。</li>
+                    </ul>
+                </li>
+                <li><strong>選取白塊 (Select White Patch)</strong>：
+                    <ul>
+                        <li><strong>點擊 Select White Patch 按鈕</strong>，在色卡最下一排灰色色塊中選取至少一個白塊/灰塊（Patch 19–23）。</li>
+                        <li><strong>歷史選擇沿用（History Reuse）</strong>：工具會自動記錄白塊選取歷史；當導入同一組標定中的下一張影像時，系統會預設沿用上一次選取的白塊編號，但會自動從新影像中重新提取 RGB 平均值，避免誤用舊影像數據。</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>📌 矩陣計算、結果處置與 WBCT 色溫擬合</h4>
+            <ol>
+                <li><strong>執行計算 (Run)</strong>：
+                    <ul>
+                        <li>點擊 Run 按鈕，工具會自動計算出 3 × 3 色彩校正矩陣（CCM）與白平衡增益（WB Gain）。</li>
+                        <li>介面上會同時呈現 CCM 校正預覽圖以及僅套用 WB 的預覽圖。</li>
+                        <li>可點擊 Saturation 按鈕微調預覽畫面的飽和度（此操作僅改變預覽視覺效果，不會修改原始 CCM 矩陣）。</li>
+                    </ul>
+                </li>
+                <li><strong>Stash / Export / Transfer</strong>：
+                    <ul>
+                        <li><strong>Stash（暫存）</strong>：點擊 Stash 並輸入當前色溫（CT）暫存 CCM 矩陣，相同色溫會自動覆蓋並隨專案保存。</li>
+                        <li><strong>Export（導出）</strong>：可導出全部暫存結果；若已導入 ISP JSON 模板，亦可直接寫入模板中。</li>
+                        <li><strong>Transfer（傳遞）</strong>：將當前 CCM 矩陣與 WB Gain 傳遞至 Live Tuning 頁面下發測試。</li>
+                    </ul>
+                </li>
+                <li><strong>白平衡與色溫擬合 (WBCT Calibration)</strong>：
+                    <ul>
+                        <li>重複上述步驟導入不同色溫（如 A, TL84, D50, D65, 2500K, 7500K）下的色卡影像，每次成功執行 CCM 後，工具會自動建立或更新一條 WBCT Sample。</li>
+                        <li>在 WBCT 區域點擊 Run WBCT，選擇線性（Linear）、二次（Quadratic）或三次（Cubic）擬合模式，即可計算出 <code>BG/RG FIT</code> 與 <code>CT/(RG,BG)</code> 兩組色溫曲線。</li>
+                        <li>導出的 WBCT 結果即可直接對應寫入相機 Sensor IPA 配置文件中的 <code>color_temp</code> 節點。</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <hr style="margin: 2.5rem 0; border: 0; border-top: 1px dashed #e0e0e0;">
+
+            <h3>4. 多色溫白平衡與色溫擬合 (WBCT Calibration)</h3>
+            <h4>📌 WBCT 核心概念與目的</h4>
+            <p><strong>白平衡與色溫（White Balance and Color Temperature, WBCT）</strong> 標定主要用於建立白平衡增益與色溫之間的對應關係。透過在多個不同色溫光源下收集的白塊樣本，演算法可計算並擬合出連續的色溫曲線，供自動白平衡（AWB）模組在各種光照環境下動態推算與還原正確的色彩。</p>
+
+            <h4>📌 標定環境與多色溫樣本採集</h4>
+            <ul>
+                <li><strong>依賴關係</strong>：WBCT 標定高度依賴在 CCM（色彩校正矩陣）標定流程中所採集的不同色溫下的 24 色卡（ColorChecker）標定圖像。</li>
+                <li><strong>光源涵蓋建議</strong>：
+                    <ul>
+                        <li>建議優先覆蓋常用標準光源與色溫點，例如 A、U30、U35、TL84、D50 與 D65。</li>
+                        <li>同時建議包含極低色溫（如 2500K）與極高色溫（如 7500K）的端點樣本，以提升色溫擬合曲線的穩定性與場景適應能力。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>📌 逐一色溫樣本收集與提取步驟</h4>
+            <p>在 CCM 標定頁面中，依序對每個色溫點下的 24 色卡影像執行以下步驟：</p>
+            <ol>
+                <li><strong>導入單一色溫影像</strong>：在 CCM 頁面導入某一個色溫下拍攝的 24 色卡圖像。</li>
+                <li><strong>順時針選取角點</strong>：依照順時針方向點擊選取 24 色卡的四個角點進行色塊劃分。</li>
+                <li><strong>填入實際色溫 (Actual CT)</strong>：在 Actual CT 欄位中輸入當前圖像在拍攝環境下實測的實際色溫數值。</li>
+                <li><strong>選取白塊 (Select White Patch)</strong>：點擊 Select White Patch 按鈕，選取 CCM 所使用的白塊/灰塊（Patch 19–23）。工具會記錄白塊選取歷史；當導入下一張不同色溫的影像時，預設會沿用相同的白塊編號，但會自動從新影像中重新計算 RGB 平均值，避免誤用舊數據。</li>
+                <li><strong>執行 CCM 並生成樣本</strong>：點擊 Run 按鈕執行 CCM 計算。CCM 計算成功後，工具會自動結合當前輸入的 Actual CT 與白塊 RGB 平均值，生成或更新一條 WBCT sample。</li>
+                <li><strong>重複採集全色溫點</strong>：更換至其他色溫點下拍攝的 24 色卡圖像，重複上述步驟 1 至 5，直到收集齊所有目標色溫點的樣本。</li>
+            </ol>
+
+            <h4>📌 色溫擬合曲線計算 (Run WBCT)</h4>
+            <p>收集齊多個色溫點的 WBCT 樣本後，可在 CCM 頁面的 WBCT Calibration 區域執行曲線擬合：</p>
+            <ol>
+                <li><strong>檢視與管理樣本</strong>：在 WBCT Calibration 區域中可以檢視、刪除各條樣本，或點擊 Export Samples 將收集到的 WBCT 樣本數據導出備份。</li>
+                <li><strong>設定擬合模式與參數</strong>：點擊 Run WBCT，選擇適合的擬合模式（線性 Linear、二次 Quadratic 或 三次 Cubic），並設定 x₀, y₀ 參數。</li>
+                <li><strong>計算對應曲線</strong>：執行擬合後，調優工具會自動計算並繪製出 <code>BG/RG FIT</code> 與 <code>CT/(RG,BG)</code> 兩組色溫對應關係曲線。</li>
+            </ol>
+
+            <h4>📌 結果導出與模板寫入</h4>
+            <ul>
+                <li><strong>導出至配置文件</strong>：點擊 Export 按鈕導出 WBCT 標定結果。該匯出結果直接對應相機感測器 IPA 配置文件中 <code>color_temp</code> 配置項。</li>
+                <li><strong>寫入 JSON 模板</strong>：若先前已透過 JSON Tool 載入或導入 ISP JSON 模板，可點擊 Save to Template 將 WBCT 標定結果直接寫入模板中。</li>
+            </ul>
+
+            <hr style="margin: 2.5rem 0; border: 0; border-top: 1px dashed #e0e0e0;">
+
+            <h3>5. Gamma 曲線與細節增強調整 (Gamma, BF &amp; Sharpening)</h3>
+            <h4>📌 核心概念與調優目的</h4>
+            <p>Gamma 曲線校正、拜耳域降噪 (Bayer Filter, BF) 與銳化 (Sharpen) 屬於 ISP 管道中後段負責影像階調過渡、噪點抑制與細節增強的核心模組。透過這三個模組的協同調優，能使影像在維持平滑過渡與潔淨暗部的同時，呈現清晰的邊緣細節。</p>
+
+            <h4>📌 Gamma 曲線生成與在線動態編輯流程</h4>
+            <p>Gamma 校正用於將感測器的線性響應對映至符合人眼視覺與顯示器的非線性階調空間。工具提供離線生成、在線動態編輯與曲線分析三種操作方式：</p>
+            <ol>
+                <li><strong>LUT 生成與代碼導出 (Gamma Lookup Table Generator)</strong>：
+                    <ul>
+                        <li>在圖像處理 (Image Processing) 頁面的 Gamma Generate 區域，輸入 Preset Gamma 數值（建議範圍 1.5–3.0）並點擊 Generate。</li>
+                        <li>工具會自動繪製 Gamma 曲線、生成 16 點 Look-Up Table (LUT) 以及對應的 C/C++ 代碼片段。</li>
+                        <li>頁面支援導入 BGR888 格式的 RGB BIN 影像；拖動採樣點時，右側預覽圖會即時套用當前 Gamma 曲線並同步刷新。</li>
+                    </ul>
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_9.PNG" alt="Gamma 生成與代碼導出介面">
+                        <figcaption>圖 9：Gamma LUT 生成與 C/C++ 代碼導出介面</figcaption>
+                    </figure>
+                </li>
+                <li><strong>在線動態固定點編輯 (Live Tuning Gamma Editing)</strong>：
+                    <ul>
+                        <li>在在線調優 (Live Tuning) 頁面的 Module Selection 中選取 Gamma 模組。</li>
+                        <li>輸入 Preset Gamma 值點擊 Apply 生成預設曲線，或直接在圖表上記拖動採樣點 (Sampling Points) 調整輸出階調。</li>
+                        <li>啟用 Auto Apply 時，拖動採樣點會即時將 Gamma 配置寫入開發板；未啟用時可點擊 Send 手動下發。</li>
+                    </ul>
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_10.PNG" alt="在線動態固定點編輯介面">
+                        <figcaption>圖 10：在線動態固定點編輯介面</figcaption>
+                    </figure>
+                </li>
+                <li><strong>曲線視覺化對比 (Gamma Analysis)</strong>：
+                    <ul>
+                        <li>在分析工具 (Analysis Tools) 的 Gamma Curves 模組中，可將使用者自訂的 Gamma 曲線與標準 sRGB 色彩空間的 Gamma（γ ≈ 2.2）曲線進行繪圖對比，並點擊 Save Graphs 儲存結果。</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>📌 拜耳域降噪 (Bayer Filter, BF) 標定步驟</h4>
+            <p>拜耳域降噪是在 Raw 原始影像階段進行雜訊抑制，防止噪點進入去馬賽克 (Demosaic) 過程被放大。</p>
+            <ol>
+                <li><strong>模組選取</strong>：在 Live Tuning 頁面的 Module Selection 下拉選單中選擇 BF 模組。</li>
+                <li><strong>關鍵參數配置</strong>：
+                    <ul>
+                        <li><strong>Denoise Level (降噪等級)</strong>：設定降噪強度，抑制全圖的高頻雜訊與暗部顆粒感。</li>
+                        <li><strong>Filter Matrix (濾波矩陣)</strong>：配置空間濾波矩陣權重，控制降噪的平滑特性與範圍。</li>
+                    </ul>
+                </li>
+                <li><strong>下發與即時驗證</strong>：修改參數後點擊 Send 寫入設備，點擊 Capture 擷取影像，觀察平坦區域與暗部的雜訊抑制狀況。
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_11.PNG" alt="拜耳域降噪標定介面">
+                        <figcaption>圖 11：拜耳域降噪 (Bayer Filter, BF) 標定介面</figcaption>
+                    </figure>
+                </li>
+            </ol>
+
+            <h4>📌 銳化與細節增強 (Sharpening) 調優流程</h4>
+            <p>銳化模組用於補償光學與降噪帶來的邊緣模糊，提升影像的高頻細節與清晰度。</p>
+            <ol>
+                <li><strong>模組選取</strong>：在 Live Tuning 頁面的 Module Selection 中選取 Sharpen 模組。</li>
+                <li><strong>核心參數配置</strong>：
+                    <ul>
+                        <li><strong>High &amp; Low Thresholds (高低閾值)</strong>：設定高頻分量的高低閾值，劃分細節邊緣與平坦背景噪點區域。</li>
+                        <li><strong>High-Threshold &amp; Mid-Threshold Sharpen Gain (高/中閾值銳化增益)</strong>：分別調整強邊緣與中等細節區域的增強係數。</li>
+                        <li><strong>Low-Pass Filter Matrix (低通濾波矩陣)</strong>：設定低通濾波矩陣，抑制邊緣過度銳化產生的白邊 (Over-shoot) 或高頻噪點放大。</li>
+                    </ul>
+                </li>
+                <li><strong>即時寫入與預覽</strong>：點擊 Send 下發參數，點擊 Capture 拍攝單張影像，或點擊 RTSP Preview 開啟動態視訊視窗，實時觀察物體輪廓與線條的銳利度。
+                    <figure>
+                        <img src="../image/Study_note_image/esp_32_p4/esp_isp_tuning_tool/esp_isp_tool_12.PNG" alt="銳化與細節增強調優介面">
+                        <figcaption>圖 12：銳化與細節增強 (Sharpening) 調優介面</figcaption>
+                    </figure>
+                </li>
+            </ol>
+
+            <h4>📌 邊緣與細節量化分析 (Edge Analysis)</h4>
+            <p>為避免過度銳化導致影像品質劣化，可使用圖像分析工具進行量化評估：</p>
+            <ol>
+                <li><strong>圖像導入</strong>：進入圖像分析 (Image Analysis) 頁面的 Edge Analysis 模組，導入 BIN、PNG 或 JPG 格式影像。</li>
+                <li><strong>高頻分量繪製</strong>：工具會自動計算畫面高頻分量，並在 High Frequency Visualization 區域繪製高頻細節分佈圖。</li>
+                <li><strong>數據統計與直方圖</strong>：系統會自動統計高頻分量的最大值、最小值與平均值，並繪製高頻分量直方圖 (Histogram)，幫助工程師精準評估邊緣增強程度與雜訊控制的平衡點。</li>
+            </ol>
+
+            <h2>📊 七、ISP 模組調優順序與暫存器預設值對照表</h2>
+            <p>在 ESP ISP 調優工具中，ISP 管道模組涵蓋從 RAW 域至 RGB 域的完整處理過程。下表依照<strong>嚴格的算法前置依賴順序</strong>，整理所有 10 個核心模組的處理領域、前置條件、核心暫存器/參數以及預設與常見範圍：</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">調優順序</th>
+                        <th style="width: 14%;">模組名稱</th>
+                        <th style="width: 12%;">處理領域</th>
+                        <th style="width: 18%;">前置依賴條件</th>
+                        <th style="width: 26%;">核心暫存器 / 參數項目</th>
+                        <th style="width: 22%;">預設值與常見範圍說明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1</strong></td>
+                        <td><strong>Exposure</strong><br>(曝光時間)</td>
+                        <td>Sensor / 前端</td>
+                        <td>無</td>
+                        <td>Exposure Time (μs)</td>
+                        <td>預設預覽值 23800 μs（可調範圍：200 – 33200 μs）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2</strong></td>
+                        <td><strong>Pixel Gain</strong><br>(像素增益)</td>
+                        <td>Sensor / 前端</td>
+                        <td>無</td>
+                        <td>Pixel / Analog Gain</td>
+                        <td>設備範圍 1x – 64x（自動化暗場掃描預設起始 1，結束 64，步長 5）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3</strong></td>
+                        <td><strong>BLC</strong><br>(黑電平校正)</td>
+                        <td>RAW 域</td>
+                        <td>曝光與增益已固定</td>
+                        <td>Top Left, Top Right, Bottom Left, Bottom Right Offsets（四角偏置）</td>
+                        <td>介面預設偏置 16（或依全黑暗場採集計算之 R, Gr, Gb, B 偏置數值）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4</strong></td>
+                        <td><strong>LSC</strong><br>(鏡頭陰影校正)</td>
+                        <td>RAW 域</td>
+                        <td>必須先完成 BLC 並寫入設備</td>
+                        <td>4-Channel Grid Gain Matrix（Bayer 四通道網格增益）</td>
+                        <td>依輝度箱/燈箱採集，調整光源使中心平均亮度達到最大值的 70%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5</strong></td>
+                        <td><strong>BF</strong><br>(拜耳域降噪)</td>
+                        <td>RAW 域</td>
+                        <td>BLC 完成</td>
+                        <td>Denoise Level, Filter Matrix</td>
+                        <td>控制 RAW 域平滑與高頻降噪強度，防止去馬賽克時放大噪點</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6</strong></td>
+                        <td><strong>Demosaic</strong><br>(去馬賽克)</td>
+                        <td>RAW → RGB</td>
+                        <td>BLC, LSC 完成</td>
+                        <td>Gradient Ratio（梯度比）</td>
+                        <td>介面預設值 1（控制彩色插值方向與梯度權重）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>7</strong></td>
+                        <td><strong>WB</strong><br>(白平衡增益)</td>
+                        <td>RGB / RAW</td>
+                        <td>BLC, LSC 完成</td>
+                        <td>Red Gain, Blue Gain</td>
+                        <td>預設數值 0 / 1.0（調整 R/B 增益使灰階色塊消除色偏）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8</strong></td>
+                        <td><strong>CCM &amp; WBCT</strong><br>(色彩校正矩陣與色溫擬合)</td>
+                        <td>RGB 域</td>
+                        <td>必須先完成 BLC 與 LSC 並寫入設備</td>
+                        <td>3 × 3 Correction Matrix（浮點/整數型），BG/RG FIT 與 CT/(RG,BG) 曲線</td>
+                        <td>CCM 每行和約束為 1；拍攝時 Patch 19 G 分量控制在 0.8 倍飽和度</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9</strong></td>
+                        <td><strong>Gamma</strong><br>(Gamma 曲線校正)</td>
+                        <td>RGB 域</td>
+                        <td>CCM, WB 完成</td>
+                        <td>Preset Gamma, 16-point LUT</td>
+                        <td>建議 Preset 值 1.5 – 3.0（基準對比 sRGB γ ≈ 2.2；UI 預設值 0.78）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10</strong></td>
+                        <td><strong>Sharpen</strong><br>(銳化與邊緣增強)</td>
+                        <td>RGB 域</td>
+                        <td>BF, Gamma 完成</td>
+                        <td>High/Low Thresholds, High/Mid Sharpen Gains, Low-Pass Filter Matrix</td>
+                        <td>控制高頻細節增強與低通濾波，避免過度銳化產生白邊（Over-shoot）</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📌 關鍵調優順序依賴原則</h3>
+            <ol>
+                <li><strong>BLC 必須最優先標定 (BLC First)</strong>：
+                    <p>黑電平偏置（Dark Current Offset）若未先扣除，後續所有模組（如 LSC、WB、CCM）輸入的訊號均為非線性，會直接導致色偏與亮度計算失真。</p>
+                </li>
+                <li><strong>LSC 必須在 CCM 前完成 (LSC before CCM)</strong>：
+                    <p>鏡頭暗角會造成畫面邊緣亮度與色彩衰減，若未先執行 LSC 補償邊緣亮度，在選取 24 色卡或算 CCM 矩陣時會因邊緣與中心光照不均而產生嚴重的矩陣計算偏差。</p>
+                </li>
+                <li><strong>CCM 必須在 Gamma 與 Sharpen 前完成 (CCM before Gamma/Sharpen)</strong>：
+                    <p>CCM 的 3 × 3 矩陣變換建立在線性 RGB 空間上；若先實施非線性的 Gamma 階調壓縮或 Sharpen 高頻增強，會破壞色彩的線性比例關係。</p>
+                </li>
+                <li><strong>即時擷取格式自動切換</strong>：
+                    <p>當啟用了 Demosaic、WB、CCM、Gamma 或 Sharpen 等 RGB 域模組時，系統在點擊 Capture 時會自動切換為 RGB24 格式；若僅啟用 RAW 域模組，則預設擷取 RAW 格式。</p>
+                </li>
+            </ol>
+
+            <h2>❓ 八、常見問題與說明 (FAQ)</h2>
+
+            <h3>一. 怎麼在線上模式即時預覽影像？</h3>
+            <p>在 ESP ISP 調優工具中，線上模式提供兩種圖像預覽方式：<strong>單張擷取預覽（Capture）</strong> 與 <strong>RTSP 實時視訊串流預覽（RTSP Preview）</strong>。</p>
+
+            <h4>1. 單張擷取預覽 (Single Frame Capture)</h4>
+            <p>當在 <strong>Live Tuning</strong> 頁面微調 ISP 模組參數時，可以隨時擷取單幀影像來觀察調整效果：</p>
+            <ul>
+                <li><strong>操作步驟</strong>：
+                    <ol>
+                        <li>確保開發板已成功連接（支援 IP 或 USB 連接）。</li>
+                        <li>在 <strong>Module Selection</strong> 中選取模組並修改參數後，點擊 <strong>Send</strong> 將參數寫入開發板。</li>
+                        <li>點擊預覽區域下方的 <strong>Capture</strong> 按鈕，工具會抓取當前參數下的畫面並更新至預覽區域。</li>
+                    </ol>
+                </li>
+                <li><strong>格式自動切換</strong>：
+                    <ul>
+                        <li>若啟用了 <strong>Demosaic、WB、CCM、Gamma 或 Sharpen</strong> 等 RGB 域模組，系統會預設擷取 <strong>RGB24</strong> 格式。</li>
+                        <li>若未啟用上述模組，則預設擷取 <strong>RAW</strong> 格式。</li>
+                    </ul>
+                </li>
+                <li><strong>後續處理</strong>：
+                    <ul>
+                        <li>點擊 <strong>Save</strong> 可將最新擷取的影像儲存至本機（RAW 檔存為 <code>.raw</code>，RGB24 存為 <code>.bin</code>）。</li>
+                        <li>點擊 <strong>Send to Tuning</strong> 可將該張影像直接發送至 BLC、LSC 或 CCM 等離線標定模組。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>2. RTSP 實時動態視訊預覽 (RTSP Live Stream)</h4>
+            <p>若需要連續觀察動態畫面的實時成像效果，可以使用 RTSP 視訊串流功能：</p>
+            <ul>
+                <li><strong>前置條件</strong>：
+                    <ul>
+                        <li><strong>僅支援 IP 連接</strong>（以太網或 Wi-Fi），<strong>USB 連接不支援 RTSP 預覽</strong>。</li>
+                        <li>請確認燒錄於 ESP32-P4 的標定固件已啟動 RTSP 服務。</li>
+                    </ul>
+                </li>
+                <li><strong>操作步驟</strong>：
+                    <ol>
+                        <li>在 <strong>Live Tuning</strong> 頁面下方點擊 <strong>RTSP Preview</strong> 按鈕。</li>
+                        <li>工具會在獨立視窗中開啟並播放 <code>rtsp://&lt;開發板 IP&gt;:8554/live</code> 的動態視訊串流。</li>
+                        <li>點擊 <strong>Stop RTSP</strong> 即可結束預覽；若開發板斷開連接或切換離開 Live Tuning 頁面，預覽視窗也會自動關閉。</li>
+                    </ol>
+                </li>
+            </ul>
+
+            <hr style="margin: 2.5rem 0; border: 0; border-top: 1px dashed #e0e0e0;">
+
+            <h3>二. 如何調整曝光和增益？</h3>
+            <p>在 ESP ISP 調優工具中，調整<strong>曝光（Exposure）與增益（Pixel Gain）</strong>主要有以下三種操作方式：</p>
+
+            <h4>1. 手動即時調整 (Live Manual Tuning)</h4>
+            <ul>
+                <li><strong>進入頁面</strong>：切換至 Online Tuning（在線調優）頁面的 Live Tuning 頁籤。</li>
+                <li><strong>選擇模組與輸入參數</strong>：在 Module Selection 下拉式選單中，選擇要寫入的模組：
+                    <ul>
+                        <li>選擇 <strong>Exposure</strong>：輸入目標曝光時間（單位為微秒 μs）。</li>
+                        <li>選擇 <strong>Pixel Gain</strong>：輸入像素增益數值。</li>
+                    </ul>
+                </li>
+                <li><strong>寫入設備</strong>：修改參數後，點擊該模組面板中的 <strong>Send</strong> 按鈕，將新參數寫入開發板。</li>
+                <li><strong>狀態檢視</strong>：模組面板底部會即時顯示當前開發板運行的曝光時間與像素增益。</li>
+            </ul>
+
+            <h4>2. 預覽區域右鍵自動曝光與增益 (Auto Exposure Gain)</h4>
+            <ul>
+                <li><strong>擷取預覽影像</strong>：在 Live Tuning 頁面點擊 <strong>Capture</strong> 按鈕擷取當前影像。</li>
+                <li><strong>切換模式與右鍵點擊</strong>：在預覽區域切換為 <strong>Color Card（色卡）</strong> 或 <strong>LSC Grid（網格）</strong> 模式，並在特定的色塊或網格上點擊滑鼠右鍵。</li>
+                <li><strong>開啟 Auto Exposure Gain 對話框</strong>：彈出視窗後，配置以下控制條件與範圍：
+                    <ul>
+                        <li><strong>Channel</strong>：選擇目標通道（如 R、GR、GB、B）。</li>
+                        <li><strong>Luminance Range (Min/Max)</strong>：設定目標亮度範圍。</li>
+                        <li><strong>Adjustment Range</strong>：設定曝光調整範圍（Exposure Min/Max us）與增益調整範圍（Pixel Gain Min/Max）。</li>
+                        <li><strong>Max Iterations</strong>：設定最大疊代次數。</li>
+                    </ul>
+                </li>
+                <li><strong>同步更新</strong>：自動曝光疊代計算完成後，工具會自動推算並同步更新介面上的 Exposure 與 Pixel Gain 參數。</li>
+            </ul>
+
+            <h4>3. 自動化暗場增益掃描 (Automation Gain Sweep)</h4>
+            <ul>
+                <li><strong>進入自動化頁籤</strong>：切換至 Online Tuning 頁面的 <strong>Automation</strong> 頁籤。</li>
+                <li><strong>配置掃描條件</strong>：設定固定曝光時間（Exposure us），以及像素增益的<strong>起始增益 (Start Gain)</strong>、<strong>結束增益 (End Gain)</strong> 與<strong>增益步長 (Step)</strong>。</li>
+                <li><strong>執行連續採集</strong>：點擊 <strong>Start Capture</strong>，工具即會按設定順序自動變更增益並擷取每一幀 RAW 影像（例如用於 BLC 暗場增益掃描）。</li>
+            </ul>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

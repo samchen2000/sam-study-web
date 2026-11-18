@@ -110,7 +110,8 @@
         .note-card img {
             width: 100%;
             height: 180px;
-            object-fit: cover;
+            object-fit: contain;      /* 保持圖片完整比例，不做裁切 */
+            background-color: #f8f9fa; /* 替圖片未填滿的空白處加上淺色背景，維持視覺一致性 */
         }
         .note-card-content {
             padding: 20px;
@@ -453,7 +454,7 @@
                     </div>
                 </a>
             </div>  
-            <!-- 卡片 3 : ESP32-P4 IQ Tune  -->
+            <!-- 卡片 4 : ESP32-P4 IQ Tune  -->
             <div class="note-card">
                 <a href="./study_notes/esp_32_p4_IQ_tune_flow.html">
                     <img src="./image/Study_note_image/esp32/logo.PNG" alt="ESP32-P4 IQ Tune 參數與調整步驟">
@@ -463,7 +464,17 @@
                     </div>
                 </a>
             </div> 
-            <!-- 卡片 4 : RockChip IQ tune flow (Tuning IQ Tool)  -->
+            <!-- 卡片 5 : ESP32-P4 IQ json file param  -->
+            <div class="note-card">
+                <a href="./study_notes/esp_IQ_param_instructions.html">
+                    <img src="./image/Study_note_image/esp_32_p4/esp_iq_param/esp_iq_param_1.PNG" alt="ESP32-P4 IQ param 參數說明">
+                    <div class="note-card-content">
+                        <h3>ESP32-P4 IQ Json file param 參數說明 </h3>
+                        <p>此說明 Espressif 影像處理演算法元件提供一系列影像處理演算法, 在IQ Json File 中 每個參數的說明與調整範圍。</p>
+                    </div>
+                </a>
+            </div> 
+            <!-- 卡片 6 : RockChip IQ tune flow (Tuning IQ Tool)  -->
             <div class="note-card">
                 <a href="./study_notes/RockChip_IQ_tune_flow.html">
                     <img src="./image/Study_note_image/rockchip/logo.JPG" alt="RockChip IQ tune flow (Tuning IQ Tool)">
@@ -473,7 +484,7 @@
                     </div>
                 </a>
             </div>  
-            <!-- 卡片 5 : Infinite-ISP 調適工具 (Tuning Tool)  -->
+            <!-- 卡片 7 : Infinite-ISP 調適工具 (Tuning Tool)  -->
             <div class="note-card">
                 <a href="./study_notes/infinite_isp_tool.html">
                     <img src="./image/Study_note_image/esp32/logo_1.PNG" alt="Infinite-ISP 調適工具 (Tuning Tool)">
@@ -483,7 +494,7 @@
                     </div>
                 </a>
             </div>  
-            <!-- 卡片 6 : STM-32 IQ 影像參數說明  -->
+            <!-- 卡片 8 : STM-32 IQ 影像參數說明  -->
             <div class="note-card">
                 <a href="./study_notes/STM-32_IQ_參數說明.html">
                     <img src="./image/Study_note_image/STM_32/IQ_logo.PNG" alt="STM-32 IQ 影像參數說明">

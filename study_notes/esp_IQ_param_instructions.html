@@ -1,0 +1,3242 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP-32 P4 IQ 參數說明</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 860px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 1.85rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            border-bottom-style: dashed;
+        }
+
+        h4 {
+            font-size: 1.15rem;
+            border-bottom-style: dotted;
+            color: #34495e;
+        }
+
+        h5 {
+            font-size: 1.05rem;
+            border-bottom: none;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-text);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 15px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        figure {
+            margin: 1.8rem 0;
+            text-align: center;
+        }
+
+        figcaption {
+            font-size: 0.9rem;
+            color: var(--color-secondary-text);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        pre {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        code {
+            background: #f2f2f2;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .math-formula {
+            background-color: var(--color-subtle-bg);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--color-accent);
+            margin: 1rem 0 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.05rem;
+            color: var(--color-primary-text);
+            border-radius: 0 4px 4px 0;
+            overflow-x: auto;
+        }
+
+        .mermaid-container {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .image-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .image-pair figure {
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .image-pair {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <style>
+
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 860px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 1.85rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            border-bottom-style: dashed;
+        }
+
+        h4 {
+            font-size: 1.15rem;
+            border-bottom-style: dotted;
+            color: #34495e;
+        }
+
+        h5 {
+            font-size: 1.05rem;
+            border-bottom: none;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-text);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 15px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        figure {
+            margin: 1.8rem 0;
+            text-align: center;
+        }
+
+        figcaption {
+            font-size: 0.9rem;
+            color: var(--color-secondary-text);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        pre {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        code {
+            background: #f2f2f2;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .math-formula {
+            background-color: var(--color-subtle-bg);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--color-accent);
+            margin: 1rem 0 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.05rem;
+            color: var(--color-primary-text);
+            border-radius: 0 4px 4px 0;
+            overflow-x: auto;
+        }
+
+        .mermaid-container {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .image-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .image-pair figure {
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .image-pair {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+<h1 id="isp-espressif">ISP 用 Espressif 影像處理演算法</h1>
+<p>Espressif 影像處理演算法元件提供一系列影像處理演算法。<a href="https://components.espressif.com/components/espressif/esp_ipa"><img alt="元件登錄檔" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTUiIGhlaWdodD0iMjAiPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIvPgogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxtYXNrIGlkPSJhbnliYWRnZV8xMzcwNyI+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjE1NSIgaGVpZ2h0PSIyMCIgcng9IjMiIGZpbGw9IiNmZmYiLz4KICAgIDwvbWFzaz4KICAgIDxnIG1hc2s9InVybCgjYW55YmFkZ2VfMTM3MDcpIj4KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDEwNHYyMEgweiIvPgogICAgICAgIDxwYXRoIGZpbGw9IiM0MTYxQUQiIGQ9Ik0xMDQgMGg1MXYyMEgxMDR6Ii8+CiAgICAgICAgPHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGgxNTV2MjBIMHoiLz4KICAgIDwvZz4KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4KICAgICAgICA8dGV4dCB4PSI1My4wIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+bGF0ZXN0IHZlcnNpb248L3RleHQ+CiAgICAgICAgPHRleHQgeD0iNTIuMCIgeT0iMTQiPmxhdGVzdCB2ZXJzaW9uPC90ZXh0PgogICAgPC9nPgogICAgPGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkRlamFWdSBTYW5zLFZlcmRhbmEsR2VuZXZhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiPgogICAgICAgIDx0ZXh0IHg9IjEzMC41IiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+Mi41LjA8L3RleHQ+CiAgICAgICAgPHRleHQgeD0iMTI5LjUiIHk9IjE0Ij4yLjUuMDwvdGV4dD4KICAgIDwvZz4KPC9zdmc+Cg==" /></a></p>
+<h2 id="1">1. 支援的演算法</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">演算法</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">自動色彩校正</td>
+<td style="text-align: left;">計算鏡頭陰影校正參數、色彩校正矩陣及飽和度</td>
+</tr>
+<tr>
+<td style="text-align: center;">自動降噪</td>
+<td style="text-align: left;">計算 Bayer 降噪參數及去馬賽克參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">壞點校正</td>
+<td style="text-align: left;">根據感光元件增益計算 ISP 動態壞點校正參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">自動影像增強</td>
+<td style="text-align: left;">計算 GAMMA 表、銳化參數及對比度</td>
+</tr>
+<tr>
+<td style="text-align: center;">自動增益控制</td>
+<td style="text-align: left;">計算曝光與增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">自動白平衡</td>
+<td style="text-align: left;">計算紅色與藍色通道的增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">影像分析</td>
+<td style="text-align: left;">計算影像色溫與亮度</td>
+</tr>
+<tr>
+<td style="text-align: center;">自動感光元件 AE 目標控制</td>
+<td style="text-align: left;">為感光元件本身支援 AEG/AGC 的情況新增</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2">2. 管線全域變數</h2>
+<p>此模組可讓同一影像處理管線中的演算法模組共用變數，而不必使用區域快取，例如：</p>
+<pre><code class="language-C">algorithm_1.c
+
+    int color = 15;
+    esp_ipa_set_int32(ipa_1, &quot;color&quot;, 15);
+
+
+algorithm_2.c
+
+    if (esp_ipa_has_var(ipa_2, &quot;color&quot;)) {
+        int color = esp_ipa_get_int32(ipa, &quot;color&quot;)
+    }
+
+algorithm_3.c
+
+    if (esp_ipa_has_var(ipa_3, &quot;color&quot;)) {
+        int color = esp_ipa_get_int32(ipa, &quot;color&quot;)
+    }
+
+......
+</code></pre>
+<ul>
+<li>注意：<code>ipa_1</code>、<code>ipa_2</code> 和 <code>ipa_3</code> 必須位於同一個 IPA 管線中。</li>
+</ul>
+<h2 id="3-json">3. JSON 組態</h2>
+<p>JSON 參數的用法可參考 <a href="https://github.com/espressif/esp-video-components/tree/master/esp_cam_sensor">esp_cam_sensor</a> 中的組態檔：</p>
+<ul>
+<li><a href="https://github.com/espressif/esp-video-components/blob/master/esp_cam_sensor/sensors/gc2607/cfg/gc2607_default.json">SC2336</a></li>
+<li><a href="https://github.com/espressif/esp-video-components/blob/master/esp_cam_sensor/sensors/ov5647/cfg/ov5647_default.json">OV5647</a></li>
+<li><a href="https://github.com/espressif/esp-video-components/blob/master/esp_cam_sensor/sensors/ov2710/cfg/ov2710_default.json">OV2710</a></li>
+</ul>
+<h3 id="31">3.1 全域參數</h3>
+<hr />
+<pre><code class="language-json">{
+    &quot;version&quot;: 1,
+    &quot;writable&quot;: false,
+    &quot;description&quot;: &quot;0&quot;,
+    &quot;GC2607&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">version</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;1</td>
+<td style="text-align: left;">JSON 組態版本；只有在 JSON 組態參數變更時才需要增加此值</td>
+</tr>
+<tr>
+<td style="text-align: center;">writable</td>
+<td style="text-align: center;">Boolean</td>
+<td style="text-align: center;">true/false</td>
+<td style="text-align: left;">設為 <code>true</code> 時，此 JSON 檔產生的 IPA 組態資料不含 <code>const</code>（可在執行階段寫入）；預設值／省略時為 <code>false</code>（含 <code>const</code>）</td>
+</tr>
+<tr>
+<td style="text-align: center;">description</td>
+<td style="text-align: center;">String</td>
+<td style="text-align: center;"><code>[A-Za-z0-9_]+</code></td>
+<td style="text-align: left;">每個檔案的組態識別字，會用於產生的 C 符號（<code>sensor_description_xxxx</code>），並存放於 <code>esp_ipa_config_t.description</code>。感光元件只出現在一個 JSON 檔時，預設值／省略值為 <code>"0"</code>。若同一感光元件出現在多個 JSON 檔中，這些檔案都必須設定 <code>description</code>，且同一感光元件的值必須唯一（不同感光元件可使用相同的 <code>description</code>）。列舉順序依照 JSON 輸入檔案清單</td>
+</tr>
+<tr>
+<td style="text-align: center;">GC2607</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">目標感光元件名稱，例如「GC2607」、「OV5647」等</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="32">3.2 演算法參數</h3>
+<h4 id="321">3.2.1 自動白平衡</h4>
+<hr />
+<pre><code class="language-json">&quot;GC2607&quot;:
+{
+    &quot;awb&quot;:
+    {
+        &quot;model&quot;: 0,
+        &quot;min_counted&quot;: 2000,
+        &quot;min_red_gain_step&quot;: 0.034,
+        &quot;min_blue_gain_step&quot;: 0.034,
+        &quot;range&quot;:
+        {
+            &quot;green&quot;:
+            {
+                &quot;max&quot;: 200,
+                &quot;min&quot;: 180
+            },
+            &quot;rg&quot;:
+            {
+                &quot;max&quot;: 1.2,
+                &quot;min&quot;: 0.8
+            },
+            &quot;bg&quot;:
+            {
+                &quot;max&quot;: 1.2,
+                &quot;min&quot;: 0.8
+            }
+        },
+        &quot;green_luma_env&quot;: &quot;awb_green_luma&quot;,
+        &quot;green_luma_init&quot;: 200,
+        &quot;green_luma_step_ratio&quot;: 0.3
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">awb</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">自動白平衡組態參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer or String</td>
+<td style="text-align: center;"><code>0</code> / <code>1</code> / <code>2</code> / <code>3</code> 或別名</td>
+<td style="text-align: left;"><strong><code>0</code></strong>：灰世界（預設）。<strong><code>1</code></strong>：色溫索引。<strong><code>2</code></strong>：區域分類器。<strong><code>3</code></strong>：固定色溫（CT，<code>fixed_ct.presets[]</code>）。字串別名：<code>gray_world</code>、<code>model_0</code>、<code>gw</code> → 0；<code>ct_index</code>、<code>model_1</code> → 1；<code>zone</code>、<code>model_2</code>、<code>hybrid</code>、<code>ct2</code> → 2；<code>fixed_ct</code>、<code>model_3</code> → 3</td>
+</tr>
+<tr>
+<td style="text-align: center;">min_counted</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">最少白點數：白點數大於或等於此值時，自動白平衡演算法才會執行</td>
+</tr>
+<tr>
+<td style="text-align: center;">min_red_gain_step</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">紅色通道最小增益步進：紅色通道增益步進大於或等於此值時，才會將增益寫入 ISP</td>
+</tr>
+<tr>
+<td style="text-align: center;">min_blue_gain_step</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">藍色通道最小增益步進：藍色通道增益步進大於或等於此值時，才會將增益寫入 ISP</td>
+</tr>
+<tr>
+<td style="text-align: center;">range</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">AWB 統計參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">green</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">AWB 綠色通道統計參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">max(green)</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">(0,255)</div></td>
+<td style="text-align: left;">AWB 綠色通道亮度上限</td>
+</tr>
+<tr>
+<td style="text-align: center;">min(green)</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">(0,255)</div></td>
+<td style="text-align: left;">AWB 綠色通道亮度下限</td>
+</tr>
+<tr>
+<td style="text-align: center;">rg</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">AWB 紅色與綠色通道比值統計參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">max(rg)</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">(0,255)</div></td>
+<td style="text-align: left;">AWB 紅色與綠色通道比值上限</td>
+</tr>
+<tr>
+<td style="text-align: center;">min(rg)</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">(0,255)</div></td>
+<td style="text-align: left;">AWB 紅色與綠色通道比值下限</td>
+</tr>
+<tr>
+<td style="text-align: center;">bg</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">AWB 藍色與綠色通道比值統計參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">max(bg)</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">(0,255)</div></td>
+<td style="text-align: left;">AWB 藍色與綠色通道比值上限</td>
+</tr>
+<tr>
+<td style="text-align: center;">min(bg)</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">(0,255)</div></td>
+<td style="text-align: left;">AWB 藍色與綠色通道比值下限</td>
+</tr>
+<tr>
+<td style="text-align: center;">green_luma_env</td>
+<td style="text-align: center;">String</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">AWB 綠色通道亮度變數名稱</td>
+</tr>
+<tr>
+<td style="text-align: center;">green_luma_init</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">(0,255)</div></td>
+<td style="text-align: left;">AWB 綠色通道初始亮度</td>
+</tr>
+<tr>
+<td style="text-align: center;">green_luma_step_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">AWB 綠色通道最小亮度步進比例</td>
+</tr>
+</tbody>
+</table>
+<p><strong>AWB 模型 2（區域）</strong>——將 <code>model</code> 設為 <code>2</code> 或 <code>"zone"</code>。需要設定 <strong><code>zones</code></strong>（至少一個中性區域）。<strong><code>ref_points</code></strong> 列出各色溫的校準色度 <code>(rg, bg)</code>；演算法會輪替啟用的參考點、累積全域 AWB 統計資料，並將估計結果分類至<strong>中性</strong>區域（<code>uhct</code>、<code>hct</code>、<code>mct</code>、<code>lct</code>、<code>ulct</code>）。<strong><code>green</code></strong>／<strong><code>skin</code></strong> 區域僅用於分類，<strong>不會</strong>作為光源投票。可選的 <strong><code>export_ct</code></strong> 設為 <code>true</code> 時，會將估計色溫（Kelvin）寫入管線變數 <strong><code>ct</code></strong>（供 ACC 使用）。使用 <strong><code>new_w</code></strong>／<strong><code>prev_w</code></strong> 可對色度及匯出的色溫進行時間平滑。</p>
+<pre><code class="language-json">&quot;awb&quot;:
+{
+    &quot;model&quot;: &quot;zone&quot;,
+    &quot;min_counted&quot;: 1000,
+    &quot;min_red_gain_step&quot;: 0.5,
+    &quot;min_blue_gain_step&quot;: 0.5,
+    &quot;new_w&quot;: 1.0,
+    &quot;prev_w&quot;: 0.0,
+    &quot;export_ct&quot;: false,
+    &quot;zone_switch_count&quot;: 1,
+    &quot;type_counter_max&quot;: 500,
+    &quot;outlier_rg&quot;: 0.0,
+    &quot;outlier_bg&quot;: 0.0,
+    &quot;zone_hysteresis_ratio&quot;: 0.0,
+    &quot;zones&quot;:
+    [
+        {
+            &quot;type&quot;: &quot;mct&quot;,
+            &quot;rg&quot;: { &quot;min&quot;: 0.45, &quot;max&quot;: 0.70 },
+            &quot;bg&quot;: { &quot;min&quot;: 0.45, &quot;max&quot;: 0.70 },
+            &quot;enabled&quot;: true
+        }
+    ],
+    &quot;ref_points&quot;:
+    [
+        { &quot;ct&quot;: 5200, &quot;rg&quot;: 0.55, &quot;bg&quot;: 0.55, &quot;radius&quot;: 0.35 }
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">zones</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">模型 2 時不可為空</td>
+<td style="text-align: left;">每個項目包含：<strong><code>type</code></strong>（<code>uhct</code>、<code>hct</code>、<code>mct</code>、<code>lct</code>、<code>ulct</code>、<code>green</code>、<code>skin</code>）、<strong><code>rg</code></strong> 的 min/max、<strong><code>bg</code></strong> 的 min/max（<strong>R/G</strong> 與 <strong>B/G</strong> 色度界限），以及 <strong><code>enabled</code></strong>（選填，預設為 true）。第一個符合條件且已啟用的中性區域將勝出。</td>
+</tr>
+<tr>
+<td style="text-align: center;">ref_points</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">模型 2 時 ≥1</td>
+<td style="text-align: left;">每個項目包含 <strong><code>ct</code></strong>（Kelvin）、<strong><code>rg</code></strong>、<strong><code>bg</code></strong>、<strong><code>radius</code></strong>（色度空間中的吸引半徑；<code>0</code> 會停用該點的吸附）。</td>
+</tr>
+<tr>
+<td style="text-align: center;">startup_zone</td>
+<td style="text-align: center;">String</td>
+<td style="text-align: center;"><code>uhct</code>, <code>hct</code>, <code>mct</code>, <code>lct</code>, <code>ulct</code></td>
+<td style="text-align: left;">模型 2 的選用啟動區域。使用第一個符合的參考點設定初始增益與色溫，接著繼續自動 AWB。省略時，會維持一般白點掃描，不套用啟動預設值。</td>
+</tr>
+<tr>
+<td style="text-align: center;">startup_hold_frames</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">在具有 AWB 統計資料的呼叫中，維持啟動 WBG 的影格數；需要設定 <code>startup_zone</code>。AWB 計算、統計掃描及色溫匯出仍會繼續。預設 <code>0</code>：不維持。</td>
+</tr>
+<tr>
+<td style="text-align: center;">new_w</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">平滑色度／色溫時，新影格的 IIR 權重。</td>
+</tr>
+<tr>
+<td style="text-align: center;">prev_w</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">前一影格的 IIR 權重；若 <strong><code>new_w</code></strong> 同時為 <code>0</code>，則停用該路徑的平滑。</td>
+</tr>
+<tr>
+<td style="text-align: center;">export_ct</td>
+<td style="text-align: center;">Boolean</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;">設為 <strong>true</strong> 時，將估計色溫發布至 <strong><code>ct</code></strong>。</td>
+</tr>
+<tr>
+<td style="text-align: center;">zone_switch_count</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">≥ 1</td>
+<td style="text-align: left;">每個參考點時槽停留的影格數，達到後才前進掃描索引（設為 <code>1</code> 可最快輪替）。</td>
+</tr>
+<tr>
+<td style="text-align: center;">type_counter_max</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">各區域命中計數器在衰減前的上限（省略時產生器預設為 20000）。</td>
+</tr>
+<tr>
+<td style="text-align: center;">outlier_rg</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">子視窗的 |R/G − 前次值| 超過此值時予以拒絕；<code>0</code> 表示停用。</td>
+</tr>
+<tr>
+<td style="text-align: center;">outlier_bg</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">B/G 的設定方式相同。</td>
+</tr>
+<tr>
+<td style="text-align: center;">zone_hysteresis_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">區域切換的遲滯程度；<code>0</code> 表示停用。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>AWB 模型 2 的啟動白平衡</strong>——可選擇將 <code>startup_zone</code> 設為 <code>uhct</code>、<code>hct</code>、<code>mct</code>、<code>lct</code> 或 <code>ulct</code>。此功能會使用所選啟用區域中的第一個有效參考點初始化增益與色溫，然後繼續執行自動 AWB。省略此參數可維持一般的啟動白點掃描。若找不到符合的參考點，會傳回 <code>ESP_ERR_INVALID_ARG</code>。啟動色溫會發布至 <strong><code>ct</code></strong>；後續色溫更新則需要 <code>export_ct: true</code>。</p>
+<p><strong>AWB 模型 3（固定色溫）</strong>——將 <code>model</code> 設為 <code>3</code> 或 <code>"fixed_ct"</code>。此模式不使用 AWB 統計資料，而是套用 <code>fixed_ct.presets[]</code> 中啟用的預設值（僅接受完全相符的色溫）。<strong><code>fixed_ct.default_ct</code></strong> 必須存在於 <code>presets[]</code> 中，並於初始化時選取。執行階段切換方式：呼叫 <code>esp_ipa_awb_set_fixed_ct(handle, &lt;kelvin&gt;)</code>，接著呼叫 <code>esp_ipa_pipeline_process()</code>。若色溫不在預設表中，會傳回 <code>ESP_ERR_INVALID_ARG</code>。KV <strong><code>ct</code></strong> 會發布給 ACC CCM/LSC/SAT 使用。</p>
+<pre><code class="language-json">&quot;awb&quot;:
+{
+    &quot;model&quot;: &quot;fixed_ct&quot;,
+    &quot;min_red_gain_step&quot;: 0.05,
+    &quot;min_blue_gain_step&quot;: 0.05,
+    &quot;red_gain_scale&quot;: 1.0,
+    &quot;blue_gain_scale&quot;: 1.0,
+    &quot;fixed_ct&quot;:
+    {
+        &quot;default_ct&quot;: 5000,
+        &quot;presets&quot;:
+        [
+            { &quot;ct&quot;: 3000, &quot;rg&quot;: 0.52, &quot;bg&quot;: 0.58 },
+            { &quot;ct&quot;: 5000, &quot;rg&quot;: 0.5602, &quot;bg&quot;: 0.5390 },
+            { &quot;ct&quot;: 6500, &quot;rg&quot;: 0.58, &quot;bg&quot;: 0.52 }
+        ]
+    }
+}
+</code></pre>
+<p>舊版單一預設值格式（仍受支援）：</p>
+<pre><code class="language-json">&quot;fixed_ct&quot;: { &quot;ct&quot;: 5000, &quot;rg&quot;: 0.5602, &quot;bg&quot;: 0.5390 }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">fixed_ct</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">模型 3 必填</td>
+<td style="text-align: left;"><strong><code>esp_ipa_awb_fixed_cfg_t</code></strong>：<strong><code>default_ct</code></strong>（Kelvin，必須符合某個預設值），以及各自包含 <strong><code>ct</code>/<code>rg</code>/<code>bg</code></strong>（&gt;0）的 <strong><code>presets[]</code></strong>。執行階段只能透過 <strong><code>esp_ipa_awb_set_fixed_ct()</code></strong> 設定色溫（必須完全相符）。舊格式 <code>{ ct, rg, bg }</code> 代表單一預設值。產生器仍接受已淘汰的 JSON 欄位 <strong><code>fixed</code></strong>。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="322">3.2.2 自動色彩校正</h4>
+<hr />
+<pre><code class="language-json">&quot;GC2607&quot;:
+{
+    &quot;acc&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">acc</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">自動色彩校正組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;acc&quot;:
+{
+    &quot;saturation&quot;:
+    [
+        {
+            &quot;color_temp&quot;: 0,
+            &quot;value&quot;: 128
+        }
+        ...
+    ],
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">saturation</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">飽和度與色溫對照表，採用最近鄰索引</td>
+</tr>
+<tr>
+<td style="text-align: center;">color_temp</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">色溫值</td>
+</tr>
+<tr>
+<td style="text-align: center;">value</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">[0,255]</div></td>
+<td style="text-align: left;">飽和度值</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;acc&quot;:
+{
+    &quot;ccm&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">ccm</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">色彩校正矩陣組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;ccm&quot;:
+{
+    &quot;model&quot;: 1,
+    &quot;min_ct_step&quot;: 500
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">{0,1}</td>
+<td style="text-align: left;">CCM 資料處理模式</td>
+</tr>
+<tr>
+<td style="text-align: center;">min_ct_step</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">產生新 CCM 值所需的最小色溫步進</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;ccm&quot;:
+{
+    &quot;low_luma&quot;:
+    {
+        &quot;luma_env&quot;: &quot;ae.luma.avg&quot;,
+        &quot;threshold&quot;: 28,
+        &quot;matrix&quot;:
+        [
+            1.00,  0.00,  0.00,
+            0.00,  1.00,  0.00,
+            0.00,  0.00,  1.00
+        ]
+    },
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">low_luma</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">低亮度場景下的色彩校正矩陣組態參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_env</td>
+<td style="text-align: center;">String</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">亮度變數名稱</td>
+</tr>
+<tr>
+<td style="text-align: center;">threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">最低亮度：當 <code>luma_env</code> 值低於此值時，將低亮度 CCM 值寫入 ISP</td>
+</tr>
+<tr>
+<td style="text-align: center;">matrix</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (-4,4)</div></td>
+<td style="text-align: left;">低亮度 CCM 值</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;ccm&quot;:
+{
+    &quot;table&quot;:
+    [
+        {
+            &quot;color_temp&quot;: 2320,
+            &quot;matrix&quot;:
+            [
+                 2.0000, -0.1680, -0.8320,
+                -0.3716,  2.0000, -0.6284,
+                -0.7150, -0.2850,  2.0000
+            ]
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">CCM 與色溫對照表，採用最近鄰索引</td>
+</tr>
+<tr>
+<td style="text-align: center;">color_temp</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">色溫值</td>
+</tr>
+<tr>
+<td style="text-align: center;">matrix</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (-4,4)</div></td>
+<td style="text-align: left;">CCM 值</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;ccm&quot;:
+{
+    &quot;gain_lut&quot;:
+    {
+        &quot;enable&quot;: true,
+        &quot;table&quot;:
+        [
+            { &quot;gain&quot;: 1.0,  &quot;strength&quot;: 1.0 },
+            { &quot;gain&quot;: 8.0,  &quot;strength&quot;: 0.85 },
+            { &quot;gain&quot;: 16.0, &quot;strength&quot;: 0.7 },
+            { &quot;gain&quot;: 32.0, &quot;strength&quot;: 0.5 }
+        ]
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">gain_lut</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">選填的增益式 CCM 強度查找表</td>
+</tr>
+<tr>
+<td style="text-align: center;">enable</td>
+<td style="text-align: center;">Bool</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;">設為 true 時，使用查找表中的 <code>strength</code> 將依色溫選取的 CCM 與單位矩陣混合</td>
+</tr>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">增益與強度對照表；<code>strength</code> 會在項目之間線性插值</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">相機感光元件增益（單位與 <code>sensor-&gt;cur_gain</code> 相同）</td>
+</tr>
+<tr>
+<td style="text-align: center;">strength</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0,1]</td>
+<td style="text-align: left;"><code>(1-s)*I + s*ccm</code> 中的混合權重 <code>s</code>；0 表示單位矩陣，1 表示完整 CCM</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;acc&quot;:
+{
+    &quot;lsc&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">lsc</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">鏡頭陰影校正（LSC）組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;lsc&quot;:
+{
+    &quot;model&quot;: 0,
+    &quot;img_w&quot;: 1920,
+    &quot;img_h&quot;: 1080,
+    &quot;lsc_tbl_size&quot;: 558,
+    &quot;table&quot;:
+    [
+        {
+            &quot;gain&quot;: 1.0,
+            &quot;table&quot;:
+            [
+                {
+                    &quot;ct&quot;: 3350,
+                    &quot;calibrations_r_tbl&quot;: [ 2.13310074, ... ],
+                    &quot;calibrations_gr_tbl&quot;: [ 1.92501747, ... ],
+                    &quot;calibrations_gb_tbl&quot;: [ 1.90096950, ... ],
+                    &quot;calibrations_b_tbl&quot;: [ 1.67257392, ... ]
+                },
+                ...
+            ]
+        },
+        {
+            &quot;gain&quot;: 8.0,
+            &quot;scale&quot;: 0.8
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">LSC 資料處理模式</td>
+</tr>
+<tr>
+<td style="text-align: center;">img_w</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">影像解析度寬度</td>
+</tr>
+<tr>
+<td style="text-align: center;">img_h</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">影像解析度高度</td>
+</tr>
+<tr>
+<td style="text-align: center;">lsc_tbl_size</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">LSC 資料陣列大小；不同影像解析度會有不同值，例如 1920x1080 解析度的 <code>lsc_tbl_size</code> 為 558</td>
+</tr>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">LSC 對照表。建議使用兩層最近鄰索引（感光元件增益 → 色溫）。仍接受舊版僅含色溫的平面表 <code>[{ct, ...}]</code>，並會將其對應至 <code>lsc_gain_table</code>。選取的項目會直接使用（執行階段不會產生 LSC）</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">外層索引節點的相機感光元件增益（舊版平面色溫表中為選填）</td>
+</tr>
+<tr>
+<td style="text-align: center;">scale</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;=0</td>
+<td style="text-align: left;">選填。若增益節點沒有巢狀 <code>table</code>，會在產生組態時將基礎 LSC 陣列朝 1.0 混合：<code>out = 1 + (base - 1) * scale</code>（以 <code>round(out * 256)</code> 儲存）。<code>scale=1</code> 會複製基礎表；<code>scale=0</code> 會產生全為 1.0 的表。可選擇以 <code>base_gain</code> 指定來源節點；否則使用唯一的基礎表節點（或增益較低且最接近的基礎節點）</td>
+</tr>
+<tr>
+<td style="text-align: center;">base_gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">選填。存在多個完整 <code>table</code> 節點時，指定 <code>scale</code> 使用的來源增益節點</td>
+</tr>
+<tr>
+<td style="text-align: center;">ct</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">內層索引節點（或舊版平面表的頂層節點）的色溫值</td>
+</tr>
+<tr>
+<td style="text-align: center;">calibrations_r_tbl</td>
+<td style="text-align: center;">Array[Float]</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (-4,4)</div></td>
+<td style="text-align: left;">RAW 欄位中紅色通道的 LSC 資料陣列</td>
+</tr>
+<tr>
+<td style="text-align: center;">calibrations_gr_tbl</td>
+<td style="text-align: center;">Array[Float]</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (-4,4)</div></td>
+<td style="text-align: left;">RAW 欄位中紅綠（RG）通道的 LSC 資料陣列</td>
+</tr>
+<tr>
+<td style="text-align: center;">calibrations_gb_tbl</td>
+<td style="text-align: center;">Array[Float]</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (-4,4)</div></td>
+<td style="text-align: left;">RAW 欄位中藍綠（BG）通道的 LSC 資料陣列</td>
+</tr>
+<tr>
+<td style="text-align: center;">calibrations_b_tbl</td>
+<td style="text-align: center;">Array[Float]</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (-4,4)</div></td>
+<td style="text-align: left;">RAW 欄位中藍色通道的 LSC 資料陣列</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;acc&quot;:
+{
+    &quot;blc&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">blc</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">黑階校正（BLC）組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;lsc&quot;:
+{
+    &quot;model&quot;: 0,
+    &quot;stretch&quot;: true,
+    &quot;blc_table&quot;:
+    [
+        {
+            &quot;gain&quot;: 1,
+            &quot;blc_param&quot;: {
+                &quot;blc_top_left&quot;: 16,
+                &quot;blc_top_right&quot;: 16,
+                &quot;blc_bottom_left&quot;: 16,
+                &quot;blc_bottom_right&quot;: 16
+            }
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">BLC 資料處理模式</td>
+</tr>
+<tr>
+<td style="text-align: center;">stretch</td>
+<td style="text-align: center;">Bool</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;">RAW Bayer 影像各通道的延展組態</td>
+</tr>
+<tr>
+<td style="text-align: center;">blc_table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">BLC 參數與增益對照表，採用最近鄰索引</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">感光元件增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">blc_param</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">BLC 參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">blc_top_left</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (0,255)</div></td>
+<td style="text-align: left;">RAW Bayer 影像左上通道的黑階閾值</td>
+</tr>
+<tr>
+<td style="text-align: center;">blc_top_right</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (0,255)</div></td>
+<td style="text-align: left;">RAW Bayer 影像右上通道的黑階閾值</td>
+</tr>
+<tr>
+<td style="text-align: center;">blc_bottom_left</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (0,255)</div></td>
+<td style="text-align: left;">RAW Bayer 影像左下通道的黑階閾值</td>
+</tr>
+<tr>
+<td style="text-align: center;">blc_bottom_right</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (0,255)</div></td>
+<td style="text-align: left;">RAW Bayer 影像右下通道的黑階閾值</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="323">3.2.3 自動降噪</h4>
+<hr />
+<pre><code class="language-json">&quot;GC2607&quot;:
+{
+    &quot;adn&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">adn</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">自動降噪組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;adn&quot;:
+{
+    &quot;bf&quot;:
+    [
+        {
+            &quot;gain&quot;: 1,
+            &quot;param&quot;:
+            {
+                &quot;level&quot;: 3,
+                &quot;matrix&quot;:
+                [
+                    1, 3, 1,
+                    3, 5, 3,
+                    1, 3, 1
+                ],
+                &quot;sigma&quot;: 1
+            }
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">bf</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">Bayer 濾波器參數與感光元件增益對照表，採用最近鄰索引</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">感光元件增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">param</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">Bayer 濾波器參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">level</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: [2,20]</div></td>
+<td style="text-align: left;">Bayer 濾波器 sigma</td>
+</tr>
+<tr>
+<td style="text-align: center;">matrix</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">ESP32-P4: [0,15]</td>
+<td style="text-align: left;">Bayer 濾波器矩陣</td>
+</tr>
+<tr>
+<td style="text-align: center;">sigma</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">用來產生高斯矩陣的 sigma 參數</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：Bayer 濾波器是雙邊濾波器；<code>level</code> 是範圍核心參數，<code>matrix</code> 是空間核心參數。</li>
+<li>注意：若有設定矩陣，JSON 工具會優先使用矩陣；否則使用 sigma。</li>
+</ul>
+<hr />
+<pre><code class="language-json">&quot;adn&quot;:
+{
+    &quot;demosaic&quot;:
+    [
+        {
+            &quot;gain&quot;: 1,
+            &quot;gradient_ratio&quot;: 1.0
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">demosaic</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">去馬賽克參數與感光元件增益對照表，採用最近鄰索引</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">感光元件增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">gradient_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: (0,4)</div></td>
+<td style="text-align: left;">去馬賽克梯度比例參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="324">3.2.4 壞點校正</h4>
+<hr />
+<pre><code class="language-json">&quot;GC2607&quot;:
+{
+    &quot;dpc&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">dpc</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">壞點校正組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;dpc&quot;:
+{
+    &quot;model&quot;: 0,
+    &quot;debounce_gain&quot;: 0.1,
+    &quot;table&quot;:
+    [
+        {
+            &quot;gain&quot;: 1.0,
+            &quot;param&quot;:
+            {
+                &quot;method&quot;: 1,
+                &quot;high_threshold&quot;: 8,
+                &quot;low_threshold&quot;: 8
+            }
+        },
+        {
+            &quot;gain&quot;: 4.0,
+            &quot;param&quot;:
+            {
+                &quot;method&quot;: 2,
+                &quot;first_stage_upper_ratio&quot;: 1.0,
+                &quot;first_stage_lower_ratio&quot;: 0.5,
+                &quot;bright_deviation_factor&quot;: 0.5,
+                &quot;dark_deviation_factor&quot;: 0.5
+            }
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">{0,1}</td>
+<td style="text-align: left;">DPC 增益對應模式：<code>0</code> 選取最近的增益節點（可選擇啟用防抖）；<code>1</code> 在相鄰增益節點之間線性插值參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">debounce_gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥0</td>
+<td style="text-align: left;">模型 0 的切換防抖閾值，單位為感光元件增益；<code>0</code> 表示停用防抖。只有候選節點比目前節點接近超過此值時，才會接受切換</td>
+</tr>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">≥1 個項目</td>
+<td style="text-align: left;">DPC 動態參數與感光元件增益對照表</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">感光元件增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">param</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">此增益節點的 ISP 動態 DPC 參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">method</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">{1,2}</td>
+<td style="text-align: left;">此節點選用的動態校正方法；不同節點可混用方法 1 和方法 2</td>
+</tr>
+<tr>
+<td style="text-align: center;">high_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[0,255]</td>
+<td style="text-align: left;">方法 1：像素值高於 <code>max8 + high_threshold</code> 時，視為亮壞點候選</td>
+</tr>
+<tr>
+<td style="text-align: center;">low_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[0,255]</td>
+<td style="text-align: left;">方法 1：像素值低於 <code>min8 - low_threshold</code> 時，視為暗壞點候選</td>
+</tr>
+<tr>
+<td style="text-align: center;">first_stage_upper_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0,1]</td>
+<td style="text-align: left;">方法 2：第一階段正常像素範圍上限；必須大於 <code>first_stage_lower_ratio</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">first_stage_lower_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0,1]</td>
+<td style="text-align: left;">方法 2：第一階段正常像素範圍下限</td>
+</tr>
+<tr>
+<td style="text-align: center;">bright_deviation_factor</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0,1]</td>
+<td style="text-align: left;">方法 2：第二階段亮像素靈敏度；值越小，對亮像素的校正越積極</td>
+</tr>
+<tr>
+<td style="text-align: center;">dark_deviation_factor</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0,1]</td>
+<td style="text-align: left;">方法 2：第二階段暗像素靈敏度；值越小，對暗像素的校正越積極</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：模型 0 與 ADN 一樣採用最近鄰索引。模型 1 會在使用相同 <code>method</code> 的兩個節點之間連續插值；若相鄰節點使用不同方法，則退回選取較近的節點。</li>
+<li>注意：方法 1／方法 2 的參數會儲存在 <code>esp_ipa_dpc_t</code> 中。方法 2 的比例與偏差因子維持為 [0, 1] 範圍內的浮點數。</li>
+<li>注意：<code>model</code> 也接受別名 <code>"nearest"</code>／<code>"linear"</code>，<code>method</code> 也接受別名 <code>"method_1"</code>／<code>"method_2"</code>。</li>
+</ul>
+<hr />
+<h4 id="325">3.2.5 自動影像增強</h4>
+<hr />
+<pre><code class="language-json">&quot;GC2607&quot;:
+{
+    &quot;aen&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">aen</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">自動影像增強組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;aen&quot;:
+{
+    &quot;gamma&quot;:
+    {
+        &quot;model&quot;: 0,
+        &quot;use_gamma_param&quot;: true,
+        &quot;luma_env&quot;: &quot;ae.luma.avg&quot;,
+        &quot;luma_min_step&quot;: 16.0,
+        &quot;backlight&quot;: {}
+    },
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">{0,1}</td>
+<td style="text-align: left;">GAMMA 資料處理模式</td>
+</tr>
+<tr>
+<td style="text-align: center;">gamma</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">GAMMA 組態參數物件</td>
+</tr>
+<tr>
+<td style="text-align: center;">use_gamma_param</td>
+<td style="text-align: center;">bool</td>
+<td style="text-align: center;">true/false</td>
+<td style="text-align: left;">true：使用提供的 gamma 參數產生 gamma Y 表；false：使用提供的 gamma Y 表</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_env</td>
+<td style="text-align: center;">String</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">亮度變數名稱</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_min_step</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">最小亮度步進：當 <code>luma_env</code> 的步進值大於此值時，才會將新的 GAMMA 表值寫入 ISP</td>
+</tr>
+<tr>
+<td style="text-align: center;">backlight</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">選填的背光增強組態；啟用時會依背光程度選取專用 GAMMA 表</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;gamma&quot;:
+{
+    &quot;table&quot;:
+    [
+        {
+            {
+                &quot;luma&quot;: 31.1,
+                &quot;gamma_param&quot;: 0.51,
+                &quot;y&quot;:
+                [
+                    0, 64, 91, 112, 130, 146, 160, 173, 185, 197, 207, 218, 228, 237, 246, 255
+                ]
+            },
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">GAMMA 與亮度對照表，採用線性插值</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">亮度索引值</td>
+</tr>
+<tr>
+<td style="text-align: center;">gamma_param</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">產生 GAMMA Y 陣列的參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">y</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">Array[Integer]</div></td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: [0,255]</div></td>
+<td style="text-align: left;">GAMMA Y 陣列</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;gamma&quot;:
+{
+    &quot;backlight&quot;:
+    {
+        &quot;low_hist_ratio_threshold&quot;: 0.2,
+        &quot;high_hist_ratio_threshold&quot;: 0.15,
+        &quot;env_luma_threshold&quot;: 5.0,
+        &quot;low_index&quot;:
+        {
+            &quot;start&quot;: 0,
+            &quot;end&quot;: 4
+        },
+        &quot;high_index&quot;:
+        {
+            &quot;start&quot;: 14,
+            &quot;end&quot;: 15
+        },
+        &quot;luma_env&quot;: &quot;env.luma.avg&quot;,
+        &quot;detect_count_threshold&quot;: 3,
+        &quot;detect_count_margin&quot;: 3,
+        &quot;hist_ratio_filter&quot;: 0.3,
+        &quot;model&quot;: 0,
+        &quot;luma_min_step&quot;: 0.05,
+        &quot;table&quot;:
+        [
+            {
+                &quot;luma&quot;: 0.35,
+                &quot;gamma_param&quot;: 0.45
+            },
+            {
+                &quot;luma&quot;: 0.55,
+                &quot;gamma_param&quot;: 0.40
+            }
+        ]
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">backlight</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">背光增強：依直方圖低／高比例與環境亮度進行偵測，再依程度選取專用 GAMMA 表</td>
+</tr>
+<tr>
+<td style="text-align: center;">low_hist_ratio_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0, 1]</td>
+<td style="text-align: left;">直方圖低區段比例閾值；<code>low &gt; low_hist_ratio_threshold</code> 時啟用</td>
+</tr>
+<tr>
+<td style="text-align: center;">high_hist_ratio_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0, 1]</td>
+<td style="text-align: left;">直方圖高區段比例閾值；<code>high &gt; high_hist_ratio_threshold</code> 時啟用</td>
+</tr>
+<tr>
+<td style="text-align: center;">env_luma_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">環境亮度閾值；環境亮度 &gt; <code>env_luma_threshold</code> 時啟用</td>
+</tr>
+<tr>
+<td style="text-align: center;">low_index</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">低比例的直方圖索引範圍；預設為 <code>{start: 0, end: 4}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">high_index</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">高比例的直方圖索引範圍；預設為 <code>{start: 14, end: 15}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">start / end</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[0, 15]</td>
+<td style="text-align: left;">直方圖區段索引（包含起點和終點）</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_env</td>
+<td style="text-align: center;">String</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">用於閾值檢查的環境亮度變數名稱</td>
+</tr>
+<tr>
+<td style="text-align: center;">detect_count_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">防止抖動：連續偵測計數 &gt; <code>detect_count_threshold</code> 時才啟用背光</td>
+</tr>
+<tr>
+<td style="text-align: center;">detect_count_margin</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">選填。高於 <code>detect_count_threshold</code> 的額外計數；偵測計數上限為 <code>detect_count_threshold + detect_count_margin</code>。省略時等於 <code>detect_count_threshold</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">hist_ratio_filter</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">[0, 1]</td>
+<td style="text-align: left;">低／高直方圖比例的 IIR 濾波係數</td>
+</tr>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">{0,1}</td>
+<td style="text-align: left;">背光模式使用的 GAMMA 處理模式；預設為 <code>0</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_min_step</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">更新 GAMMA 所需的最小背光程度步進；預設為 <code>0.05</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">以程度（<code>luma</code> 或別名 <code>degree</code>）為索引的背光 GAMMA 查找表</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：<code>low = sum(hist[low_index]) / sum(hist)</code>、<code>high = sum(hist[high_index]) / sum(hist)</code>，程度 = <code>low + high</code>。</li>
+<li>注意：背光功能啟用時，會以 <code>backlight.table</code> 取代一般的 <code>gamma.table</code> 路徑。</li>
+</ul>
+<hr />
+<pre><code class="language-json">&quot;aen&quot;
+{
+    &quot;sharpen&quot;:
+    [
+        {
+            &quot;gain&quot;: 1,
+            &quot;param&quot;:
+            {
+                &quot;h_thresh&quot;: 16,
+                &quot;l_thresh&quot;: 3,
+                &quot;h_coeff&quot;: 2.65,
+                &quot;m_coeff&quot;: 2.95,
+                &quot;matrix&quot;:
+                [
+                    1, 2, 1,
+                    2, 2, 2,
+                    1, 2, 1
+                ]
+            }
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">sharpen</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">銳化參數與感光元件增益對照表，採用最近鄰索引</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">感光元件增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">param</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">銳化參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">h_thresh</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: [0,255]</div></td>
+<td style="text-align: left;">銳化高閾值；濾波後像素值高於此閾值時，會乘上 <code>h_coeff</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">l_thresh</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">ESP32-P4: [0,255]</td>
+<td style="text-align: left;">銳化低閾值；濾波後像素值高於此閾值但低於 <code>h_thresh</code> 時，會乘上 <code>m_coeff</code>；低於此閾值時則設為 0</td>
+</tr>
+<tr>
+<td style="text-align: center;">h_coeff</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">ESP32-P4: (0,8)</td>
+<td style="text-align: left;">高頻像素銳化係數</td>
+</tr>
+<tr>
+<td style="text-align: center;">m_coeff</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">ESP32-P4: (0,8)</td>
+<td style="text-align: left;">中頻像素銳化係數</td>
+</tr>
+<tr>
+<td style="text-align: center;">matrix</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">Array [Integer]</div></td>
+<td style="text-align: center;">ESP32-P4: [0,31]</td>
+<td style="text-align: left;">3x3 低通濾波器矩陣資料</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;aen&quot;:
+{
+    &quot;contrast&quot;:
+    [
+        {
+            &quot;gain&quot;: 1,
+            &quot;value&quot;: 130
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">contrast</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">對比度與感光元件增益對照表，採用最近鄰索引</td>
+</tr>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">感光元件增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">value</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4: [0,255]</div></td>
+<td style="text-align: left;">對比度值</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="326">3.2.6 自動增益控制</h4>
+<hr />
+<pre><code class="language-json">&quot;GC2607&quot;:
+{
+    &quot;agc&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">agc</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">自動增益／曝光控制組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;exposure&quot;:
+    {
+        &quot;frame_delay&quot;: 2,
+        &quot;adjust_delay&quot;: 0
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">exposure</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">曝光控制組態參數物件</td>
+</tr>
+<tr>
+<td style="text-align: center;">frame_delay</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">曝光參數生效前的延遲影格數，此值來自感光元件硬體資訊</td>
+</tr>
+<tr>
+<td style="text-align: center;">adjust_delay</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">計算並設定新曝光參數前的延遲影格數；值越大，亮度變化越慢</td>
+</tr>
+<tr>
+<td style="text-align: center;">fixed_exposure_time</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">固定曝光時間，單位為微秒。<code>gain_only</code> 為 <code>true</code> 時必填；否則忽略</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;gain_only&quot;: true,
+    &quot;exposure&quot;:
+    {
+        &quot;frame_delay&quot;: 2,
+        &quot;adjust_delay&quot;: 0,
+        &quot;fixed_exposure_time&quot;: 20000
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">gain_only</td>
+<td style="text-align: center;">Bool</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;">選填。<code>true</code>：初始化後 AGC 僅調整增益，並將曝光維持在 <code>exposure.fixed_exposure_time</code>；<code>false</code> 或省略：照常同時調整曝光與增益</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：<code>gain_only</code> 為 <code>true</code> 時，必須設定 <code>exposure.fixed_exposure_time</code>，且其值必須在感光元件的曝光範圍內。</li>
+<li>注意：若目前感光元件曝光值不同，初始化時仍可能將曝光設定為 <code>exposure.fixed_exposure_time</code> 一次。</li>
+</ul>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;gain&quot;:
+    {
+        &quot;min_step&quot;: 0.0001,
+        &quot;frame_delay&quot;: 2,
+        &quot;max&quot;: 8.0
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">gain</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">增益控制組態參數物件</td>
+</tr>
+<tr>
+<td style="text-align: center;">frame_delay</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">增益參數生效前的延遲影格數，此值來自感光元件硬體資訊</td>
+</tr>
+<tr>
+<td style="text-align: center;">min_step</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">最小增益步進：增益步進大於或等於此值時，才會將增益設定至感光元件</td>
+</tr>
+<tr>
+<td style="text-align: center;">max</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">≥ 0</td>
+<td style="text-align: left;">選填。<strong>&gt; 0</strong> 時，將 AGC 要求的類比增益限制在此值（套用於感光元件本身的 <code>min_gain</code>／<code>max_gain</code> 限制之後）。<strong>0</strong> 或省略：不額外限制感光元件能力</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;anti_flicker&quot;:
+    {
+        &quot;mode&quot;: &quot;full&quot;,
+        &quot;ac_freq&quot;: 50
+    },
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">anti_flicker</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">防閃爍控制組態參數物件</td>
+</tr>
+<tr>
+<td style="text-align: center;">mode</td>
+<td style="text-align: center;">String enumeration</td>
+<td style="text-align: center;">"full"<hr>"part"<hr>"none"</td>
+<td style="text-align: left;"><code>"full"</code>：強制使用防閃爍曝光組態。<hr><code>"part"</code>：若可透過增益調整影像亮度，則強制使用防閃爍曝光組態；否則變更曝光並忽略防閃爍。<hr><code>"none"</code>：調整曝光與增益時完全忽略防閃爍</td>
+</tr>
+<tr>
+<td style="text-align: center;">ac_freq</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">照明電源的交流頻率，一般為 50Hz 或 60Hz</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;f_n0&quot;: 0.32,
+    &quot;f_m0&quot;: 0.32
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">f_n0</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">(0,1)</td>
+<td style="text-align: left;">控制增益或曝光增加速度的參數；值越大，增加速度越快</td>
+</tr>
+<tr>
+<td style="text-align: center;">f_m0</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">(0,1)</td>
+<td style="text-align: left;">控制增益或曝光減少速度的參數；值越大，減少速度越快</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;luma_adjust&quot;:
+    {
+        &quot;target_low&quot;: 105,
+        &quot;target_high&quot;: 121,
+        &quot;target&quot;: 113,
+        &quot;low_threshold&quot;: 10,
+        &quot;low_regions&quot;: 5,
+        &quot;high_threshold&quot;: 240,
+        &quot;high_regions&quot;: 3,
+        &quot;weight&quot;:
+        [
+            1, 1, 2, 1, 1,
+            1, 2, 3, 2, 1,
+            1, 3, 5, 3, 1,
+            1, 2, 3, 2, 1,
+            1, 1, 2, 1, 1
+        ]
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">luma_adjust</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">影像亮度控制組態參數</td>
+</tr>
+<tr>
+<td style="text-align: center;">target_low</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">(0,target)</td>
+<td style="text-align: left;">保持區間下限：亮度位於 [target_low, target_high] 內（會依 PWL／測光目標位移）時，AGC 不會變更曝光或增益</td>
+</tr>
+<tr>
+<td style="text-align: center;">target_high</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">(target,255)</td>
+<td style="text-align: left;">保持區間上限：與 <code>target_low</code> 相同；亮度超出此區間時，會朝目標值調整</td>
+</tr>
+<tr>
+<td style="text-align: center;">target</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[3,252]</td>
+<td style="text-align: left;">亮度超出保持區間時使用的影像亮度目標</td>
+</tr>
+<tr>
+<td style="text-align: center;">low_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[3,252]</td>
+<td style="text-align: left;">影像亮度取樣資料下限閾值：取樣亮度低於此值時，低閾值計數器加 1</td>
+</tr>
+<tr>
+<td style="text-align: center;">high_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[3,252]</td>
+<td style="text-align: left;">影像亮度取樣資料上限閾值：取樣亮度高於此值時，高閾值計數器加 1</td>
+</tr>
+<tr>
+<td style="text-align: center;">low_regions</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">ESP32-P4:(0,25)</div></td>
+<td style="text-align: left;">低閾值區域數：若低閾值計數器小於此值，則捨棄所有低於 <code>low_threshold</code> 的取樣資料</td>
+</tr>
+<tr>
+<td style="text-align: center;">high_regions</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">ESP32-P4:(0,25)</td>
+<td style="text-align: left;">高閾值區域數：若高閾值計數器小於此值，則捨棄所有高於 <code>high_threshold</code> 的取樣資料</td>
+</tr>
+<tr>
+<td style="text-align: center;">weight</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">Array[Integer]</div></td>
+<td style="text-align: center;">[0,255]</td>
+<td style="text-align: left;">影像亮度取樣權重</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;mode&quot;: &quot;high_light_priority&quot;,
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">mode</td>
+<td style="text-align: center;">String enumeration</td>
+<td style="text-align: center;">"high_light_priority"<hr>"low_light_priority"<hr>"light_threshold_priority"</td>
+<td style="text-align: left;">測光權重計算模式</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;high_light_priority&quot;:
+    {
+        &quot;use_env_luma&quot;: true,
+        &quot;env_luma_low_threshold&quot;: 150.5,
+        &quot;env_luma_high_threshold&quot;: 250.5,
+        &quot;low_threshold&quot;: 141,
+        &quot;high_threshold&quot;: 204,
+        &quot;weight_offset&quot;: 5,
+        &quot;luma_offset&quot;: -3
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">high_light_priority</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">高亮優先組態</td>
+</tr>
+<tr>
+<td style="text-align: center;">use_env_luma</td>
+<td style="text-align: center;">Bool</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;">若為 true，使用 <code>env_luma_low_threshold</code> 和 <code>env_luma_high_threshold</code>；若為 false，使用 <code>low_threshold</code> 和 <code>high_threshold</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">env_luma_high_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt; 0</td>
+<td style="text-align: left;">環境亮度上限閾值：環境亮度小於或等於此值時，資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">env_luma_low_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt; 0</td>
+<td style="text-align: left;">環境亮度下限閾值：環境亮度大於或等於此值時，資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">low_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">[3,252]</div></td>
+<td style="text-align: left;">影像亮度取樣資料下限閾值：某個取樣亮度高於此值時，該資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">high_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[3,252]</td>
+<td style="text-align: left;">影像亮度取樣資料上限閾值：某個取樣亮度低於此值時，該資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">weight_offset</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[0,255]</td>
+<td style="text-align: left;">影像亮度取樣資料權重的增加值</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_offset</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[-127,127]</td>
+<td style="text-align: left;">某個取樣值介於 <code>low_threshold</code> 和 <code>high_threshold</code> 之間時，影像亮度目標的增加值</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：<code>mode</code> 為 <code>"high_light_priority"</code> 時，會套用此組態。</li>
+<li>注意：<code>use_env_luma</code> 為 true 時，會使用環境亮度，而非統計資料。</li>
+</ul>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;low_light_priority&quot;:
+    {
+        &quot;use_env_luma&quot;: true,
+        &quot;env_luma_high_threshold&quot;: 250.5,
+        &quot;env_luma_low_threshold&quot;: 150.5,
+        &quot;low_threshold&quot;: 65,
+        &quot;high_threshold&quot;: 104,
+        &quot;weight_offset&quot;: 5,
+        &quot;luma_offset&quot;: 1
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">low_light_priority</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">低亮優先組態</td>
+</tr>
+<tr>
+<td style="text-align: center;">use_env_luma</td>
+<td style="text-align: center;">Bool</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;">若為 true，使用 <code>env_luma_low_threshold</code> 和 <code>env_luma_high_threshold</code>；若為 false，使用 <code>low_threshold</code> 和 <code>high_threshold</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">env_luma_high_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt; 0</td>
+<td style="text-align: left;">環境亮度上限閾值：環境亮度小於或等於此值時，資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">env_luma_low_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt; 0</td>
+<td style="text-align: left;">環境亮度下限閾值：環境亮度大於或等於此值時，資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">low_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">[3,252]</div></td>
+<td style="text-align: left;">影像亮度取樣資料下限閾值：某個取樣亮度高於此值時，該資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">high_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[3,252]</td>
+<td style="text-align: left;">影像亮度取樣資料上限閾值：某個取樣亮度低於此值時，該資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">weight_offset</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[0,255]</td>
+<td style="text-align: left;">影像亮度取樣資料權重的增加值</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_offset</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[-127,127]</td>
+<td style="text-align: left;">某個取樣值介於 <code>low_threshold</code> 和 <code>high_threshold</code> 之間時，影像亮度目標的增加值</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：<code>mode</code> 為 <code>"low_light_priority"</code> 時，會套用此組態。</li>
+<li>注意：<code>use_env_luma</code> 為 true 時，會使用環境亮度，而非統計資料。</li>
+</ul>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;light_threshold_priority_use_env_luma&quot;: true,
+    &quot;light_threshold_priority&quot;:
+    [
+        {
+            &quot;env_luma_threshold&quot;: 30.5,
+            &quot;luma_threshold&quot;: 20,
+            &quot;weight_offset&quot;: 1
+        },
+        ...
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">light_threshold_priority_use_env_luma</td>
+<td style="text-align: center;">Bool</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;">若為 true，使用 <code>env_luma_threshold</code>；若為 false，使用 <code>luma_threshold</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">light_threshold_priority</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">環境亮度閾值優先組態</td>
+</tr>
+<tr>
+<td style="text-align: center;">env_luma_threshold</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt; 0</td>
+<td style="text-align: left;">環境亮度閾值。環境亮度低於此閾值時，資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_threshold</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;"><div style="white-space: nowrap;">[0,255]</div></td>
+<td style="text-align: left;">亮度閾值；某個取樣值大於此值且小於下一個閾值時，該資料權重與總權重會增加 <code>weight_offset</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">weight_offset</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[0,255]</td>
+<td style="text-align: left;">影像亮度取樣資料權重的增加值</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：<code>mode</code> 為 <code>"light_threshold_priority"</code> 時，會套用此組態。</li>
+<li>注意：<code>use_env_luma</code> 為 true 時，會使用環境亮度，而非統計資料。</li>
+</ul>
+<hr />
+<pre><code class="language-json">&quot;agc&quot;:
+{
+    &quot;luma_pwl&quot;:
+    {
+        &quot;enable&quot;: true,
+        &quot;table&quot;:
+        [
+            { &quot;env_luma&quot;: 500,   &quot;luma_shift&quot;: -15  },
+            { &quot;env_luma&quot;: 2000,  &quot;luma_shift&quot;: -5   },
+            { &quot;env_luma&quot;: 5000,  &quot;luma_shift&quot;: 0   },
+            { &quot;env_luma&quot;: 12000, &quot;luma_shift&quot;: -10 }
+        ]
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">luma_pwl</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">環境亮度 → 目標亮度位移的 PWL（分段線性）組態</td>
+</tr>
+<tr>
+<td style="text-align: center;">enable</td>
+<td style="text-align: center;">Bool</td>
+<td style="text-align: center;">true or false</td>
+<td style="text-align: left;"><code>true</code>：每個影格讀取 <code>env.luma.avg</code>，並從表中插值得到 <code>luma_shift</code>；<code>false</code>：停用此功能，<code>luma_target</code> 不變</td>
+</tr>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">≥2 個項目</td>
+<td style="text-align: left;">將 <code>env_luma</code> 對應至 <code>luma_shift</code> 的排序斷點清單；中間值採線性插值，超出範圍時限制為第一個或最後一個項目</td>
+</tr>
+<tr>
+<td style="text-align: center;">env_luma</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">環境亮度斷點，對應管線變數 <code>env.luma.avg</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_shift</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[-128, 127]</td>
+<td style="text-align: left;">環境亮度符合此斷點時套用的目標亮度位移；正值會提高目標亮度，負值會降低目標亮度</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>注意：<code>luma_pwl</code> 必須依 <code>env_luma</code> 遞增排序。</li>
+<li>注意：有效的 <code>luma_target</code> = 組態中的 <code>target</code> + 插值得到的 <code>luma_shift</code>。</li>
+<li>注意：<code>target_low</code>／<code>target_high</code> 保持區間會以相同幅度位移，因此亮度已接近 PWL 目標時，AGC 不會再調整。</li>
+</ul>
+<hr />
+<h4 id="327-ae">3.2.7 自動感光元件 AE 目標控制</h4>
+<hr />
+<pre><code class="language-json">&quot;OV2710&quot;:
+{
+    &quot;atc&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">atc</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">自動感光元件 AE 目標控制組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;atc&quot;:
+{
+    &quot;model&quot;: 0,
+    &quot;init_value&quot;: 48,
+    &quot;delay_frames&quot;: 5,
+    &quot;luma_env&quot;: &quot;env.luma.avg&quot;,
+    &quot;min_ae_value_step&quot;: 5,
+    &quot;luma_lut&quot;:
+    [
+        {
+            &quot;luma&quot;: 100,
+            &quot;ae_value&quot;: 75
+        },
+        {
+            &quot;luma&quot;: 200,
+            &quot;ae_value&quot;: 100
+        },
+        {
+            &quot;luma&quot;: 300,
+            &quot;ae_value&quot;: 150
+        }
+    ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">{0}</td>
+<td style="text-align: left;">ATC 資料處理模式</td>
+</tr>
+<tr>
+<td style="text-align: center;">init_value</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">自動感光元件 AE 目標控制初始值</td>
+</tr>
+<tr>
+<td style="text-align: center;">delay_frames</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">AE 目標等級變更之間的影格數</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_env</td>
+<td style="text-align: center;">String</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">亮度變數名稱</td>
+</tr>
+<tr>
+<td style="text-align: center;">min_step</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">AE 目標等級最小步進：AE 目標等級步進大於或等於此值時，才會將 AE 目標等級設定至感光元件</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma_lut</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">亮度值與 AE 目標等級對照表，採用線性插值</td>
+</tr>
+<tr>
+<td style="text-align: center;">luma</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">亮度閾值</td>
+</tr>
+<tr>
+<td style="text-align: center;">ae_value</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">AE 目標等級值</td>
+</tr>
+<tr>
+<td style="text-align: center;">---</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h4 id="328">3.2.8 自動對焦控制</h4>
+<hr />
+<pre><code class="language-json">&quot;OV5647&quot;:
+{
+    &quot;af&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">af</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">自動對焦控制組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;af&quot;:
+{
+    &quot;model&quot;: 0,
+    &quot;windows&quot;:
+ [
+ {
+            &quot;left&quot;: 680,
+            &quot;top&quot;: 300,
+            &quot;width&quot;: 390,
+            &quot;height&quot;: 410
+ }
+ ],
+    &quot;edge_thresh&quot;: 32,
+    &quot;definition_high_threshold_ratio&quot;: 1.3,
+    &quot;definition_low_threshold_ratio&quot;: 0.7,
+    &quot;luminance_high_threshold_ratio&quot;: 1.1,
+    &quot;luminance_low_threshold_ratio&quot;: 0.9,
+    &quot;max_change_time&quot;: 2000000,
+    &quot;l1_scan_points_num&quot;: 10,
+    &quot;l2_scan_points_num&quot;: 10,
+    &quot;max_pos&quot;: 500
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">model</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">AF 資料處理模式</td>
+</tr>
+<tr>
+<td style="text-align: center;">windows</td>
+<td style="text-align: center;">Array</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">AF 統計視窗區域；ESP32-P4 支援 3 個視窗</td>
+</tr>
+<tr>
+<td style="text-align: center;">left</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗左側座標</td>
+</tr>
+<tr>
+<td style="text-align: center;">top</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗頂部座標</td>
+</tr>
+<tr>
+<td style="text-align: center;">width</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗寬度</td>
+</tr>
+<tr>
+<td style="text-align: center;">height</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗高度</td>
+</tr>
+<tr>
+<td style="text-align: center;">edge_thresh</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">AF 統計閾值；低於此值的資料會被捨棄</td>
+</tr>
+<tr>
+<td style="text-align: center;">definition_high_threshold_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;1.0</td>
+<td style="text-align: left;">當（目前清晰度統計值）／（上次對焦清晰度）的比值大於此值時，會觸發新的 AF 流程</td>
+</tr>
+<tr>
+<td style="text-align: center;">definition_low_threshold_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&lt;1.0</td>
+<td style="text-align: left;">當（目前清晰度統計值）／（上次對焦清晰度）的比值小於此值時，會觸發新的 AF 流程</td>
+</tr>
+<tr>
+<td style="text-align: center;">luminance_high_threshold_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&gt;1.0</td>
+<td style="text-align: left;">當（目前亮度統計值）／（上次對焦亮度）的比值大於此值時，會觸發新的 AF 流程</td>
+</tr>
+<tr>
+<td style="text-align: center;">luminance_low_threshold_ratio</td>
+<td style="text-align: center;">Float</td>
+<td style="text-align: center;">&lt;1.0</td>
+<td style="text-align: left;">當（目前亮度統計值）／（上次對焦亮度）的比值小於此值時，會觸發新的 AF 流程</td>
+</tr>
+<tr>
+<td style="text-align: center;">max_change_time</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">AF 統計的清晰度或亮度持續超出閾值的時間，單位為微秒</td>
+</tr>
+<tr>
+<td style="text-align: center;">l1_scan_points_num</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">第一級掃描點數</td>
+</tr>
+<tr>
+<td style="text-align: center;">l2_scan_points_num</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">第二級掃描點數</td>
+</tr>
+<tr>
+<td style="text-align: center;">max_pos</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">&gt;0</td>
+<td style="text-align: left;">最大對焦位置；較小的值可縮短掃描時間，但也會縮短對焦距離</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="329">3.2.9 擴充控制</h4>
+<hr />
+<pre><code class="language-json">&quot;OV5647&quot;:
+{
+    &quot;ext&quot;: {}
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">ext</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">擴充控制組態參數</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code class="language-json">&quot;ext&quot;:
+{
+    &quot;hue&quot;: 0,
+    &quot;brightness&quot;: 0,
+    &quot;stats_region&quot;:
+    {
+        &quot;left&quot;: 100,
+        &quot;top&quot;: 100,
+        &quot;width&quot;: 400,
+        &quot;height&quot;: 400
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">參數</th>
+<th style="text-align: center;">型別</th>
+<th style="text-align: center;">範圍</th>
+<th style="text-align: left;">說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">hue</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[0,360]</td>
+<td style="text-align: left;">ISP 色相（HUE）</td>
+</tr>
+<tr>
+<td style="text-align: center;">brightness</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">[-128,127]</td>
+<td style="text-align: left;">ISP 色彩亮度</td>
+</tr>
+<tr>
+<td style="text-align: center;">stats_region</td>
+<td style="text-align: center;">Object</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">ISP 統計區域</td>
+</tr>
+<tr>
+<td style="text-align: center;">left</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗左側座標</td>
+</tr>
+<tr>
+<td style="text-align: center;">top</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗頂部座標</td>
+</tr>
+<tr>
+<td style="text-align: center;">width</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗寬度</td>
+</tr>
+<tr>
+<td style="text-align: center;">height</td>
+<td style="text-align: center;">Integer</td>
+<td style="text-align: center;">/</td>
+<td style="text-align: left;">視窗高度</td>
+</tr>
+</tbody>
+</table>
+        </div>
+    </main>
+
+    <footer class="footer">
+        Copyright © 2026 Sam Chen
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="Back to top">▲</a>
+    <script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>定焦鏡頭 2D 尺寸與機構參數互動圖</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .navbar-content {
+            max-width: 1180px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+        }
+        .nav-links a:hover { color: var(--color-accent); }
+
+        main {
+            max-width: 1180px;
+            margin: auto;
+            padding: 2rem;
+        }
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: .5rem;
+        }
+        h1 { font-size: 2.35rem; }
+        h2 { margin-top: 2.5rem; }
+
+        .intro {
+            background: var(--color-subtle-bg);
+            border-left: 4px solid var(--color-accent);
+            border-radius: 0 6px 6px 0;
+            padding: 1rem 1.25rem;
+            color: var(--color-primary-text);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: .6rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0 1rem;
+        }
+        .filter-btn {
+            border: 1px solid #d7dce1;
+            background: #fff;
+            color: var(--color-primary-text);
+            border-radius: 999px;
+            padding: .55rem .9rem;
+            cursor: pointer;
+            font-family: var(--font-body);
+        }
+        .filter-btn.active {
+            background: var(--color-primary-text);
+            color: #fff;
+            border-color: var(--color-primary-text);
+        }
+
+        .diagram-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2.15fr) minmax(280px, .85fr);
+            gap: 1.25rem;
+            align-items: start;
+        }
+        .diagram-card, .detail-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+        .diagram-card { padding: .75rem; }
+        .diagram-stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1726 / 863;
+            overflow: hidden;
+            background: #fff;
+        }
+        .diagram-stage > img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        .hotspot {
+            position: absolute;
+            width: 34px;
+            height: 34px;
+            margin: -17px 0 0 -17px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: var(--color-accent);
+            color: #fff;
+            box-shadow: 0 2px 7px rgba(0,0,0,.35);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 700;
+            transition: transform .15s, opacity .15s;
+            z-index: 3;
+        }
+        .hotspot:hover, .hotspot.active {
+            transform: scale(1.18);
+            background: #d35400;
+        }
+        .hotspot.dimmed { opacity: .22; }
+        .hotspot[data-category="optical"] { background: #247BA0; }
+        .hotspot[data-category="length"] { background: #E67E22; }
+        .hotspot[data-category="mechanical"] { background: #27AE60; }
+
+        .detail-card {
+            position: sticky;
+            top: 1rem;
+            min-height: 360px;
+            padding: 1.25rem;
+        }
+        .detail-category {
+            display: inline-block;
+            padding: .2rem .55rem;
+            border-radius: 999px;
+            background: #eef3f6;
+            color: var(--color-primary-text);
+            font-size: .82rem;
+        }
+        .detail-card h3 {
+            border: none;
+            margin: .7rem 0 .4rem;
+            font-size: 1.35rem;
+        }
+        .value {
+            display: block;
+            font-size: 1.75rem;
+            color: var(--color-accent);
+            font-family: 'Courier New', monospace;
+            margin: .25rem 0 .8rem;
+        }
+        .detail-card p { margin: .5rem 0; }
+        .tip {
+            background: #f7f9fa;
+            border-left: 3px solid #9aa7b2;
+            padding: .75rem;
+            margin-top: 1rem;
+            font-size: .92rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin-top: .7rem;
+            font-size: .88rem;
+        }
+        .legend span::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .legend .optical::before { background: #247BA0; }
+        .legend .length::before { background: #E67E22; }
+        .legend .mechanical::before { background: #27AE60; }
+
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .parameter-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        .parameter-card h3 {
+            border: none;
+            margin: 0 0 .5rem;
+            font-size: 1.1rem;
+        }
+        .parameter-card strong { color: var(--color-primary-text); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: .75rem;
+            text-align: left;
+        }
+        th {
+            background: #f9f9f9;
+            color: var(--color-primary-text);
+        }
+        tr:nth-child(even) { background: #fafbfc; }
+
+        .footer {
+            background: #f8f9fa;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            color: #fff;
+            text-align: center;
+            line-height: 46px;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,.2);
+        }
+
+        @media (max-width: 900px) {
+            .diagram-layout { grid-template-columns: 1fr; }
+            .detail-card { position: relative; top: 0; min-height: 0; }
+            .parameter-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            main { padding: 1rem; }
+            h1 { font-size: 1.75rem; }
+            .navbar-content { align-items: flex-start; }
+            .nav-links a { margin-left: .75rem; }
+            .hotspot { width: 28px; height: 28px; margin: -14px 0 0 -14px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <h1>定焦鏡頭 2D 尺寸與機構參數</h1>
+        <div class="intro">
+            這張圖結合了定焦鏡頭的三視圖：可對應畫面的左側為鏡頭正視圖，中間為側視與光軸剖面，右側為底座俯視圖。
+            點選圖中的數字圓點，可查看尺寸來源、設計用途與常見誤區。
+        </div>
+
+        <div class="toolbar" aria-label="尺寸分類篩選">
+            <button class="filter-btn active" data-filter="all">全部參數</button>
+            <button class="filter-btn" data-filter="optical">視場與光學</button>
+            <button class="filter-btn" data-filter="length">長度與後焦</button>
+            <button class="filter-btn" data-filter="mechanical">機構與座體</button>
+        </div>
+
+        <div class="diagram-layout">
+            <div>
+                <div class="diagram-card">
+                    <div class="diagram-stage" id="diagramStage">
+                        <img src="../image/Study_note_image/lens/Lens_2D.PNG" alt="定焦鏡頭模組 2D 尺寸圖">
+
+                        <button class="hotspot" style="left:39.5%;top:44%;" data-id="fov" data-category="optical" aria-label="視場角">1</button>
+                        <button class="hotspot" style="left:27.5%;top:43%;" data-id="entry" data-category="optical" aria-label="入瞳深度">2</button>
+                        <button class="hotspot" style="left:47.2%;top:10%;" data-id="ttl" data-category="length" aria-label="總機械長度">3</button>
+                        <button class="hotspot" style="left:50.5%;top:16%;" data-id="front" data-category="length" aria-label="前鏡筒凸出長度">4</button>
+                        <button class="hotspot" style="left:57.3%;top:82%;" data-id="ttl67" data-category="length" aria-label="22.47 TTL">5</button>
+                        <button class="hotspot" style="left:63.5%;top:69%;" data-id="bfl" data-category="length" aria-label="光學後焦">6</button>
+                        <button class="hotspot" style="left:63.5%;top:63%;" data-id="mbfl" data-category="length" aria-label="機械後焦">7</button>
+                        <button class="hotspot" style="left:62.2%;top:38%;" data-id="mount" data-category="mechanical" aria-label="M12螺紋">8</button>
+                        <button class="hotspot" style="left:13.3%;top:51%;" data-id="holder" data-category="mechanical" aria-label="底座開孔與方框">9</button>
+                        <button class="hotspot" style="left:78.6%;top:39%;" data-id="pitch" data-category="mechanical" aria-label="螺絲孔距">10</button>
+                        <button class="hotspot" style="left:83.5%;top:73%;" data-id="pin" data-category="mechanical" aria-label="定位柱">11</button>
+                        <button class="hotspot" style="left:85.5%;top:49%;" data-id="through" data-category="mechanical" aria-label="底座通光孔">12</button>
+                    </div>
+                </div>
+                <div class="legend">
+                    <span class="optical">藍：視場與光學</span>
+                    <span class="length">橘：長度與後焦</span>
+                    <span class="mechanical">綠：機構與座體</span>
+                </div>
+            </div>
+
+            <aside class="detail-card" id="detailCard" aria-live="polite">
+                <span class="detail-category">視場與光學</span>
+                <h3>179.6° / 142.6° / 106° 視場角</h3>
+                <span class="value">D × H × V</span>
+                <p>分別描述鏡頭的對角線、水平與垂直拍攝角度；此例為接近 180° 的超廣角魚眼鏡頭。</p>
+                <div class="tip"><strong>設計用途：</strong>確認 Sensor 畫面是否能完整涵蓋鏡頭 Image Circle，以及外殼開孔是否會造成暗角。</div>
+            </aside>
+        </div>
+
+        <h2>常用機構參數對照表</h2>
+        <table>
+            <thead>
+                <tr><th>參數</th><th>圖面數據</th><th>機構或光學意義</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>視場角 FOV</td><td>179.6° D / 142.6° H / 106° V</td><td>決定影像可拍攝範圍與魚眼畸變程度。</td></tr>
+                <tr><td>入瞳深度</td><td>2.31 / 3.39 / 4.09 mm</td><td>決定不同視角光線匯聚位置，設計外殼開孔時需要避讓光錐。</td></tr>
+                <tr><td>模組總機械長度</td><td>23.19 ±0.3 mm</td><td>前端鏡片頂點到鏡頭座底部貼合面的整體高度。</td></tr>
+                <tr><td>TTL</td><td>22.47 ±0.2 mm</td><td>從前端鏡片頂點到 CMOS 感光表面的光學總軌跡長度。</td></tr>
+                <tr><td>BFL</td><td>5.98 mm</td><td>最後一片鏡片表面到 CMOS 感光表面的光學後焦。</td></tr>
+                <tr><td>MBFL</td><td>4.08 mm</td><td>鏡頭本體尾端到 CMOS 感光表面的機械安全距離。</td></tr>
+                <tr><td>M12 鏡頭螺紋</td><td>M12 × 0.5</td><td>鏡筒與鏡頭座的標準細牙介面，組裝前後可旋轉調焦。</td></tr>
+                <tr><td>底座尺寸</td><td>17.5 × 17.5 mm</td><td>由中心向四方各延伸 8.75 mm，供 PCB、外殼與定位使用。</td></tr>
+                <tr><td>固定螺絲孔距</td><td>11 mm、總孔距 22 mm</td><td>鏡頭座上下固定耳的孔中心距光學中心尺寸。</td></tr>
+                <tr><td>定位柱</td><td>2-Ø1 mm</td><td>底座對角配置兩根定位柱，插入 PCB 定位孔以防止歪斜。</td></tr>
+                <tr><td>通光孔</td><td>Ø6.1 mm</td><td>鏡頭座底部允許光線穿過的最大有效圓孔。</td></tr>
+            </tbody>
+        </table>
+
+        <h2>從參數到 3D 檔案設計的使用方式</h2>
+        <div class="parameter-grid">
+            <section class="parameter-card">
+                <h3>1. 先確認光軸與 Sensor 位置</h3>
+                <p><strong>光軸對基準：</strong>圖面十字線的交點為光學中心。PCB 感光區、鏡頭座通孔與鏡筒螺紋應共同對準此中心。</p>
+            </section>
+            <section class="parameter-card">
+                <h3>2. 再確認後焦與板厚</h3>
+                <p><strong>可靠依據：</strong>BFL 及 MBFL 表示 Sensor 與鏡頭間的距離。若 PCB、IR-Cut 或 Cover Glass 造成光學厚度變化，須依 0.3 / 0.5 mm 補償註記核算。</p>
+            </section>
+            <section class="parameter-card">
+                <h3>3. 設計外殼前端開孔</h3>
+                <p><strong>避光錐：</strong>不要只依最大直徑開孔。應根據入瞳深度與不同方向 FOV 繪製通光錐，避免外殼內壁遮住廣角畫面。</p>
+            </section>
+            <section class="parameter-card">
+                <h3>4. 設計底座固定與定位孔</h3>
+                <p><strong>防止組裝偏移：</strong>依 17.5 × 17.5 mm 方框、11 mm孔距、2-Ø1 定位柱與 Ø6.1 通孔建立 2D 草圖，再投影至機構外殼和 PCB。</p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">Copyright © 2026 Sam Chen</footer>
+    <a href="#" id="back-to-top-btn" title="回到頂部">▲</a>
+
+    <script>
+        const detailData = {
+            fov: {
+                category: "視場與光學",
+                title: "179.6° / 142.6° / 106° 視場角",
+                value: "D × H × V",
+                description: "分別描述鏡頭的對角線、水平與垂直拍攝角度；此例為接近 180° 的超廣角魚眼鏡頭。",
+                tip: "設計用途：確認 Sensor 畫面能完整包含鏡頭 Image Circle，並檢查外殼開孔是否會造成暗角。"
+            },
+            entry: {
+                category: "視場與光學",
+                title: "入瞳深度",
+                value: "2.31 / 3.39 / 4.09 mm",
+                description: "從鏡頭最前端鏡片頂點往後，對角、水平與垂直邊緣光線的交點或入瞳軸向位置。",
+                tip: "設計用途：繪製外殼通光錐時要依這些數據避讓光線，不能只用鏡筒直徑估算。"
+            },
+            ttl: {
+                category: "長度與後焦",
+                title: "模組總機械長度",
+                value: "23.19 ±0.3 mm",
+                description: "從最前端鏡片頂點到鏡頭座底部貼合 PCB 表面的總機械長度，不含底部定位柱。",
+                tip: "設計用途：決定前端外殼深度、鏡頭穿出高度與鏡頭座必要容置空間。"
+            },
+            front: {
+                category: "長度與後焦",
+                title: "前鏡筒凸出長度",
+                value: "14.11 mm",
+                description: "從鏡頭座底部貼合面量到前段大鏡筒台階處的距離。",
+                tip: "設計用途：可計算鏡頭從外殼正面凸出的長度及前端保護環厚度。"
+            },
+            ttl67: {
+                category: "長度與後焦",
+                title: "光學總長 TTL",
+                value: "22.47 ±0.2 mm",
+                description: "從最前端鏡片頂點穿透鏡片，到 CMOS 感光晶片表面的光學總距離。",
+                tip: "設計用途：是整體光程的主要參考，但機械公差與濾光片厚度會影響最終實測距離。"
+            },
+            bfl: {
+                category: "長度與後焦",
+                title: "光學後焦 BFL",
+                value: "5.98 mm",
+                description: "最後一片鏡片玻璃表面到 CMOS 感光晶片表面的距離。",
+                tip: "設計用途：決定感光器與鏡頭光學終點的精確距離，也是調焦計算與模擬的核心數據。"
+            },
+            mbfl: {
+                category: "長度與後焦",
+                title: "機械後焦 MBFL",
+                value: "4.08 mm",
+                description: "鏡頭本體不含底座的最尾端金屬或塑膠邊緣，到 CMOS 感光晶片表面的安全距離。",
+                tip: "設計用途：確認鏡頭尾端是否與 Sensor、IR-Cut 或其他元件發生干涉。"
+            },
+            mount: {
+                category: "機構與座體",
+                title: "M12 × 0.5 鏡頭螺紋",
+                value: "Ø12 mm / 0.5 mm",
+                description: "鏡頭與底座的結合牙規為直徑 12 mm、螺距 0.5 mm 的細牙。",
+                tip: "設計用途：PCB 開孔、鏡頭座螺孔與外殼卡位都需依 M12 接口規格繪製；不要與 M6 接口混用。"
+            },
+            holder: {
+                category: "機構與座體",
+                title: "鏡頭座方框與整體寬度",
+                value: "17.5 × 17.5 mm",
+                description: "底座正方形本體中心向上下左右各延伸 8.75 mm，因此實際長寬為 17.5 mm。",
+                tip: "設計用途：可直接用於外殼腔體、固定耳避讓與 PCB 銅箔佈局。"
+            },
+            pitch: {
+                category: "機構與座體",
+                title: "固定螺絲孔距",
+                value: "11 mm / 總孔距 22 mm",
+                description: "上下固定耳孔中心距光學中心各為 11 mm。",
+                tip: "設計用途：上下方向孔中心需與光軸對稱放置；左右固定耳通常使用相同的機構邏輯。"
+            },
+            pin: {
+                category: "機構與座體",
+                title: "2 個 PCB 定位柱",
+                value: "2-Ø1.0 mm",
+                description: "鏡頭座右上與左下對角線各有一根直徑 1.0 mm 的定位凸柱。",
+                tip: "設計用途：PCB 上需有對應定位孔；定位柱可避免組裝歪斜，但不可與螺絲孔或感光元件元件干涉。"
+            },
+            through: {
+                category: "機構與座體",
+                title: "底座內部通光孔",
+                value: "Ø6.1 mm",
+                description: "鏡頭座底部的圓形通孔直徑，限制光線穿過底座投射至 Sensor 的有效範圍。",
+                tip: "設計用途：通孔應大於最終光錐投影；若製程無法保證同軸度，建議在後續驗證中預留公差。"
+            }
+        };
+
+        const hotspots = document.querySelectorAll(".hotspot");
+        const buttons = document.querySelectorAll(".filter-btn");
+        const detailCard = document.getElementById("detailCard");
+
+        function showDetail(id) {
+            const item = detailData[id];
+            if (!item) return;
+            hotspots.forEach(h => h.classList.toggle("active", h.dataset.id === id));
+            detailCard.innerHTML =
+                '<span class="detail-category">' + item.category + '</span>' +
+                '<h3>' + item.title + '</h3>' +
+                '<span class="value">' + item.value + '</span>' +
+                '<p>' + item.description + '</p>' +
+                '<div class="tip"><strong>' + item.tip.replace("：", "：</strong>") + '</div>';
+            detailCard.scrollIntoView({behavior: "smooth", block: "nearest"});
+        }
+
+        hotspots.forEach(hotspot => {
+            hotspot.addEventListener("click", () => showDetail(hotspot.dataset.id));
+        });
+
+        buttons.forEach(button => {
+            button.addEventListener("click", () => {
+                buttons.forEach(b => b.classList.remove("active"));
+                button.classList.add("active");
+                const filter = button.dataset.filter;
+                hotspots.forEach(hotspot => {
+                    hotspot.classList.toggle("dimmed", filter !== "all" && hotspot.dataset.category !== filter);
+                });
+            });
+        });
+
+        const backToTopButton = document.getElementById("back-to-top-btn");
+        window.onscroll = function() {
+            backToTopButton.style.display =
+                (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) ? "block" : "none";
+        };
+    </script>
+</body>
+</html>

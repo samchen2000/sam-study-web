@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>景深與超焦距互動計算器 | Sam's Study Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        .intro-note,
+        .formula,
+        .result-card,
+        .diagram-card {
+            background-color: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+        }
+
+        .intro-note {
+            border-left: 4px solid var(--color-accent);
+            padding: 0.8rem 1rem;
+            color: var(--color-primary-text);
+        }
+
+        .calculator-panel {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .field label,
+        fieldset legend {
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        .field input {
+            width: 100%;
+            min-height: 44px;
+            padding: 0.55rem 0.7rem;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            color: var(--color-primary-text);
+            font: inherit;
+        }
+
+        .field input:focus {
+            outline: 2px solid rgba(230, 126, 34, 0.3);
+            border-color: var(--color-accent);
+        }
+
+        .field small,
+        .help-text {
+            color: var(--color-secondary-text);
+            font-size: 0.88rem;
+        }
+
+        fieldset {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin: 1rem 0 0;
+            padding: 1rem;
+        }
+
+        .radio-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 0.4rem 0 1rem;
+        }
+
+        .radio-row label {
+            color: var(--color-primary-text);
+            cursor: pointer;
+        }
+
+        .coc-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        .primary-button {
+            border: none;
+            border-radius: 5px;
+            background: var(--color-accent);
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            padding: 0.65rem 1.4rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .primary-button:hover {
+            background: #d35400;
+        }
+
+        .error-message {
+            min-height: 1.5rem;
+            margin: 0.5rem 0 0;
+            color: #a93226;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .result-card {
+            padding: 0.9rem;
+            min-width: 0;
+        }
+
+        .result-card h3 {
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            border: 0;
+            margin: 0 0 0.35rem;
+            padding: 0;
+        }
+
+        .result-value {
+            color: var(--color-primary-text);
+            font-size: 1.15rem;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .comparison-panel {
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .comparison-panel h3 {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            border: 0;
+            margin: 0 0 0.6rem;
+            padding: 0;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        .comparison-grid div {
+            min-width: 0;
+        }
+
+        .comparison-grid span {
+            display: block;
+            color: var(--color-secondary-text);
+            font-size: 0.9rem;
+        }
+
+        .comparison-grid strong {
+            display: block;
+            overflow-wrap: anywhere;
+        }
+
+        .formula {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 0.8rem;
+            color: var(--color-primary-text);
+            font-family: 'Courier New', monospace;
+            line-height: 1.9;
+        }
+
+        .diagram-card {
+            padding: 1rem;
+            background: #fff;
+        }
+
+        .diagram-card h3 {
+            font-family: var(--font-body);
+            font-size: 1.05rem;
+            border: 0;
+            margin: 0 0 0.4rem;
+            padding: 0;
+        }
+
+        .visual-guide {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .visual-guide img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto 0.5rem;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+        }
+
+        .visual-guide figcaption {
+            color: var(--color-secondary-text);
+            font-size: 0.9rem;
+        }
+
+        .depth-axis {
+            height: 28px;
+            position: relative;
+            margin: 2.4rem 0 0.5rem;
+            border-radius: 14px;
+            background: #f0f0f0;
+        }
+
+        .depth-range {
+            position: absolute;
+            top: 5px;
+            height: 18px;
+            min-width: 2px;
+            border-radius: 10px;
+            background: rgba(230, 126, 34, 0.55);
+        }
+
+        .focus-marker {
+            position: absolute;
+            top: -8px;
+            height: 44px;
+            width: 3px;
+            background: var(--color-primary-text);
+            transform: translateX(-50%);
+        }
+
+        .focus-marker::before {
+            content: "對焦";
+            position: absolute;
+            top: -1.7rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--color-primary-text);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .axis-labels {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 1rem 0 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            min-width: 680px;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 0.7rem;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--color-subtle-bg);
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+        }
+
+        tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 0.8rem 1rem;
+            }
+
+            .navbar-content {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .main-content {
+                padding: 1.25rem 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .input-grid,
+            .coc-fields,
+            .result-grid,
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="Focus_distance_explanation.html">景深原理</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1>景深與超焦距互動計算器</h1>
+            <p>輸入焦距、光圈與允許彌散圓直徑，計算建議對焦距離；也可以查看不同對焦位置的近、遠景深變化。</p>
+            <p class="intro-note">
+                <strong>關於「最大景深」：</strong>
+                對焦距離接近超焦距時，後景深會持續增加；在超焦距處遠景深延伸至無限遠，
+                因此「前景深＋後景深」沒有有限的最大值。本工具以精確超焦距作為最大景深的建議對焦位置。
+            </p>
+
+            <h2>輸入參數</h2>
+            <form id="calculator" class="calculator-panel" novalidate>
+                <div class="input-grid">
+                    <div class="field">
+                        <label for="focal-length">鏡頭焦距 f（mm）</label>
+                        <input id="focal-length" name="focalLength" type="number" min="0" step="any" value="2.5" required>
+                    </div>
+                    <div class="field">
+                        <label for="f-number">光圈值 N（例如 f/8 輸入 8）</label>
+                        <input id="f-number" name="fNumber" type="number" min="0" step="any" value="2.8" required>
+                    </div>
+                </div>
+
+                <fieldset>
+                    <legend>允許彌散圓直徑 CoC</legend>
+                    <div class="radio-row">
+                        <label><input type="radio" name="coc-mode" value="pixel" checked> 像素大小 × 倍數</label>
+                        <label><input type="radio" name="coc-mode" value="direct"> 直接輸入 CoC</label>
+                    </div>
+                    <div id="pixel-fields" class="coc-fields">
+                        <div class="field">
+                            <label for="pixel-size">像素大小（mm）</label>
+                            <input id="pixel-size" type="number" min="0" step="any" value="0.002">
+                            <small>例如 2 μm = 0.002 mm</small>
+                        </div>
+                        <div class="field">
+                            <label for="pixel-multiplier">像素倍數</label>
+                            <input id="pixel-multiplier" type="number" min="0" step="any" value="2">
+                        </div>
+                    </div>
+                    <div id="direct-fields" class="field" hidden>
+                        <label for="direct-coc">允許彌散圓直徑（mm）</label>
+                        <input id="direct-coc" type="number" min="0" step="any" value="0.03">
+                    </div>
+                </fieldset>
+
+                <div class="field" style="margin-top: 1rem;">
+                    <label for="comparison-distance">比較用對焦距離（mm，可留白以超焦距計算）</label>
+                    <input id="comparison-distance" type="number" min="0" step="any" placeholder="留白時使用精確超焦距">
+                </div>
+                <div class="actions">
+                    <button class="primary-button" type="submit">計算景深</button>
+                </div>
+                <p id="error-message" class="error-message" role="alert"></p>
+            </form>
+
+            <h2>計算結果與超焦距比較</h2>
+            <div class="result-grid" aria-live="polite">
+                <div class="result-card">
+                    <h3>計算後 CoC</h3>
+                    <div id="result-coc" class="result-value">—</div>
+                </div>
+                <div class="result-card">
+                    <h3>最大景深建議對焦距離（精確超焦距）</h3>
+                    <div id="result-hyperfocal" class="result-value">—</div>
+                </div>
+                <div class="result-card">
+                    <h3>簡化超焦距 f²/(N × CoC)</h3>
+                    <div id="result-simple-hyperfocal" class="result-value">—</div>
+                </div>
+            </div>
+            <p id="hyperfocal-difference" class="help-text"></p>
+
+            <div class="comparison-panel">
+                <h3>指定對焦距離的景深結果</h3>
+                <div class="comparison-grid">
+                    <div><span>比較用對焦距離</span><strong id="result-focus">—</strong></div>
+                    <div><span>近景深界限</span><strong id="result-near">—</strong></div>
+                    <div><span>遠景深界限</span><strong id="result-far">—</strong></div>
+                    <div><span>前景深</span><strong id="result-front-depth">—</strong></div>
+                    <div><span>後景深</span><strong id="result-rear-depth">—</strong></div>
+                    <div><span>前景深＋後景深</span><strong id="result-total-depth">—</strong></div>
+                </div>
+            </div>
+
+            <h2>對焦距離與景深範圍示意</h2>
+            <div class="diagram-card">
+                <h3>比較用對焦位置的清晰範圍</h3>
+                <p id="diagram-caption" class="help-text">橘色區段為近、遠景深範圍，深藍標線為對焦位置。</p>
+                <div class="depth-axis" aria-hidden="true">
+                    <div id="depth-range" class="depth-range"></div>
+                    <div id="focus-marker" class="focus-marker"></div>
+                </div>
+                <div class="axis-labels">
+                    <span id="axis-near">近景：—</span>
+                    <span id="axis-far">遠景：—</span>
+                </div>
+            </div>
+            <figure class="visual-guide">
+                <img src="../image/Study_note_image/lens_focus/%E6%99%AF%E6%B7%B1%E8%88%87%E8%B6%85%E7%84%A6%E8%B7%9D%E7%A4%BA%E6%84%8F%E5%9C%96.svg"
+                     alt="景深與超焦距示意：對焦於超焦距時，近景深界限約為超焦距的一半，遠景深延伸至無限遠">
+                <figcaption>CoC、精確超焦距與不同對焦位置景深變化示意</figcaption>
+            </figure>
+
+            <h2>不同對焦距離的景深比較表</h2>
+            <p>以下以精確超焦距 H 的比例列出對焦位置。當對焦距離達到 H，遠景深與總景深均延伸至無限遠。</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">對焦距離</th>
+                            <th scope="col">近景深界限</th>
+                            <th scope="col">遠景深界限</th>
+                            <th scope="col">前景深</th>
+                            <th scope="col">後景深</th>
+                            <th scope="col">總景深</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depth-table-body">
+                        <tr><td colspan="6">輸入參數後即時更新。</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>公式與使用說明</h2>
+            <div class="formula">
+                CoC = 像素大小 × 倍數<br>
+                精確超焦距 H = f² / (N × CoC) + f<br>
+                簡化超焦距 H′ = f² / (N × CoC)
+            </div>
+            <p>景深界限使用包含薄透鏡焦距項的公式，其中 s 為對焦距離：</p>
+            <div class="formula">
+                近景深界限 = s × f² / [f² + N × CoC × (s − f)]<br>
+                遠景深界限 = s × f² / [f² − N × CoC × (s − f)]
+            </div>
+            <p class="help-text">
+                當 s ≥ H 時，遠景深界限視為無限遠。焦距、對焦距離與 CoC 請使用相同單位（mm）。
+                此薄透鏡計算未考慮鏡頭像差、繞射及微距倍率等因素；微距攝影時結果可能不適用。
+            </p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const calculator = document.getElementById("calculator");
+        const pixelFields = document.getElementById("pixel-fields");
+        const directFields = document.getElementById("direct-fields");
+        const errorMessage = document.getElementById("error-message");
+        const tableBody = document.getElementById("depth-table-body");
+        const numberFormat = new Intl.NumberFormat("zh-TW", {
+            maximumFractionDigits: 3
+        });
+
+        function formatDistance(distanceMm) {
+            if (!Number.isFinite(distanceMm)) {
+                return "無限遠";
+            }
+            if (distanceMm >= 1000) {
+                return `${numberFormat.format(distanceMm / 1000)} m（${numberFormat.format(distanceMm)} mm）`;
+            }
+            return `${numberFormat.format(distanceMm)} mm`;
+        }
+
+        function readPositiveNumber(id, label) {
+            const value = Number(document.getElementById(id).value);
+            if (!Number.isFinite(value) || value <= 0) {
+                throw new Error(`${label}必須是大於 0 的有效數值。`);
+            }
+            return value;
+        }
+
+        function getDepth(focalLength, fNumber, coc, focusDistance, hyperfocal) {
+            if (focusDistance <= focalLength) {
+                throw new Error("對焦距離必須大於焦距，請增加比較用對焦距離。");
+            }
+
+            const focalSquared = focalLength * focalLength;
+            const apertureCoc = fNumber * coc;
+            const distanceFromFocalPlane = focusDistance - focalLength;
+            const nearLimit = focusDistance * focalSquared
+                / (focalSquared + apertureCoc * distanceFromFocalPlane);
+            const farDenominator = focalSquared - apertureCoc * distanceFromFocalPlane;
+            const farLimit = focusDistance >= hyperfocal || farDenominator <= 0
+                ? Infinity
+                : focusDistance * focalSquared / farDenominator;
+
+            return {
+                nearLimit,
+                farLimit,
+                frontDepth: focusDistance - nearLimit,
+                rearDepth: farLimit - focusDistance
+            };
+        }
+
+        function renderTable(focalLength, fNumber, coc, hyperfocal) {
+            const ratios = [0.5, 0.75, 0.9, 0.99, 1, 1.1];
+            const rows = ratios
+                .map((ratio) => ({ ratio, distance: hyperfocal * ratio }))
+                .filter((item) => item.distance > focalLength);
+
+            tableBody.replaceChildren();
+            rows.forEach(({ ratio, distance }) => {
+                const depth = getDepth(focalLength, fNumber, coc, distance, hyperfocal);
+                const cells = [
+                    `${numberFormat.format(ratio)} × H（${formatDistance(distance)}）`,
+                    formatDistance(depth.nearLimit),
+                    formatDistance(depth.farLimit),
+                    formatDistance(depth.frontDepth),
+                    formatDistance(depth.rearDepth),
+                    formatDistance(depth.frontDepth + depth.rearDepth)
+                ];
+                const row = document.createElement("tr");
+                cells.forEach((value) => {
+                    const cell = document.createElement("td");
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateDiagram(focusDistance, depth, hyperfocal) {
+            const axisMaximum = Math.max(hyperfocal * 2, focusDistance * 1.25);
+            const nearPercent = Math.min(100, depth.nearLimit / axisMaximum * 100);
+            const focusPercent = Math.min(100, focusDistance / axisMaximum * 100);
+            const farPercent = Number.isFinite(depth.farLimit)
+                ? Math.min(100, depth.farLimit / axisMaximum * 100)
+                : 100;
+            const range = document.getElementById("depth-range");
+            const marker = document.getElementById("focus-marker");
+
+            range.style.left = `${nearPercent}%`;
+            range.style.width = `${Math.max(0, farPercent - nearPercent)}%`;
+            marker.style.left = `${focusPercent}%`;
+            document.getElementById("axis-near").textContent =
+                `近景界限：${formatDistance(depth.nearLimit)}`;
+            document.getElementById("axis-far").textContent =
+                `遠景界限：${formatDistance(depth.farLimit)}`;
+            document.getElementById("diagram-caption").textContent =
+                `橘色區段為近、遠景深範圍，深藍標線為對焦位置；示意軸上限 ${formatDistance(axisMaximum)}。`;
+        }
+
+        function calculate() {
+            try {
+                const focalLength = readPositiveNumber("focal-length", "鏡頭焦距");
+                const fNumber = readPositiveNumber("f-number", "光圈值");
+                const cocMode = document.querySelector('input[name="coc-mode"]:checked').value;
+                const coc = cocMode === "pixel"
+                    ? readPositiveNumber("pixel-size", "像素大小")
+                        * readPositiveNumber("pixel-multiplier", "像素倍數")
+                    : readPositiveNumber("direct-coc", "允許彌散圓直徑");
+
+                if (!Number.isFinite(coc) || coc <= 0) {
+                    throw new Error("允許彌散圓直徑計算結果超出有效範圍。");
+                }
+
+                const simplifiedHyperfocal = focalLength * focalLength / (fNumber * coc);
+                const hyperfocal = simplifiedHyperfocal + focalLength;
+                if (!Number.isFinite(hyperfocal)) {
+                    throw new Error("超焦距計算結果超出有效範圍，請檢查輸入數值。");
+                }
+
+                const focusInput = document.getElementById("comparison-distance").value.trim();
+                const comparisonFocus = focusInput
+                    ? Number(focusInput)
+                    : hyperfocal;
+                if (!Number.isFinite(comparisonFocus) || comparisonFocus <= 0) {
+                    throw new Error("比較用對焦距離必須是大於 0 的有效數值。");
+                }
+
+                const depth = getDepth(
+                    focalLength, fNumber, coc, comparisonFocus, hyperfocal
+                );
+                const totalDepth = depth.farLimit === Infinity
+                    ? Infinity
+                    : depth.frontDepth + depth.rearDepth;
+
+                document.getElementById("result-coc").textContent =
+                    `${numberFormat.format(coc)} mm`;
+                document.getElementById("result-hyperfocal").textContent =
+                    formatDistance(hyperfocal);
+                document.getElementById("result-simple-hyperfocal").textContent =
+                    formatDistance(simplifiedHyperfocal);
+                document.getElementById("hyperfocal-difference").textContent =
+                    `精確超焦距比簡化值多出焦距 f：${formatDistance(focalLength)}。`;
+                document.getElementById("result-focus").textContent =
+                    formatDistance(comparisonFocus);
+                document.getElementById("result-near").textContent =
+                    formatDistance(depth.nearLimit);
+                document.getElementById("result-far").textContent =
+                    formatDistance(depth.farLimit);
+                document.getElementById("result-front-depth").textContent =
+                    formatDistance(depth.frontDepth);
+                document.getElementById("result-rear-depth").textContent =
+                    formatDistance(depth.rearDepth);
+                document.getElementById("result-total-depth").textContent =
+                    formatDistance(totalDepth);
+                updateDiagram(comparisonFocus, depth, hyperfocal);
+                renderTable(focalLength, fNumber, coc, hyperfocal);
+                errorMessage.textContent = "";
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                [
+                    "result-coc",
+                    "result-hyperfocal",
+                    "result-simple-hyperfocal",
+                    "result-focus",
+                    "result-near",
+                    "result-far",
+                    "result-front-depth",
+                    "result-rear-depth",
+                    "result-total-depth"
+                ].forEach((id) => {
+                    document.getElementById(id).textContent = "—";
+                });
+                document.getElementById("hyperfocal-difference").textContent = "";
+                document.getElementById("depth-range").style.width = "0";
+                document.getElementById("focus-marker").style.left = "0";
+                document.getElementById("axis-near").textContent = "近景界限：—";
+                document.getElementById("axis-far").textContent = "遠景界限：—";
+                document.getElementById("diagram-caption").textContent = "修正輸入參數後顯示景深範圍。";
+                tableBody.replaceChildren();
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+                cell.colSpan = 6;
+                cell.textContent = "請修正輸入參數後重新計算。";
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+            }
+        }
+
+        calculator.addEventListener("submit", (event) => {
+            event.preventDefault();
+            calculate();
+        });
+        calculator.addEventListener("input", calculate);
+        calculator.addEventListener("change", (event) => {
+            if (event.target.name === "coc-mode") {
+                const isPixelMode = event.target.value === "pixel";
+                pixelFields.hidden = !isPixelMode;
+                directFields.hidden = isPixelMode;
+            }
+            calculate();
+        });
+
+        calculate();
+    </script>
+</body>
+</html>

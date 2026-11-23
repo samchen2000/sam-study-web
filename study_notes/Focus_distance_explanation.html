@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>對焦距離光學計算與說明 | Sam's Study Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FDFDFD;
+            --color-primary-text: #2C3E50;
+            --color-secondary-text: #6A737D;
+            --color-accent: #E67E22;
+            --color-subtle-bg: #FFFBE6;
+            --font-heading: 'Noto Serif TC', serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-secondary-text);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            color: var(--color-primary-text);
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom-width: 2px;
+            margin-top: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            border-bottom-style: dashed;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            border-bottom: none;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul, ol {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        strong {
+            color: var(--color-primary-text);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        blockquote {
+            border-left: 4px solid var(--color-accent);
+            margin: 1.5rem 0;
+            padding: 0.7rem 1rem;
+            background-color: #fff8f0;
+            color: var(--color-primary-text);
+        }
+
+        .formula {
+            text-align: center;
+            font-style: italic;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            line-height: 1.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        table th, table td {
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        table th {
+            background-color: var(--color-subtle-bg);
+            color: var(--color-primary-text);
+            font-weight: 700;
+        }
+
+        table tr:hover {
+            background-color: #fafafa;
+        }
+
+        .navbar {
+            background-color: var(--color-primary-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-bg);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            color: var(--color-secondary-text);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #back-to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+            text-decoration: none;
+        }
+
+        #back-to-top-btn:hover {
+            background-color: #d35400;
+        }
+
+        .emoji {
+            display: inline-block;
+            font-size: 1.3rem;
+            margin-right: 0.5rem;
+        }
+
+        sub {
+            vertical-align: baseline;
+            position: relative;
+            bottom: -0.4em;
+        }
+    
+        figure {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        figure img {
+            display: block;
+            margin: 1.5rem auto 0.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        figcaption {
+            color: var(--color-secondary-text);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .math-inline {
+            font-family: 'Courier New', monospace;
+            color: var(--color-primary-text);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .table-wrapper table {
+            margin: 0;
+            min-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">Sam's Study Notes</a>
+            <div class="nav-links">
+                <a href="../index.html">首頁</a>
+                <a href="../study_notes.html">文章</a>
+                <a href="#">關於我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+<h1>光學鏡頭計算對焦距離的方式與原理</h1>
+<h2>光學鏡頭「最佳焦距（Optimal Focal Length）」並沒有單一公式，而是依據拍攝目標、空間限制、感光元件尺寸與光學成像原理來推算的結果。</h2>
+<figure>
+    <img src="../image/Study_note_image/lens_focus/%E9%8F%A1%E9%A0%AD%E5%85%89%E5%AD%B8%E5%8F%83%E6%95%B8%E5%9C%96.jpg" alt="鏡頭光學參數圖" title="鏡頭光學參數圖">
+    <figcaption>鏡頭光學參數圖</figcaption>
+</figure>
+<p>在不同應用場景中，計算最佳焦距的核心原理與公式可分為以下四大類：</p>
+<h2>1. 幾何成像與構圖原理（機器視覺、監控與商業拍攝最常用）</h2>
+<p>當你需要讓特定大小的物體，在固定距離下剛好填滿感光元件（Sensor）時，是透過薄透鏡成像公式與相似三角形原理來計算：</p>
+<h2><span class="formula">f = (h × D) / H</span></h2>
+<ul>
+<li>
+<h3>f：所需鏡頭焦距（mm）</h3>
+</li>
+<li>
+<h3>h：感光元件有效高度或寬度（mm，需對應物體方向）</h3>
+</li>
+<li>
+<h3>D：鏡頭到被攝物體的距離（工作距離 Working Distance）</h3>
+</li>
+<li>
+<h3>H：被攝物體的實際高度或寬度（必須全部納入畫面的視野大小 FOV）</h3>
+</li>
+</ul>
+<pre><code>範例：感光元件高度 h = 15 mm，在 D = 2000 mm（2公尺）外要拍下高 H = 1000 mm（1公尺）的物體，最佳焦距 f = (15 × 2000) / 1000 = 30 mm。
+</code></pre>
+<h2>2. 視角匹配原理（自然透視與人眼視覺還原）</h2>
+<p>在一般攝影與電影製作中，若希望照片的空間透視感（近大遠小的比例）最接近人眼自然所見，最佳焦距稱為「標準焦距」，其計算原理是讓焦距等於感光元件的對角線長度：</p>
+<h2><span class="formula">f<sub>std</sub> = √(W² + H²)</span></h2>
+<ul>
+<li>
+<h3>W, H：感光元件的寬度與高度（mm）</h3>
+</li>
+<li>
+<h3>全片幅（36 × 24 mm）：對角線約為 43.3 mm（實務上常以 40mm–50mm 作為標準鏡頭，對應約 46°–53° 的人眼自然注意力視角）。</h3>
+</li>
+<li>
+<h3>APS-C（23.5 × 15.6 mm）：對角線約為 28.3 mm。</h3>
+</li>
+</ul>
+<h2>3. 空間解析度與細節辨識原理（天文、顯微、工業檢測）</h2>
+<p>當拍攝目標是「看清楚極小細節」時，最佳焦距取決於奈奎斯特採樣定理（Nyquist Sampling Theorem），目的是讓鏡頭的光學分辨率（繞射極限）剛好匹配感光元件的像素大小（Pixel Pitch）：</p>
+<h2><span class="formula">f<sub>opt</sub> ≈ (D<sub>lens</sub> × p) / (0.61 × λ)</span></h2>
+<ul>
+<li>
+<h3>D<sub>lens</sub>：鏡頭有效入瞳直徑（mm）</h3>
+</li>
+<li>
+<h3>p：感光元件單一像素尺寸（μm）</h3>
+</li>
+<li>
+<h3>λ：光線波長（可見光約 0.55 μm）</h3>
+</li>
+<li>
+<h3>核心邏輯：焦距太短會導致「欠採樣」，細節全擠在同一個像素裡無法分辨；焦距過長則會「過採樣」，不僅畫面變暗、視野變窄，也會因繞射而無法增加真實細節。</h3>
+</li>
+</ul>
+<h2>4. 透視壓縮與背景虛化需求（人像與產品攝影）</h2>
+<p>在人像或空間攝影中，焦距決定了「主體與背景的大小比例（壓縮感）」以及「背景虛化程度」：</p>
+<ul>
+<li>
+<h3>背景虛化上限公式：當拍攝距離固定、主體在畫面中大小不變時，背景光斑的模糊直徑正比於鏡頭的有效光圈直徑（f / N）。因此，在光圈值 N 相同的情況下，焦距 f 越長，虛化能力越強。</h3>
+</li>
+<li>
+<h3>臉部透視不變形原則：距離人臉過近（如 1 公尺內）會因透視原理造成鼻子變大、耳朵變小；實務上會先設定 2–3 公尺 的舒適拍攝距離，再反推能拍出半身或特寫的焦距（全片幅約 85mm–135mm）。</h3>
+</li>
+</ul>
+<h2>如何快速選擇對應的計算方式？</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>你的拍攝目的</th>
+<th>採用的核心原理</th>
+<th>決定焦距的關鍵變數</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>拍下完整物體 / 機器視覺</td>
+<td>相似三角形幾何投影</td>
+<td>拍攝距離、物體尺寸、感光元件尺寸</td>
+</tr>
+<tr>
+<td>紀實街拍 / 自然透視感</td>
+<td>感光元件對角線匹配</td>
+<td>感光元件長寬比與對角線長度</td>
+</tr>
+<tr>
+<td>遙遠目標 / 顯微細節辨識</td>
+<td>光學繞射與像素採樣匹配</td>
+<td>像素間距（Pixel Pitch）、鏡頭口徑</td>
+</tr>
+<tr>
+<td>人像特寫 / 強烈背景虛化</td>
+<td>透視比例與入瞳直徑控制</td>
+<td>舒適拍攝距離、最大光圈值</td>
+</tr>
+</tbody>
+</table></div>
+<h1>計算景深</h1>
+<figure>
+    <img src="../image/Study_note_image/lens_focus/%E5%B0%8D%E7%84%A6%E6%9C%80%E4%BD%B3%E8%B7%9D%E9%9B%A2%E5%85%AC%E5%BC%8F.jfif" alt="景深計算公式" title="景深計算公式">
+    <figcaption>景深計算公式</figcaption>
+</figure>
+<p>這組公式是基於幾何光學的「薄透鏡成像原理」與「相似三角形定理」推導而來，且套用了「拍攝距離遠大於焦距 L ≫ f」的近似條件；而公式中的允許彌散圓直徑 δ，則需依據感光元件尺寸、像素密度或最終觀看距離來設定。</p>
+<h2>一、 圖片公式的符號定義</h2>
+<p>在套用圖片中的公式前，先確認四個變數的物理意義</p>
+<ul>
+<li>
+<h3><span class="math-inline">f</span>：鏡頭焦距</h3>
+</li>
+<li>
+<h3><span class="math-inline">F</span>：光圈值（F-number，如 f/8 則代入 8）</h3>
+</li>
+<li>
+<h3><span class="math-inline">L</span>：對焦距離（鏡頭主平面到對焦平面的距離）</h3>
+</li>
+<li>
+<h3>δ：允許彌散圓直徑（Circle of Confusion, CoC）</h3>
+</li>
+</ul>
+<h2>二、 計算原理與 4 項使用要求</h2>
+<h3>1. 幾何光學推導原理</h3>
+<p>當鏡頭對焦在距離 L 處時，該平面的光點會在感光元件上匯聚成一個清晰的點；但位於 L 前方 ΔL<sub>1</sub> 或後方 ΔL<sub>2</sub> 的物體，其光線在感光元件上會提前匯聚或尚未匯聚，形成一個圓形光斑。透過薄透鏡成像公式 (1/u + 1/v = 1/f) 與光圈孔徑 (D = f/F) 構成的相似三角形比例，限制光斑直徑不超過 δ，即可解出前後景深範圍。</p>
+<h3>2. 套用此組公式的 4 項關鍵要求</h3>
+<ul>
+<li>
+<h4>要求一：拍攝距離必須遠大於焦距 L ≫ f</h4>
+</li>
+</ul>
+<p>完整的精確景深公式分子與分母中應包含 (L - f)。圖片中的公式已將 (L - f) 簡化為 L，因此僅適用於一般中遠距離拍攝；若用於「微距攝影」（L 與 f 非常接近），此公式會產生明顯誤差，必須改用包含放大倍率 m 的微距景深公式。</p>
+<ul>
+<li>
+<h4>要求二：所有長度單位必須完全統一</h4>
+</li>
+</ul>
+<p>計算時，焦距 f、對焦距離 L 與彌散圓 δ 必須換算成相同單位（通常統一為毫米 mm）。例如 L = 5 公尺必須代入 5000，否則算出的數值會完全錯誤。</p>
+<ul>
+<li>
+<h4>要求三：需滿足超焦距邊界條件 (f² &gt; FδL)</h4>
+</li>
+</ul>
+<p>觀察第 (2) 式的分母 (f² - FδL)：當對焦距離 L 大於或等於超焦距 H = f²/(Fδ) 時，分母會變成 0 或負數，代表後景深 ΔL<sub>2</sub> 已延伸至無限遠（∞），此時第 (3) 式的總景深公式便不再適用。</p>
+<ul>
+<li>
+<h4>要求四：理想近軸光學假設</h4>
+</li>
+</ul>
+<p>公式未計入鏡頭像差（如球面像差、場曲）以及極小光圈下的光學繞射（Diffraction）影響；實務上若光圈縮得太小，即使公式算出的景深很大，整體畫面也會因繞射而變軟。</p>
+<h2>三、 允許彌散圓直徑（δ）的設定方法</h2>
+<p>δ 代表你對「畫面多模糊才算失去焦點」的容忍上限。設定 δ 時，需根據應用領域選擇對應標準：</p>
+<h3>1. 一般攝影與視覺輸出標準（人眼觀看基準）</h3>
+<p>以「照片沖印成 8×10 吋、在 25–30 公分明視距離觀看」為基準，通常設為感光元件對角線長度的 1/1500：</p>
+<ul>
+<li>
+<h4>全片幅（36×24 mm）：δ ≈ 0.029 – 0.030 mm</h4>
+</li>
+<li>
+<h4>APS-C 片幅：δ ≈ 0.018 – 0.019 mm</h4>
+</li>
+<li>
+<h4>M4/3 片幅：δ ≈ 0.014 – 0.015 mm</h4>
+</li>
+</ul>
+<h3>2. 高畫素數位檢視標準（100% 放大檢視）</h3>
+<p>現代高畫素相機若在電腦螢幕上 100% 放大檢視，傳統標準會顯得過於寬鬆（看起來仍不夠銳利）。此時建議將 δ 設為單一像素間距（Pixel Pitch）的 2 到 3 倍（全片幅高畫素機身通常會下修至 0.015 mm – 0.020 mm）。</p>
+<h3>3. 工業機器視覺與光學檢測標準（精密測量基準）</h3>
+<p>在工業檢測中，畫面需要極高的邊緣銳利度以供演算法判讀，因此設定最為嚴格：</p>
+<ul>
+<li>通常直接將 δ 設為相機感光元件的 1 至 2 個像元尺寸（Pixel Size）（例如像元為 3.45 μm 的工業相機，δ 會設為 0.00345 mm – 0.0069 mm）。</li>
+</ul>
+<figure>
+    <img src="../image/Study_note_image/lens_focus/%E6%9C%80%E4%BD%B3%E5%B0%8D%E7%84%A6%E8%B7%9D%E9%9B%A2%E8%A8%88%E7%AE%97.PNG" alt="最佳對焦距離計算" title="最佳對焦距離計算">
+    <figcaption>最佳對焦距離計算</figcaption>
+</figure>
+<figure>
+    <img src="../image/Study_note_image/lens_focus/%E5%B0%8D%E7%84%A6%E8%B7%9D%E9%9B%A2%E5%B0%8D%E6%87%89%E6%99%AF%E6%B7%B1%E5%9C%96.png" alt="對焦距離對應景深圖" title="對焦距離對應景深圖">
+    <figcaption>對焦距離對應景深圖</figcaption>
+</figure>
+<p><strong><a href="Depth_of_field_calculator.html">開啟互動式景深計算器：計算 CoC、超焦距並比較不同對焦距離的景深</a></strong></p>
+<h1>計算超焦距</h1>
+<p>在攝影中要讓畫面從近到遠盡可能清晰（求最大景深／最遠清晰範圍），關鍵在於超焦距（Hyperfocal Distance）。當對焦在超焦距位置時，清晰範圍會從超焦距的一半延伸到無限遠（∞）。</p>
+<h2>最遠對焦距離（景深遠端）計算公式</h2>
+<p>若你已選定焦距、光圈與對焦距離，景深範圍的最遠清晰距離（D<sub>far</sub>）可用以下公式估算：</p>
+<h2><span class="formula">D<sub>far</sub> = (H × s) / [H - (s - f)]</span></h2>
+<ul>
+<li>
+<h4>H（超焦距）：H ≈ f²/(N × c) + f</h4>
+</li>
+</ul>
+<figure>
+    <img src="../image/Study_note_image/lens_focus/%E8%B6%85%E7%84%A6%E8%B7%9D%E8%A8%88%E7%AE%97.PNG" alt="超焦距計算" title="超焦距計算">
+    <figcaption>超焦距計算</figcaption>
+</figure>
+<ul>
+<li>
+<h4><span class="math-inline">f</span>：鏡頭焦距（例如 24mm）</h4>
+</li>
+<li>
+<h4><span class="math-inline">N</span>：光圈值（f-number，例如 8、16）</h4>
+</li>
+<li>
+<h4><span class="math-inline">c</span>：容許彌散圓直徑（Circle of Confusion，全片幅常見約 0.029mm–0.03mm，APSC 約 0.019mm–0.02mm）</h4>
+</li>
+<li>
+<h4><span class="math-inline">s</span>：實際對焦距離</h4>
+</li>
+</ul>
+<h3>重點結論：當對焦距離 s ≥ H 時，最遠清晰距離即為無限遠（∞）；若 s &lt; H，則可依上式算出最遠清晰距離，當 s = H/2 時，最近清晰距離約為 H/4，最遠清晰距離為 H。</h3>
+<hr>
+<h1>鏡頭彌散圓(模糊圓)</h1>
+<p>容許彌散圓（Circle of Confusion, CoC）是指在感光元件上，人眼在標準觀看條件下仍能辨識為「清晰點」的最大光斑直徑。
+當點光源未精準對焦時，光線在感光元件上會成像為一個圓形光斑（即彌散圓）。只要這個圓小於「容許彌散圓直徑(<span class="math-inline">c</span>)」，人眼看起來就是銳利的；一旦超過這個數值，畫面就會開始變得模糊。</p>
+<h3>1. 常見的標準計算方式（蔡司公式）</h3>
+<p>在傳統光學與攝影計算中，最通用的經驗公式是將感光元件對角線長度除以 1500（或 1730）：</p>
+<h2><span class="formula">c ≈ 感光元件對角線長度 (mm) / 1500</span></h2>
+<ul>
+<li>計算基準假設：將照片放大成約 8×10 吋（對角線約 30–32 公分），並在約 25–30 公分 的明視距離下觀看，配合人眼正常的角分辨率（約 1 角分）所推導出的標準。</li>
+</ul>
+<h3>2. 各片幅的常用容許彌散圓參考值</h3>
+<p>不同感光元件尺寸會對應不同的標準數值（若除以 1500 為基準）：</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>片幅規格</th>
+<th>感光元件尺寸 (約)</th>
+<th>對角線長度 (約)</th>
+<th>容許彌散圓直徑 (<span class="math-inline">c</span>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中片幅 (44×33)</td>
+<td>43.8 × 32.9 mm</td>
+<td>54.8 mm	0.036 mm</td>
+<td></td>
+</tr>
+<tr>
+<td>全片幅 (Full Frame)</td>
+<td>36.0 × 24.0 mm</td>
+<td>43.3 mm</td>
+<td>0.029 – 0.030 mm</td>
+</tr>
+<tr>
+<td>APS-C (Canon)</td>
+<td>22.3 × 14.9 mm</td>
+<td>26.8 mm</td>
+<td>0.018 mm</td>
+</tr>
+<tr>
+<td>APS-C (Sony/Nikon/Fuji)</td>
+<td>23.5 × 15.6 mm</td>
+<td>28.3 mm</td>
+<td>0.019 mm</td>
+</tr>
+<tr>
+<td>M4/3 (Micro Four Thirds)</td>
+<td>17.3 × 13.0 mm</td>
+<td>21.6 mm</td>
+<td>0.014 – 0.015 mm</td>
+</tr>
+<tr>
+<td>1 吋感光元件</td>
+<td>13.2 × 8.8 mm</td>
+<td>15.9 mm</td>
+<td>0.011 mm</td>
+</tr>
+</tbody>
+</table></div>
+<h3>3. 數位時代的實務調整原則</h3>
+<p>傳統的 對角線 / 1500 基準較為寬鬆，現代高畫素相機與大螢幕檢視常需要更嚴格的標準：</p>
+<ul>
+<li>
+<h4>100% 放大檢視或高畫素機身（如 4500 萬畫素以上）：若你習慣在電腦螢幕上 100% 放大看細節，建議將 (<span class="math-inline">c</span>) 值縮小（例如全片幅改用 0.015 mm 至 0.020 mm，或直接以 2 到 3 個像素寬度作為容許上限），這樣算出來的景深與超焦距會更保險、更銳利。</h4>
+</li>
+<li>
+<h4>社群媒體縮圖或手機觀看：觀看尺寸小，對模糊的容忍度高，直接使用標準值（如全片幅 0.030 mm）即可。</h4>
+</li>
+</ul>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sam's Study Notes. All Rights Reserved.</p>
+    </footer>
+
+    <a href="#" id="back-to-top-btn" title="回到頂部">↑</a>
+
+    <script>
+        const backToTopButton = document.getElementById("back-to-top-btn");
+
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        }
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

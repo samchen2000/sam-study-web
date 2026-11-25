@@ -160,6 +160,108 @@ p {
 3. Flexbox排版基礎 
 4. 常見版型解析
 ### 上課前學習
+#### 學習網頁版面配置的核心，在於先理解「盒子模型（Box Model）」與語意化區塊標籤，再透過 Flexbox 進行一維彈性排列。
+一、 區塊概念：`div` 與 `section` 的差異
+在網頁設計中，畫面是由無數個矩形「區塊（Block）」堆疊而成的。
+- `<div>`（純粹的容器）：
+	- 本身沒有任何語意，就像一個透明的紙箱。
+	- 用途：純粹為了「排版」或「套用 CSS 樣式」而把元素包在一起（例如：把三個卡片包起來做左右排列）。
+- `（有語意的區塊）：**
+    - 代表網頁中一個獨立的「主題區域」，通常裡面會有一個標題（<h2> ~ <h6>）。
+    - 用途：劃分頁面結構（例如：關於我們、產品介紹、聯絡表單），有助於搜尋引擎優化（SEO）與無障礙閱讀。
+- 補充常見語意標籤：`<header>`（頁首）、`<nav>`（導覽列）、`<main>`（主要內容）、`<footer>`（頁尾）。
+
+二、 排版觀念：盒子模型（Box Model）與顯示模式
+
+在寫 CSS 之前，必須先建立兩個基礎空間觀念：
+1. 盒子模型（由內而外）：
+	- Content（內容）：文字或圖片本身的區域。
+	- Padding（內距）：內容與邊框之間的留白（往內推擠）。
+	- Border（邊框）：盒子的外框線。
+	- Margin（外距）：盒子與其他外部元素之間的距離（往外推開）。
+2. 元素預設排列方式：
+	- 區塊元素（Block）：如 `<div>`、`<p>`、`<h1>`，預設會佔滿整行寬度，下一個元素會自動換行。
+	- 行內元素（Inline）：如 `<span>`、`<a>`，只佔用內容所需的寬度，會並排顯示，但無法直接設定寬高。
+
+三、 Flexbox 排版基礎
+
+Flexbox（彈性盒子）是目前網頁最主流的一維排版工具（一次處理「水平」或「垂直」單一方向的對齊）。
+
+### 核心口訣：設定在「父層」，影響「子層」
+
+只要在父容器加上 `display: flex;`，裡面的第一層子元素就會自動變成彈性項目並排。
+
+| CSS 屬性（寫在父容器） | 功能說明 | 常用屬性值 |
+| ---- | ---- | ---- |
+| `flex-direction` | 決定主軸（排列）方向 | `row`（水平，預設）、`column`（垂直） |
+| `justify-content` | 主軸的對齊與間距分配 | `flex-start`（靠左）、`center`（置中）、`space-between`（兩端對齊，中間均分） |
+| `align-items` | 交錯軸（與主軸垂直）的對齊 | `stretch`（等高拉滿，預設）、center（垂直置中）、flex-start（靠上） |
+| `flex-wrap` | 空間不夠時是否換行 | `nowrap`（不換行，會壓縮子元素）、wrap（自動換行） |
+| `gap` | 子元素之間的間距 | 例如：`gap: 16px;`（比寫 margin 更直覺） |
+
+
+四、 常見版型解析（實戰應用）
+
+1. 導覽列（Navbar）：左 Logo、右選單
+- HTML 結構：
+``` html
+<header class="navbar">
+  <div class="logo">網站名稱</div>
+  <nav class="menu">
+    <a href="#">首頁</a>
+    <a href="#">服務</a>
+    <a href="#">聯絡</a>
+  </nav>
+</header>
+```
+- CSS 重點：
+``` css
+.navbar {
+  display: flex;
+  justify-content: space-between; /* 左右推開 */
+  align-items: center;            /* 垂直置中 */
+  padding: 16px 32px;
+}
+.menu {
+  display: flex;
+  gap: 20px; /* 選單項目之間的間距 */
+}
+```
+2. 多欄卡片區塊（Card Grid）
+- HTML 結構：  
+```html
+<section class="features">
+    <div class="card">卡片 1</div>
+    <div class="card">卡片 2</div>
+    <div class="card">卡片 3</div>
+</section>
+```
+- CSS 重點：
+``` css
+.features {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap; /* 螢幕變窄時（如手機）自動往下掉 */
+  gap: 24px;
+}
+.card {
+  width: 300px; /* 固定寬度，搭配 wrap 就能自動排成多欄 */
+  padding: 20px;
+  border: 1px solid #ddd;
+}
+```
+3. 絕對置中（常用於 Banner 標語或登入框）
+
+- CSS 重點：
+``` css
+.hero-banner {
+  height: 400px;
+  display: flex;
+  flex-direction: column;  /* 讓標題與按鈕上下排列 */
+  justify-content: center; /* 垂直置中 */
+  align-items: center;     /* 水平置中 */
+}
+```
 ### 上課筆記
 ---
 ### 第五周

@@ -38,6 +38,7 @@ graph TD
 - Image 影像轉換與說明
 - Teams IQ Test Tool 調整流程與步驟 (IQ Test Tool)
 - Gamma 曲線（Gamma Curve）的用途與計算方式
+- 光學鏡頭計算對焦距離的方式與原理
 ---
 ### 2. ISP Tool 調整流程
 - STM-32 IQ Tune
@@ -59,11 +60,14 @@ graph TD
 - SFR & MTF 演示
 - Demosaic 演示
 - Lens Shading校正互動 演示
+- 景深與超焦距互動計算器
 ---
 ## 旅行前奏
 - 杭州八天七夜自由行規劃
 - 又又家度假小樓(杭州浙大紫金港西溪天街店)
 - 杭州旅遊攻略
+- 瞎栖扒逛
+    - 20251115 食品展
 ## 旅遊足跡
 - 杭州七天六夜自由行旅遊紀錄
 ### 家庭時光

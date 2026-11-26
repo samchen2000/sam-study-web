@@ -70,6 +70,81 @@ graph LR
 * **MTF10（或 SFR10）**：對比度下降到 **10%** 時的空間頻率。這通常被視為人類肉眼能分辨出線條邊界的極限，用來評估系統的「極限解析度（Resolution）」。
 * **過沖（Overshoot / Undershoot）**：如果測試出來的 SFR 曲線在低頻處大於 1（> 100%），代表相機內部進行了**人為的數位銳化處理**（Edge Enhancement），這在評估純光學鏡頭時需要特別注意並加以剔除。
 
+## 四、 MTF 與 SFR:計算公式與原理
+### 1. 基本概念
+### `MTF(Modulation Transfer Function,調制傳遞函數)`  
+描述光學/成像系統在不同空間頻率下,能保留多少對比度。數值介於 0~1(或 0~100%),越高代表細節越清楚。
+### `SFR(Spatial Frequency Response,空間頻率響應)`
+是量測 MTF 的一種方法(ISO 12233 標準),透過拍攝「斜邊(slanted edge)」圖卡,從邊緣影像推算出 MTF 曲線。
+
+### 簡單說:MTF 是「指標」,SFR 是「用斜邊量出這個指標的方法」。
+### 2. MTF 的定義與公式
+1. `對比度(調制度)`  
+對一組正弦條紋:
+## $$M = \frac{I_{max} - I_{min}}{I_{max} + I_{min}}$$
+
+2. MTF 定義
+## $$MTF(f) = \frac{M_{image}(f)}{M_{object}(f)}$$
+即「影像對比度 ÷ 物體對比度」,f 為空間頻率(單位:lp/mm、cycles/pixel 或 cycles/mm)。
+
+3. 與 PSF/LSF 的關係(核心原理)
+系統對點光源的響應稱為 PSF(Point Spread Function)。MTF 是 PSF 傅立葉轉換後的振幅:
+## $$MTF(f) = \left| \mathcal{F}\{PSF\} \right|$$
+由於一維量測使用線擴散函數 LSF:
+## $$MTF(f) = \left| \int LSF(x)\, e^{-j2\pi f x}\, dx \right|$$
+4. 系統 MTF 的串接
+各元件(鏡頭、感測器、濾光片、演算法)的 MTF 相乘:
+## $$MTF_{system} = MTF_{lens} \times MTF_{sensor} \times MTF_{processing}$$
+
+### 3. SFR(斜邊法)計算步驟
+ISO 12233 的流程如下:
+| 步驟	| 內容	| 目的 |
+| ---- | ---- | ---- |
+| 1	| 拍攝傾斜約 5° 的黑白邊緣 | 利用傾角做超取樣 |
+| 2	| 擷取 ROI,線性化(去 gamma / OECF) | 還原線性亮度 |
+| 3	| 估計邊緣位置與角度(線性擬合)	| 找出精確斜率 |
+| 4	| 將各列像素依到邊緣的距離投影,合併成超取樣 ESF(4 倍)	| 突破像素取樣限制 |
+| 5	| 微分:ESF → LSF	| 取得線擴散函數 |
+| 6	| 加窗(如 Hamming)	| 降低截斷造成的頻譜洩漏 |
+| 7	| FFT 後取絕對值並正規化(f=0 時為 1)	| 得到 MTF/SFR 曲線 |
+
+關鍵公式
+ESF → LSF(微分):
+
+## $$LSF(x) = \frac{d\,ESF(x)}{dx}$$
+
+離散形式:$LSF[n] = ESF[n+1] - ESF[n]$
+LSF → SFR(傅立葉轉換):
+
+## $$SFR(f) = \frac{\left|\,FFT\{LSF[n]\cdot w[n]\}\,\right|}{\left|\,FFT\{LSF[n]\cdot w[n]\}\,\right|_{f=0}}$$
+### 為什麼要斜邊?
+### 若邊緣完全垂直,每列取樣位置相同,只能得到像素級取樣(會混疊 aliasing)。傾斜 5° 後,不同列相對邊緣的位移不同,合併後可得到子像素級的 ESF,等於 4 倍超取樣。
+
+### 4. 常用評價指標
+| 指標	| 說明 |
+| ---- | ---- |
+| MTF50	| MTF 降到 50% 的頻率,最常用於比較銳利度 |
+| MTF30 / MTF20	| 接近人眼可辨識極限(約 10%~30%) |
+| Nyquist 頻率	| 0.5 cycles/pixel,取樣理論極限 |
+| MTF @ Nyquist/4	| 常用於相機模組規格 |
+| Acutance	| 結合人眼對比敏感度(CSF)的主觀銳利度 |
+
+### 5. 頻率單位換算
+cycles/pixel:最直接的數位單位,Nyquist = 0.5
+lp/mm(線對/毫米):
+## $$f_{lp/mm} = \frac{f_{cycles/pixel}}{\text{pixel pitch (mm)}}$$
+
+例:像素大小 1.4 μm → Nyquist = 0.5 / 0.0014 ≈ 357 lp/mm
+
+***LW/PH***(Line Widths per Picture Height):用於跨不同解析度相機比較
+
+### 6. 實務注意事項
+1. ***ROI 不要太小***:建議至少 40×40 像素以上,否則頻譜解析度不足。
+2. ***需做線性化***:未去 gamma 會讓 MTF 偏高/偏低。
+3. ***雜訊影響***:高頻端受雜訊墊高,可能出現 MTF 異常上升。
+4. ***銳化(Sharpening)***:會讓 MTF 超過 1(過衝),量測時要注意 ISP 設定。
+5. ***邊緣對比***:建議使用約 4:1 對比(非純黑白),避免飽和。
+6. ***多視場位置量測***:中心、0.5 視場、0.8 視場,以及切向(Tangential)/徑向(Sagittal)分別量。
 ## 各指標的核心定義與代表意義
 
 指標 | 核心定義 | 實務代表意義
